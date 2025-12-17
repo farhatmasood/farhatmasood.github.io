@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr. Rao Farhat Masood - Academic Portfolio</title>
+    
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- MathJax for LaTeX Rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Academic Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #fcfcfc;
+            color: #333;
+        }
+        h1, h2, h3, h4 {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 500;
+        }
+        .serif-text {
+            font-family: 'Merriweather', serif;
+        }
+        .sidebar {
+            position: sticky;
+            top: 2rem;
+        }
+        /* Mimic al-folio styling */
+        .citation-title {
+            font-weight: 500;
+            color: #000;
+        }
+        .citation-author {
+            font-size: 0.95rem;
+        }
+        .citation-journal {
+            font-style: italic;
+            font-size: 0.95rem;
+        }
+        .btn-academic {
+            border: 1px solid #333;
+            color: #333;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 0.3rem;
+            margin-top: 0.3rem;
+        }
+        .btn-academic:hover {
+            background-color: #333;
+            color: #fff;
+        }
+        .nav-link {
+            color: #666;
+            transition: color 0.2s;
+        }
+        .nav-link:hover {
+            color: #000;
+            text-decoration: underline;
+        }
+        .math-block {
+            overflow-x: auto;
+            padding: 1rem 0;
+        }
+        /* Meter Animations */
+        @keyframes fillBar {
+            from { width: 0%; }
+        }
+        .meter-bar {
+            animation: fillBar 1s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Navigation (Mobile Top / Desktop Hidden) -->
+    <nav class="md:hidden p-4 border-b bg-white flex justify-between items-center sticky top-0 z-50">
+        <span class="font-bold text-lg">Dr. Rao Farhat Masood</span>
+        <button id="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+    </nav>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-12">
+
+            <!-- SIDEBAR (Profile) -->
+            <div class="md:col-span-4 lg:col-span-3">
+                <div class="sidebar text-right md:text-right text-center">
+                    <!-- Profile Image Placeholder -->
+                    <div class="w-40 h-40 mx-auto md:ml-auto md:mr-0 rounded-full bg-gray-200 overflow-hidden mb-4 shadow-sm border border-gray-100 flex items-center justify-center">
+                        <i class="fas fa-user text-6xl text-gray-400"></i>
+                    </div>
+
+                    <h1 class="text-2xl font-bold mb-1">Dr. Rao Farhat Masood</h1>
+                    <p class="text-gray-600 mb-4">Post-Doctoral Researcher</p>
+                    
+                    <div class="text-sm text-gray-500 mb-6">
+                        <p>Dept. of Medical Imaging</p>
+                        <p>University of Lübeck</p>
+                        <p>Lübeck, Germany</p>
+                        <a href="mailto:email@uni.edu" class="hover:text-blue-600 transition">email@uni.edu</a>
+                    </div>
+
+                    <div class="flex justify-center md:justify-end gap-3 text-xl text-gray-700">
+                        <a href="#" class="hover:text-black"><i class="fab fa-github"></i></a>
+                        <a href="#" class="hover:text-blue-600"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="hover:text-blue-400"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="hover:text-blue-800"><i class="ai ai-google-scholar-square"></i></a> <!-- Simulating Scholar Icon -->
+                    </div>
+
+                    <!-- Desktop Nav -->
+                    <div class="hidden md:block mt-12 space-y-2 text-sm uppercase tracking-wider font-semibold">
+                        <a href="#about" class="block nav-link text-black">About</a>
+                        <a href="#projects" class="block nav-link">Projects</a>
+                        <a href="#publications" class="block nav-link">Publications</a>
+                        <a href="#service" class="block nav-link">Service</a> <!-- Added Service Link -->
+                        <a href="#hobbies" class="block nav-link">Hobbies</a>
+                        <a href="#cv" class="block nav-link">CV</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAIN CONTENT -->
+            <div class="md:col-span-8 lg:col-span-9">
+
+                <!-- ABOUT SECTION -->
+                <section id="about" class="mb-16">
+                    <h2 class="text-3xl font-bold border-b pb-2 mb-6">About</h2>
+                    <div class="serif-text text-lg leading-relaxed text-gray-800">
+                        <p class="mb-4">
+                            I am a Post-Doctoral Researcher specializing in <strong class="font-semibold">Computer Vision</strong> and <strong class="font-semibold">Medical Image Analysis</strong>. My research focuses on the intersection of <strong class="font-semibold">Generative AI (LLMs)</strong> and <strong class="font-semibold">Radiological Workflows</strong>, specifically targeting the automation of lumbar spine MRI interpretation.
+                        </p>
+                        <p class="mb-4">
+                            My current work addresses the computational bottlenecks of deploying Large Multimodal Models (LMMs) in clinical settings. I am actively researching <strong class="font-semibold">Knowledge Distillation</strong> strategies to compress large foundation models (e.g., MedGemma, BioMedCLIP) into efficient, edge-deployable architectures without compromising clinical accuracy.
+                        </p>
+                    </div>
+
+                    <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 p-4 rounded border">
+                            <h3 class="font-bold mb-2">Research Interests</h3>
+                            <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
+                                <li>Multimodal Learning (Vision-Language)</li>
+                                <li>Lumbar Spine Quantization</li>
+                                <li>Self-Supervised Learning</li>
+                                <li>Clinical Reproducibility (MONAI/Docker)</li>
+                            </ul>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded border">
+                            <h3 class="font-bold mb-2">News</h3>
+                            <ul class="text-sm text-gray-700 space-y-2">
+                                <li><span class="font-mono text-xs text-gray-500 mr-2">Oct 2025</span> Paper accepted at <strong>MIA</strong>.</li>
+                                <li><span class="font-mono text-xs text-gray-500 mr-2">Sep 2025</span> Workshop talk at <strong>MICCAI</strong>.</li>
+                                <li><span class="font-mono text-xs text-gray-500 mr-2">Aug 2025</span> Released <a href="#" class="text-blue-600 hover:underline">Spine-Distill-v1</a> code.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PROJECTS SECTION (Deep Dive) -->
+                <section id="projects" class="mb-16">
+                    <h2 class="text-3xl font-bold border-b pb-2 mb-8">Featured Project</h2>
+                    
+                    <div class="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200">
+                        <!-- Project Image Placeholder -->
+                        <div class="w-full h-64 bg-gray-800 flex items-center justify-center text-white">
+                            <div class="text-center">
+                                <i class="fas fa-brain text-4xl mb-2"></i>
+                                <p class="text-sm font-mono">Teacher (MedGemma) -> Student (ResNet/ViT)</p>
+                            </div>
+                        </div>
+
+                        <div class="p-8">
+                            <h3 class="text-2xl font-bold mb-2">Knowledge Distillation from MedGemma</h3>
+                            <p class="text-gray-500 italic mb-6">Compressing Large Multimodal Models for rapid lumbar spine reporting.</p>
+                            
+                            <div class="prose max-w-none text-gray-800">
+                                <h4 class="font-bold text-lg mt-4 mb-2">Methodology</h4>
+                                <p class="mb-4">
+                                    We utilize a teacher model \( T \) (MedGemma-2b) to guide a lightweight student model \( S \) (Swin-UNETR Hybrid). The training objective minimizes the divergence between the teacher's report embeddings and the student's output, formulated as:
+                                </p>
+                                
+                                <div class="math-block bg-gray-50 p-4 rounded border mb-4 text-center text-lg">
+                                    $$ \mathcal{L}_{total} = \alpha \mathcal{L}_{CE} + (1-\alpha) \tau^2 \mathcal{L}_{KL}\left(\sigma\left(\frac{z_s}{\tau}\right), \sigma\left(\frac{z_t}{\tau}\right)\right) $$
+                                </div>
+
+                                <p class="mb-4">
+                                    Where \( \mathcal{L}_{CE} \) is the standard Cross-Entropy loss on ground-truth reports, \( \mathcal{L}_{KL} \) is the Kullback-Leibler divergence, and \( \tau \) is the temperature parameter.
+                                </p>
+
+                                <h4 class="font-bold text-lg mt-6 mb-2">Tech Stack</h4>
+                                <div class="flex flex-wrap gap-2 mb-4">
+                                    <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded">PyTorch</span>
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded">MONAI</span>
+                                    <span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-semibold rounded">Hugging Face</span>
+                                    <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-semibold rounded">Docker</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PUBLICATIONS SECTION -->
+                <section id="publications" class="mb-16">
+                    <h2 class="text-3xl font-bold border-b pb-2 mb-6">Publications</h2>
+                    
+                    <!-- Journal Articles -->
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6 mt-8">Journal Articles</h3>
+                    <div class="space-y-8">
+                        
+                        <!-- Paper 1 -->
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2024</div>
+                            <div>
+                                <div class="citation-title text-lg leading-tight mb-1">
+                                    Boosting the Classification of Complex Large Synoptic Survey Telescope (LSST) Data
+                                </div>
+                                <div class="citation-author text-gray-700 mb-1">
+                                    <strong>Rao Farhat Masood</strong>, Imtiaz Ahmad Taj
+                                </div>
+                                <div class="citation-journal text-gray-600 mb-2">
+                                    <em>Journal of Engineering and Information Technology, UCP</em>
+                                </div>
+                                <div>
+                                    <a href="https://ojs.ucp.edu.pk/index.php/ucpjeit/article/view/270" target="_blank" class="btn-academic"><i class="fas fa-external-link-alt mr-1"></i> View</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Paper 2 -->
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2022</div>
+                            <div>
+                                <div class="citation-title text-lg leading-tight mb-1">
+                                    Deep learning-based vertebral body segmentation with extraction of spinal measurements and disorder disease classification
+                                </div>
+                                <div class="citation-author text-gray-700 mb-1">
+                                    <strong>Rao Farhat Masood</strong>, Imtiaz Ahmad Taj, Muhammad Babar Khan, Muhammad Asad Qureshi, Taimur Hassan
+                                </div>
+                                <div class="citation-journal text-gray-600 mb-2">
+                                    <em>Biomedical Signal Processing and Control, 71:103230</em>
+                                </div>
+                                <div>
+                                    <a href="https://doi.org/10.1016/j.bspc.2021.103230" target="_blank" class="btn-academic"><i class="fas fa-doi mr-1"></i> DOI</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Paper 3 -->
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2022</div>
+                            <div>
+                                <div class="citation-title text-lg leading-tight mb-1">
+                                    Localization and Edge-Based Segmentation of Lumbar Spine Vertebrae to Identify the Deformities Using Deep Learning Models
+                                </div>
+                                <div class="citation-author text-gray-700 mb-1">
+                                    Malaika Mushtaq, Muhammad Usman Akram, Norah Saleh Alghamdi, Joddat Fatima, <strong>Rao Farhat Masood</strong>
+                                </div>
+                                <div class="citation-journal text-gray-600 mb-2">
+                                    <em>Sensors, 22(4):1547</em>
+                                </div>
+                                <div>
+                                    <a href="https://doi.org/10.3390/s22041547" target="_blank" class="btn-academic"><i class="fas fa-doi mr-1"></i> DOI</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Paper 4 -->
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2020</div>
+                            <div>
+                                <div class="citation-title text-lg leading-tight mb-1">
+                                    A Comparative Study of Customer Preferences for Telecommunication Technologies in Pakistan
+                                </div>
+                                <div class="citation-author text-gray-700 mb-1">
+                                    Muhammad Saadi, Rabeel Manzoor, Waqas Tariq Toor, Sanika K. Wijayasekara, <strong>Farhat Masood</strong>, Lunchakorn Wuttisittikulkij
+                                </div>
+                                <div class="citation-journal text-gray-600 mb-2">
+                                    <em>Engineering Journal</em>
+                                </div>
+                                <div>
+                                    <a href="https://doi.org/10.4186/ej.2020.24.3.129" target="_blank" class="btn-academic"><i class="fas fa-doi mr-1"></i> DOI</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Conference Proceedings -->
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6 mt-10">Datasets & Conference Proceedings</h3>
+                    <div class="space-y-8">
+
+                        <!-- Dataset 1 (2025) -->
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2025</div>
+                            <div>
+                                <div class="citation-title text-lg leading-tight mb-1">
+                                    Multi-Disorder Annotations for Lumbar Spine Mid-Sagittal Images
+                                </div>
+                                <div class="citation-author text-gray-700 mb-1">
+                                    <strong>Rao Farhat Masood</strong>, Imtiaz Ahmad Taj, Muhammad Talha, Dr M Babar Khan
+                                </div>
+                                <div class="citation-journal text-gray-600 mb-2">
+                                    <em>Mendeley Data, V1</em>
+                                </div>
+                                <div>
+                                    <a href="https://doi.org/10.17632/9j9hmy8kbn.1" target="_blank" class="btn-academic"><i class="fas fa-database mr-1"></i> Dataset</a>
+                                    <a href="https://doi.org/10.17632/9j9hmy8kbn.1" target="_blank" class="btn-academic"><i class="fas fa-doi mr-1"></i> DOI</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dataset 2 (2025) -->
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2025</div>
+                            <div>
+                                <div class="citation-title text-lg leading-tight mb-1">
+                                    LSMA-PQR: Lumbar Spine Multi-view Annotations with Pfirrmann grading, Quantitative measurements and structured Radiological reports
+                                </div>
+                                <div class="citation-author text-gray-700 mb-1">
+                                    <strong>Rao Farhat Masood</strong>, Imtiaz Ahmad Taj, Muhammad Talha, Dr M Babar Khan
+                                </div>
+                                <div class="citation-journal text-gray-600 mb-2">
+                                    <em>Mendeley Data, V1</em>
+                                </div>
+                                <div>
+                                    <a href="https://doi.org/10.17632/p3r4xd2488.1" target="_blank" class="btn-academic"><i class="fas fa-database mr-1"></i> Dataset</a>
+                                    <a href="https://doi.org/10.17632/p3r4xd2488.1" target="_blank" class="btn-academic"><i class="fas fa-doi mr-1"></i> DOI</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Conf Paper 1 (2022) -->
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2022</div>
+                            <div>
+                                <div class="citation-title text-lg leading-tight mb-1">
+                                    A Composite Dataset of Lumbar Spine Images with Mid-Sagittal View Annotations and Clinically Significant Spinal Measurements
+                                </div>
+                                <div class="citation-author text-gray-700 mb-1">
+                                    <strong>R. F. Masood</strong>, T. Hassan, H. Raja, B. Hassan, J. Dias, N. Werghi
+                                </div>
+                                <div class="citation-journal text-gray-600 mb-2">
+                                    <em>Proceedings of the 2022 2nd International Conference on Digital Futures and Transformative Technologies (ICoDT2), Rawalpindi, Pakistan</em>
+                                </div>
+                                <div>
+                                    <a href="https://doi.org/10.1109/ICoDT255437.2022.9787452" target="_blank" class="btn-academic"><i class="fas fa-doi mr-1"></i> DOI</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dataset 3 (2021) -->
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2021</div>
+                            <div>
+                                <div class="citation-title text-lg leading-tight mb-1">
+                                    Composite Dataset of Lumbar Spine Mid-Sagittal Images with Annotations and Clinically Relevant Spinal Measurements
+                                </div>
+                                <div class="citation-author text-gray-700 mb-1">
+                                    <strong>Rao Farhat Masood</strong>, Taimur Hassan, Muhammad Usman Akram, Imtiaz Ahmad Taj, Muhammad Asad Qureshi, Muhammad Babar Khan
+                                </div>
+                                <div class="citation-journal text-gray-600 mb-2">
+                                    <em>Mendeley Data, V2</em>
+                                </div>
+                                <div>
+                                    <a href="https://doi.org/10.17632/k3b363f3vz.2" target="_blank" class="btn-academic"><i class="fas fa-database mr-1"></i> Dataset</a>
+                                    <a href="https://doi.org/10.17632/k3b363f3vz.2" target="_blank" class="btn-academic"><i class="fas fa-doi mr-1"></i> DOI</a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <!-- HOBBIES SECTION -->
+                <section id="hobbies" class="mb-16 clear-both">
+                    <h2 class="text-3xl font-bold border-b pb-2 mb-6">Hobby Projects</h2>
+                    <div class="space-y-6">
+                        <div class="flex flex-col sm:flex-row gap-4 items-start">
+                            <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2025</div>
+                            <div class="flex-1">
+                                <div class="citation-title text-lg leading-tight mb-1">Visual Heat Load Calculator</div>
+                                <div class="citation-author text-gray-700 mb-1">Interactive room visualizer & simplified HVAC sizing</div>
+                                <div class="citation-journal text-gray-600 mb-2"><em>Hobby project</em></div>
+                                <div>
+                                    <a href="hobbies/visual-heat-load.html" class="btn-academic"><i class="fas fa-external-link-alt mr-1"></i> Open Project</a>
+                                    <a href="hobbies/visual-heat-load.html" class="btn-academic"><i class="fas fa-code mr-1"></i> View Source</a>
+                                    <a href="hobbies/index.html" class="btn-academic"><i class="fas fa-folder-open mr-1"></i> Projects Index</a>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-3">A small interactive tool I built to help estimate room cooling loads visually and quickly. Uses Three.js for a simple room model and heuristic BTU calculations.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ACADEMIC SERVICE (REVIEWER METER) -->
+                <section id="service" class="mt-12 mb-16 clear-both">
+                    <h2 class="text-3xl font-bold border-b pb-2 mb-8">Academic Service</h2>
+                    
+                    <div class="flex flex-col gap-8 w-full">
+                        <!-- Summary Card -->
+                        <div class="bg-gray-900 text-white rounded-lg p-6 flex flex-col items-center justify-center text-center shadow-lg w-full">
+                            <div class="text-5xl font-bold mb-2">19</div>
+                            <div class="text-sm uppercase tracking-wide opacity-80 mb-4">Verified Peer Reviews</div>
+                            <div class="w-full bg-gray-700 h-1 rounded mb-4"></div>
+                            <div class="text-xs opacity-60">
+                                Springer Nature • Elsevier • RSNA
+                            </div>
+                        </div>
+
+                        <!-- Reviewer Meter -->
+                        <div class="w-full bg-gray-50 border rounded-lg p-6 overflow-x-hidden">
+                            <h3 class="font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-chart-bar mr-2 text-blue-600"></i> Review Activity by Journal
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                <!-- Data in Brief -->
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="font-medium">Data in Brief</span>
+                                        <span class="text-gray-500">6 reviews</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-blue-600 h-2.5 rounded-full meter-bar" style="width: 100%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- The Visual Computer -->
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="font-medium">The Visual Computer</span>
+                                        <span class="text-gray-500">5 reviews</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-blue-500 h-2.5 rounded-full meter-bar" style="width: 83%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- J. Imaging Informatics -->
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="font-medium">J. Imaging Informatics in Medicine</span>
+                                        <span class="text-gray-500">4 reviews</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-blue-400 h-2.5 rounded-full meter-bar" style="width: 66%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- MIA (Prestigious - Highlighted) -->
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="font-medium text-gray-900">Medical Image Analysis (MIA)</span>
+                                        <span class="text-gray-500">2 reviews</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-indigo-600 h-2.5 rounded-full meter-bar" style="width: 33%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Others -->
+                                <div class="grid grid-cols-2 gap-4 mt-2">
+                                    <div>
+                                        <div class="flex justify-between text-xs mb-1">
+                                            <span class="text-gray-600">Eng. Apps of AI</span>
+                                            <span class="text-gray-400">1</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                            <div class="bg-gray-400 h-1.5 rounded-full meter-bar" style="width: 16%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-xs mb-1">
+                                            <span class="text-gray-600">AI in Medicine</span>
+                                            <span class="text-gray-400">1</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                            <div class="bg-gray-400 h-1.5 rounded-full meter-bar" style="width: 16%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- FOOTER -->
+                <footer class="border-t pt-8 text-sm text-gray-500 flex justify-between items-center clear-both">
+                    <div>
+                        &copy; 2025 Rao Farhat Masood.
+                    </div>
+                    <div class="text-xs">
+                        Last updated: Dec 16, 2025
+                    </div>
+                </footer>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>

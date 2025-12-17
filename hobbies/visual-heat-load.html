@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Heat Load Calculator | User-Friendly HVAC Sizing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- THREE.js Library -->
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/"
+        }
+      }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        .card { background-color: white; border-radius: 0.75rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        .input-field, .select-field { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #D1D5DB; border-radius: 0.375rem; transition: border-color 0.2s; }
+        .input-field:focus, .select-field:focus { outline: none; border-color: #3B82F6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4); }
+        .btn { padding: 0.625rem 1.25rem; border-radius: 0.375rem; font-weight: 500; transition: all 0.2s; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+        .btn-primary { background-color: #3B82F6; color: white; }
+        .btn-primary:hover { background-color: #2563EB; }
+        .btn-secondary { background-color: #6B7280; color: white; }
+        .btn-secondary:hover { background-color: #4B5563; }
+        .tooltip { position: relative; display: inline-block; cursor: help; }
+        .tooltip .tooltiptext { visibility: hidden; width: 240px; background-color: #374151; color: #fff; text-align: left; border-radius: 6px; padding: 10px; position: absolute; z-index: 10; bottom: 125%; left: 50%; margin-left: -120px; opacity: 0; transition: opacity 0.3s; font-size: 0.875rem; line-height: 1.4; pointer-events: none; }
+        .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
+        #visualizationContainer { min-height: 300px; cursor: move; touch-action: none; }
+        .unit-toggle-btn { padding: 0.5rem 1rem; border: 1px solid #D1D5DB; color: #6B7280; }
+        .unit-toggle-btn.active { background-color: #3B82F6; color: white; border-color: #3B82F6; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-7xl w-full mx-auto">
+        <div class="card p-6 md:p-8">
+            <div class="text-center">
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Visual Heat Load Calculator</h1>
+                <p class="text-gray-600 mb-6">The intuitive way to estimate your room's cooling needs.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Inputs Column -->
+                <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Column 1 -->
+                    <div>
+                        <div class="space-y-6">
+                            <div class="card p-5 border border-gray-200">
+                                <h2 class="font-semibold text-lg text-gray-700 mb-4">1. Location & Units</h2>
+                                <div class="space-y-4">
+                                    <div class="tooltip w-full">
+                                        <span class="tooltiptext">Select the city closest to you. This automatically sets the climate conditions for an accurate calculation.</span>
+                                        <select id="city" class="select-field"></select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-600 mb-2">Measurement Units</label>
+                                        <div class="flex rounded-md">
+                                            <button id="unitFeet" class="unit-toggle-btn rounded-l-md active">Feet</button>
+                                            <button id="unitMeters" class="unit-toggle-btn rounded-r-md">Meters</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card p-5 border border-gray-200">
+                                <h2 class="font-semibold text-lg text-gray-700 mb-4">2. Room Dimensions (<span class="unit-label">ft</span>)</h2>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                     <div class="tooltip"><span class="tooltiptext">The longest interior dimension of the room.</span><input type="number" id="roomLength" class="input-field" placeholder="Length"></div>
+                                     <div class="tooltip"><span class="tooltiptext">The shortest interior dimension of the room.</span><input type="number" id="roomWidth" class="input-field" placeholder="Width"></div>
+                                     <div class="tooltip"><span class="tooltiptext">The distance from floor to ceiling.</span><input type="number" id="roomHeight" class="input-field" placeholder="Height"></div>
+                                </div>
+                            </div>
+                            <div class="card p-5 border border-gray-200">
+                                <h2 class="font-semibold text-lg text-gray-700 mb-4">3. Internal Heat Sources</h2>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between tooltip">
+                                        <label for="occupants" class="text-sm">Occupants</label>
+                                        <span class="tooltiptext">Each person adds about 250 BTU/hr of sensible heat to the room.</span>
+                                        <input type="number" id="occupants" class="input-field w-24 text-center" value="1" min="0">
+                                    </div>
+                                    <div class="flex items-center justify-between tooltip">
+                                        <label for="computers" class="text-sm">Computers / TVs</label>
+                                        <span class="tooltiptext">Each major electronic device adds about 500 BTU/hr.</span>
+                                        <input type="number" id="computers" class="input-field w-24 text-center" value="1" min="0">
+                                    </div>
+                                    <div class="flex items-center justify-between tooltip">
+                                        <label for="lights" class="text-sm">Lights (Incandescent)</label>
+                                         <span class="tooltiptext">Old incandescent bulbs generate significant heat (approx. 200 BTU/hr each). LED lights produce very little heat.</span>
+                                        <input type="number" id="lights" class="input-field w-24 text-center" value="4" min="0">
+                                    </div>
+                                     <div class="flex items-center justify-between tooltip">
+                                        <label for="kitchen" class="text-sm">Is this a Kitchen?</label>
+                                        <span class="tooltiptext">Adds a significant fixed BTU load for refrigerators, stoves, and other cooking appliances.</span>
+                                        <input type="checkbox" id="kitchen" class="h-5 w-5 rounded">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Column 2 -->
+                    <div>
+                        <div class="space-y-6">
+                             <div class="card p-5 border border-gray-200">
+                                <h2 class="font-semibold text-lg text-gray-700 mb-4">4. Building Envelope</h2>
+                                <div class="space-y-4">
+                                     <div class="tooltip w-full"><span class="tooltiptext">Insulation's ability to resist heat flow is measured in R-value. A higher R-value means better insulation.</span><select id="wallInsulation" class="select-field"><option value="13">Good Wall Insulation (R-13)</option><option value="11">Average Wall Insulation (R-11)</option><option value="4">Poor Wall Insulation (No/Old)</option></select></div>
+                                    <div class="tooltip w-full"><span class="tooltiptext">Ceiling/roof insulation is crucial as heat rises. Higher R-value is better.</span><select id="ceilingInsulation" class="select-field"><option value="38">Good Ceiling Insulation (R-38)</option><option value="19">Average Ceiling Insulation (R-19)</option><option value="11">Poor Ceiling Insulation (R-11)</option></select></div>
+                                    <div class="tooltip w-full"><span class="tooltiptext">How drafty is the room? Newer homes are typically "Tight," while older homes are "Loose," allowing more hot air to infiltrate.</span><select id="airtightness" class="select-field"><option value="0.5">Tight Construction (Newer)</option><option value="0.7">Average Construction</option><option value="1.0">Loose Construction (Older)</option></select></div>
+                                </div>
+                            </div>
+                            <div class="card p-5 border border-gray-200 h-full">
+                                <h2 class="font-semibold text-lg text-gray-700 mb-4">5. Windows & Doors</h2>
+                                <div class="flex items-center justify-between tooltip">
+                                    <label for="windowsCount" class="text-sm">Number of Items</label>
+                                    <span class="tooltiptext">Enter the total number of windows and exterior doors in the room.</span>
+                                    <input type="number" id="windowsCount" class="input-field w-24 text-center" value="0" min="0">
+                                </div>
+                                <div id="windowsContainer" class="space-y-3 mt-4"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Right Column: Visualization & Results -->
+                <div class="flex flex-col gap-6">
+                    <div class="card p-2">
+                        <div id="visualizationContainer" class="w-full h-64 md:h-80 rounded-lg"></div>
+                         <p class="text-center text-xs text-gray-500 p-1">Click and drag to rotate. Scroll to zoom.</p>
+                    </div>
+                    <div id="resultsCardWrapper" class="flex-grow flex flex-col">
+                         <div id="resultsCard" class="card p-6 bg-gray-50 flex-grow flex-col text-center hidden">
+                             <h2 class="font-semibold text-lg text-gray-700 mb-4">Estimated Cooling Load</h2>
+                             <div class="mb-6 tooltip"><span class="tooltiptext">BTU (British Thermal Unit) per hour is the standard measure of cooling power.</span><p class="text-gray-500 text-sm">Total BTUs/hr</p><p id="totalBTU" class="text-4xl font-bold text-blue-600">0</p></div>
+                             <div class="tooltip"><span class="tooltiptext">AC units are often sized in "Tons." One ton of cooling is equal to 12,000 BTU/hr.</span><p class="text-gray-500 text-sm">Tonnage</p><p id="totalTonnage" class="text-4xl font-bold text-blue-600">0.0</p></div>
+                             <hr class="my-6 w-full"><h3 class="font-semibold text-md text-gray-700 mb-2">Load Breakdown</h3>
+                             <div id="breakdownChart" class="text-left text-sm space-y-2 w-full"></div>
+                             <div id="recommendations" class="mt-6 text-left"></div>
+                        </div>
+                         <div id="initialMessage" class="card p-6 bg-gray-50 flex-grow flex flex-col items-center justify-center text-center">
+                             <!-- SVG Placeholder -->
+                             <svg class="w-24 h-24 text-gray-300" fill="none" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M85 35.1V25c0-2.8-2.2-5-5-5H20c-2.8 0-5 2.2-5 5v50c0 2.8 2.2 5 5 5h60c2.8 0 5-2.2 5-5V65" stroke="#D1D5DB" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M15 32h70M50 80v-8M35 55h30" stroke="#D1D5DB" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M30 20v18M70 20v18" stroke="#D1D5DB" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                             <p class="text-gray-500 mt-4">Your results and recommendations will appear here.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Action Buttons -->
+            <div class="mt-8 flex flex-col sm:flex-row gap-4">
+                <button id="calculateBtn" class="btn btn-primary w-full">
+                    <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" /></svg>
+                    Calculate
+                </button>
+                <button id="clearBtn" class="btn btn-secondary w-full">
+                    <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M15.312 1.312a2.5 2.5 0 00-3.536 0L1.312 11.778a2.5 2.5 0 000 3.536l.144.144a2.5 2.5 0 003.536 0L15.456 4.992a2.5 2.5 0 000-3.536l-.144-.144zM9 11.06l-4.72-4.72a.75.75 0 00-1.06 1.06L7.94 12.12 3.22 16.84a.75.75 0 101.06 1.06L9 13.18l4.72 4.72a.75.75 0 101.06-1.06L10.06 12.12l4.72-4.72a.75.75 0 00-1.06-1.06L9 11.06z" clip-rule="evenodd" /></svg>
+                    Clear
+                </button>
+            </div>
+        </div>
+        
+    </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        const elements = {
+            city: document.getElementById('city'), unitFeet: document.getElementById('unitFeet'), unitMeters: document.getElementById('unitMeters'), unitLabels: document.querySelectorAll('.unit-label'), windowsCount: document.getElementById('windowsCount'), windowsContainer: document.getElementById('windowsContainer'), calculateBtn: document.getElementById('calculateBtn'), clearBtn: document.getElementById('clearBtn'), resultsCard: document.getElementById('resultsCard'), initialMessage: document.getElementById('initialMessage'), breakdownChart: document.getElementById('breakdownChart'), recommendations: document.getElementById('recommendations'), climateType: document.getElementById('city'), roomLength: document.getElementById('roomLength'), roomWidth: document.getElementById('roomWidth'), roomHeight: document.getElementById('roomHeight'), occupants: document.getElementById('occupants'), computers: document.getElementById('computers'), lights: document.getElementById('lights'), kitchen: document.getElementById('kitchen'), wallInsulation: document.getElementById('wallInsulation'), ceilingInsulation: document.getElementById('ceilingInsulation'), airtightness: document.getElementById('airtightness'), totalBTU: document.getElementById('totalBTU'), totalTonnage: document.getElementById('totalTonnage'), vizContainer: document.getElementById('visualizationContainer'),
+        };
+
+        const cityData = {
+            "Dubai": { type: "arid" }, "Phoenix": { type: "arid" }, "Cairo": { type: "arid" },
+            "Singapore": { type: "tropical" }, "Mumbai": { type: "tropical" }, "Bangkok": { type: "tropical" },
+            "Chicago": { type: "continental" }, "Beijing": { type: "continental" }, "Moscow": { type: "continental" },
+            "Paris": { type: "temperate" }, "Sydney": { type: "temperate" }, "London": { type: "temperate" },
+            // Pakistan Cities
+            "Faisalabad": { type: "arid" },
+            "Hyderabad (PK)": { type: "arid" },
+            "Islamabad": { type: "continental" },
+            "Karachi": { type: "arid" },
+            "Lahore": { type: "arid" },
+            "Multan": { type: "arid" },
+            "Murree": { type: "temperate" },
+            "Peshawar": { type: "arid" },
+            "Quetta": { type: "arid" },
+            "Sialkot": { type: "continental" },
+        };
+        
+        let currentUnit = 'ft';
+
+        const climateData = { 'arid': 25, 'tropical': 20, 'continental': 20, 'temperate': 15 };
+        const windowUValues = { 'single': 1.1, 'double': 0.5, 'double-lowe': 0.3 };
+        const solarGainFactor = { 'N': 0.25, 'E': 0.6, 'S': 0.55, 'W': 0.6 };
+        const applianceBTUValues = { computer: 500, light: 200, kitchen: 1200 };
+
+        let scene, camera, renderer, controls;
+        const objectGroup = new THREE.Group();
+
+        function init3D() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xf1f5f9);
+            const container = elements.vizContainer;
+            camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(15, 15, 15);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.innerHTML = '';
+            container.appendChild(renderer.domElement);
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+            directionalLight.position.set(5, 10, 7.5);
+            scene.add(directionalLight);
+            scene.add(objectGroup);
+            animate();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            const container = elements.vizContainer;
+            if (!container.clientWidth || !container.clientHeight) return;
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+        
+        function getDimensionValue(element) {
+            const val = parseFloat(element.value) || 0;
+            return currentUnit === 'm' ? val * 3.28084 : val;
+        }
+        
+        function updateVisualization() {
+            objectGroup.clear();
+            const length = getDimensionValue(elements.roomLength) || 10;
+            const width = getDimensionValue(elements.roomWidth) || 12;
+            const height = getDimensionValue(elements.roomHeight) || 8;
+
+            const edges = new THREE.EdgesGeometry(new THREE.BoxGeometry(length, height, width));
+            objectGroup.add(new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x6b7280 })));
+            
+            const floor = new THREE.Mesh(new THREE.PlaneGeometry(length, width), new THREE.MeshStandardMaterial({ color: 0xd1d5db, side: THREE.DoubleSide }));
+            floor.rotation.x = -Math.PI / 2;
+            floor.position.y = -height / 2;
+            objectGroup.add(floor);
+
+            const occupantsCount = parseInt(elements.occupants.value, 10) || 0;
+            for (let i = 0; i < occupantsCount; i++) {
+                const angle = (i / occupantsCount) * Math.PI * 2;
+                const radius = Math.min(length, width) * 0.1 * (occupantsCount > 1 ? 1 : 0);
+                const occupant = new THREE.Mesh(new THREE.CapsuleGeometry(0.5, 1.5, 4, 8), new THREE.MeshStandardMaterial({ color: 0x3b82f6 }));
+                occupant.position.set(Math.cos(angle) * radius, -height / 2 + 1.25, Math.sin(angle) * radius);
+                objectGroup.add(occupant);
+            }
+
+            const computersCount = parseInt(elements.computers.value, 10) || 0;
+            const computerSpacing = width / (computersCount + 1);
+            for (let i = 0; i < computersCount; i++) {
+                const computer = new THREE.Mesh(new THREE.BoxGeometry(2, 1.5, 0.2), new THREE.MeshStandardMaterial({ color: 0x1f2937 }));
+                computer.position.set(length / 2 - 1.1, -height / 2 + 1.5, -width / 2 + (i + 1) * computerSpacing);
+                computer.rotation.y = -Math.PI / 2; 
+                objectGroup.add(computer);
+            }
+
+            const lightsCount = parseInt(elements.lights.value, 10) || 0;
+            if (lightsCount > 0) {
+                const gridCols = Math.ceil(Math.sqrt(lightsCount));
+                const gridRows = Math.ceil(lightsCount / gridCols);
+                const colSpacing = length / (gridCols + 1);
+                const rowSpacing = width / (gridRows + 1);
+                for (let i = 0; i < lightsCount; i++) {
+                    const col = (i % gridCols) + 1;
+                    const row = Math.floor(i / gridCols) + 1;
+                    const light = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 8), new THREE.MeshBasicMaterial({ color: 0xffff00 }));
+                    light.position.set(-length / 2 + col * colSpacing, height / 2 - 0.3, -width / 2 + row * rowSpacing);
+                    objectGroup.add(light);
+                }
+            }
+            
+            document.querySelectorAll('#windowsContainer > div').forEach(win => {
+                const wLength = getDimensionValue(win.querySelector('.win-length')) || 0;
+                const wWidth = getDimensionValue(win.querySelector('.win-width')) || 0;
+                if (wLength === 0 || wWidth === 0) return;
+                const type = win.querySelector('.win-type').value;
+                const orientation = win.querySelector('.win-orientation').value;
+                const isDoor = type === 'door';
+                const geo = new THREE.BoxGeometry(wLength, wWidth, 0.2);
+                const mat = new THREE.MeshStandardMaterial({ color: isDoor ? 0x854d0e : 0x60a5fa, transparent: !isDoor, opacity: 0.6 });
+                const item = new THREE.Mesh(geo, mat);
+                switch (orientation) {
+                    case 'S': item.position.set(0, 0, width / 2); break;
+                    case 'N': item.position.set(0, 0, -width / 2); item.rotation.y = Math.PI; break;
+                    case 'E': item.position.set(length / 2, 0, 0); item.rotation.y = -Math.PI / 2; break;
+                    case 'W': item.position.set(-length / 2, 0, 0); item.rotation.y = Math.PI / 2; break;
+                }
+                if(isDoor) item.position.y = -height/2 + wWidth/2;
+                objectGroup.add(item);
+            });
+        }
+        
+        const generateWindowInputs = () => {
+            const count = parseInt(elements.windowsCount.value, 10) || 0;
+            elements.windowsContainer.innerHTML = '';
+            if (count > 10) { 
+                elements.windowsCount.value = 10;
+                return generateWindowInputs();
+            }
+            if (count <= 0) {
+                 updateVisualization();
+                 return;
+            }
+            for (let i = 1; i <= count; i++) {
+                const div = document.createElement('div');
+                div.className = 'p-3 border rounded-md bg-gray-50 space-y-2';
+                div.innerHTML = `
+                    <p class="font-medium text-sm text-gray-700">Item #${i}</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="number" class="input-field win-length" placeholder="Length (${currentUnit})">
+                        <input type="number" class="input-field win-width" placeholder="Width (${currentUnit})">
+                    </div>
+                    <select class="select-field win-type">
+                        <option value="double-lowe">Window: Double Pane, Low-E</option>
+                        <option value="double">Window: Double Pane</option>
+                        <option value="single">Window: Single Pane</option>
+                        <option value="door">Solid Door</option>
+                    </select>
+                    <select class="select-field win-orientation">
+                        <option value="N">Facing North</option>
+                        <option value="E">Facing East</option>
+                        <option value="S">Facing South</option>
+                        <option value="W">Facing West</option>
+                    </select>
+                `;
+                elements.windowsContainer.appendChild(div);
+            }
+            document.querySelectorAll('#windowsContainer input, #windowsContainer select').forEach(el => el.addEventListener('input', updateVisualization));
+            updateVisualization();
+        };
+
+        const calculateHeatLoad = () => {
+            const breakdown = {};
+            const climate = cityData[elements.city.value].type;
+            const tempDiff = climateData[climate];
+            const length = getDimensionValue(elements.roomLength);
+            const width = getDimensionValue(elements.roomWidth);
+            const height = getDimensionValue(elements.roomHeight);
+            if (length === 0 || width === 0 || height === 0) {
+                alert("Please enter valid room dimensions.");
+                return;
+            }
+            const wallR = parseFloat(elements.wallInsulation.value);
+            const ceilingR = parseFloat(elements.ceilingInsulation.value);
+            const ach = parseFloat(elements.airtightness.value);
+
+            let totalWindowArea = 0, windowConduction = 0, windowSolarGain = 0;
+            document.querySelectorAll('#windowsContainer > div').forEach(win => {
+                const wLength = getDimensionValue(win.querySelector('.win-length'));
+                const wWidth = getDimensionValue(win.querySelector('.win-width'));
+                const area = wLength * wWidth;
+                if (area === 0) return;
+                totalWindowArea += area;
+                const type = win.querySelector('.win-type').value;
+                const orientation = win.querySelector('.win-orientation').value;
+                if (type === 'door') {
+                    windowConduction += (area / 5) * tempDiff;
+                } else {
+                    windowConduction += area * windowUValues[type] * tempDiff;
+                    windowSolarGain += area * solarGainFactor[orientation] * 200;
+                }
+            });
+
+            const wallArea = (2 * (length + width) * height) - totalWindowArea;
+            breakdown.Walls = (wallArea > 0 ? wallArea / wallR : 0) * tempDiff;
+            breakdown.Ceiling = (length * width / ceilingR) * tempDiff;
+            breakdown['Openings (Conduction)'] = windowConduction;
+            breakdown['Windows (Solar Gain)'] = windowSolarGain;
+            breakdown.Infiltration = (length * width * height) * ach * 0.018 * tempDiff;
+            
+            let applianceBTU = ((parseInt(elements.computers.value,10)||0) * applianceBTUValues.computer) + ((parseInt(elements.lights.value,10)||0) * applianceBTUValues.light);
+            if(elements.kitchen.checked) applianceBTU += applianceBTUValues.kitchen;
+            breakdown.Appliances = applianceBTU;
+            breakdown.Occupants = (parseInt(elements.occupants.value, 10) || 0) * 250;
+
+            const totalBTU = Object.values(breakdown).reduce((sum, val) => sum + (isNaN(val) ? 0 : val), 0);
+            
+            elements.totalBTU.textContent = Math.round(totalBTU).toLocaleString();
+            elements.totalTonnage.textContent = (totalBTU / 12000).toFixed(1);
+
+            displayBreakdownChart(breakdown, totalBTU);
+            displayRecommendations(breakdown, totalBTU);
+
+            elements.initialMessage.classList.add('hidden');
+            elements.resultsCard.classList.remove('hidden');
+        };
+        
+        function displayBreakdownChart(breakdown, totalBTU) {
+            elements.breakdownChart.innerHTML = '';
+            if(totalBTU === 0) return;
+            const sortedBreakdown = Object.entries(breakdown).filter(([_,v])=>v>0).sort(([,a],[,b]) => b-a);
+            
+            for (const [key, value] of sortedBreakdown) {
+                const percentage = (value / totalBTU) * 100;
+                const div = document.createElement('div');
+                div.className = 'w-full mb-2';
+                div.innerHTML = `
+                    <div class="flex justify-between text-xs mb-1">
+                        <span>${key}</span>
+                        <span class="font-medium">${Math.round(value).toLocaleString()} BTU</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div class="bg-blue-500 h-2.5 rounded-full" style="width: ${percentage}%"></div>
+                    </div>
+                `;
+                elements.breakdownChart.appendChild(div);
+            }
+        }
+
+        function displayRecommendations(breakdown, totalBTU) {
+            elements.recommendations.innerHTML = '';
+            if(totalBTU === 0) return;
+            
+            let recs = [];
+            const sorted = Object.entries(breakdown).sort(([,a],[,b]) => b-a);
+            const largestSource = sorted[0][0];
+
+            if (largestSource === 'Windows (Solar Gain)') {
+                recs.push('<strong>Primary issue:</strong> High solar heat gain. Consider using blinds, curtains, or external shades, especially on East/West/South facing windows.');
+            } else if (largestSource === 'Walls' || largestSource === 'Ceiling') {
+                 recs.push('<strong>Primary issue:</strong> Poor insulation. Improving wall or ceiling insulation will provide the largest energy savings.');
+            } else if (largestSource === 'Infiltration') {
+                 recs.push('<strong>Primary issue:</strong> Air leakage. Sealing drafts around windows, doors, and electrical outlets can significantly reduce your cooling load.');
+            }
+
+            if(breakdown.Appliances > totalBTU * 0.2) {
+                recs.push('<strong>Note:</strong> Appliance heat is high. Switching to energy-efficient (LED) lighting and turning off electronics when not in use will help.');
+            }
+
+            if(recs.length > 0){
+                 elements.recommendations.innerHTML = '<h4 class="font-semibold text-md text-gray-700 mb-2 mt-4">Recommendations</h4><ul class="list-disc list-inside text-sm space-y-1">' + recs.map(r => `<li>${r}</li>`).join('') + '</ul>';
+            }
+        }
+
+        const clearAll = () => {
+            ['roomLength', 'roomWidth', 'roomHeight', 'occupants', 'computers', 'lights'].forEach(id => { if(elements[id]) elements[id].value = ''; });
+            elements.windowsCount.value = '0';
+            ['city', 'wallInsulation', 'ceilingInsulation', 'airtightness'].forEach(id => { if(elements[id]) elements[id].selectedIndex = 0; });
+            elements.kitchen.checked = false;
+            elements.windowsContainer.innerHTML = '';
+            elements.resultsCard.classList.add('hidden');
+            elements.initialMessage.classList.remove('hidden');
+            updateVisualization();
+        };
+
+        function populateCities() {
+            const citySelect = elements.city;
+            Object.keys(cityData).sort().forEach(city => {
+                const option = document.createElement('option');
+                option.value = city;
+                option.textContent = `${city} (${cityData[city].type.charAt(0).toUpperCase() + cityData[city].type.slice(1)})`;
+                citySelect.appendChild(option);
+            });
+        }
+        
+        function setUnits(unit) {
+            currentUnit = unit;
+            if (unit === 'ft') {
+                elements.unitFeet.classList.add('active');
+                elements.unitMeters.classList.remove('active');
+            } else {
+                elements.unitMeters.classList.add('active');
+                elements.unitFeet.classList.remove('active');
+            }
+            elements.unitLabels.forEach(label => label.textContent = unit);
+            document.querySelectorAll('#windowsContainer .win-length, #windowsContainer .win-width').forEach(el => {
+                el.placeholder = el.placeholder.replace(/\(.*\)/, `(${unit})`);
+            });
+            updateVisualization();
+        }
+
+        // --- Initial Setup & Event Listeners ---
+        init3D();
+        populateCities();
+        updateVisualization();
+        
+        document.querySelectorAll('input, select').forEach(el => el.addEventListener('input', updateVisualization));
+        elements.windowsCount.addEventListener('input', generateWindowInputs);
+        elements.calculateBtn.addEventListener('click', calculateHeatLoad);
+        elements.clearBtn.addEventListener('click', clearAll);
+        elements.unitFeet.addEventListener('click', () => setUnits('ft'));
+        elements.unitMeters.addEventListener('click', () => setUnits('m'));
+
+    </script>
+</body>
+</html>
