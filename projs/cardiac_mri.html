@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Cardiac MRI: Foundation Models & Scalable AI Research</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            line-height: 1.8;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 30px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 50px 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .publication-info {
+            font-size: 1.1em;
+            margin-top: 15px;
+            opacity: 0.95;
+        }
+
+        .authors {
+            margin: 30px 0;
+            font-size: 1.1em;
+        }
+
+        .author {
+            display: inline-block;
+            margin: 5px 15px;
+        }
+
+        .affiliation {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 5px;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .subsection-title {
+            color: #764ba2;
+            font-size: 1.4em;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        .abstract {
+            background: #f8f9ff;
+            padding: 30px;
+            border-left: 5px solid #667eea;
+            margin: 30px 0;
+            border-radius: 5px;
+        }
+
+        .keywords {
+            background: #fff3e0;
+            padding: 20px;
+            border-left: 5px solid #ff9800;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .keywords strong {
+            color: #e65100;
+        }
+
+        .highlight-box {
+            background: #e8f5e9;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 5px solid #4caf50;
+            border-radius: 5px;
+        }
+
+        .results-box {
+            background: #e3f2fd;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 5px solid #2196f3;
+            border-radius: 5px;
+        }
+
+        .warning-box {
+            background: #fff3e0;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 5px solid #ff9800;
+            border-radius: 5px;
+        }
+
+        .scope-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .scope-item {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .scope-item h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .scope-item ul {
+            margin-left: 20px;
+            list-style-position: inside;
+        }
+
+        .scope-item li {
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        ul, ol {
+            margin-left: 30px;
+            margin-top: 15px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 0.95em;
+        }
+
+        table thead {
+            background: #667eea;
+            color: white;
+        }
+
+        table th, table td {
+            padding: 15px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        table tbody tr:nth-child(even) {
+            background: #f8f9ff;
+        }
+
+        table tbody tr:hover {
+            background: #e8f5e9;
+        }
+
+        .metric {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .method-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .formula {
+            background: #f5f5f5;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+        }
+
+        .contact-info {
+            margin-top: 15px;
+        }
+
+        a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .timeline {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .timeline-item {
+            margin: 15px 0;
+            padding-left: 30px;
+            border-left: 3px solid #667eea;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: "✓";
+            position: absolute;
+            left: -15px;
+            width: 20px;
+            height: 20px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .team-role {
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 8px;
+            border-top: 3px solid #667eea;
+        }
+
+        .team-role h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .team-role ul {
+            margin-left: 15px;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .section-title {
+                font-size: 1.4em;
+            }
+
+            .scope-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Advanced Cardiac MRI: Foundation Models & Scalable AI Research</h1>
+
+            <div class="publication-info">
+                <strong>Interdisciplinary Research Initiative</strong> | 2025-2028<br>
+                Focus: Foundation Models, Self-Supervised Learning, Few-Shot Adaptation, Cloud-Scale Training<br>
+            </div>
+
+            <div class="authors">
+                <div class="author"><strong>Research Consortium</strong></div>
+            </div>
+
+            <div class="affiliation">
+                <p><strong>Research Institutions:</strong> Academic Medical Centers + AI Research Labs</p>
+                <p><strong>Collaborative Partners:</strong> ISMRM, SCMR, MICCAI, Open-Source Communities</p>
+                <p><strong>Compute Infrastructure:</strong> Multi-Cloud Distributed Training (AWS, Google Cloud, Azure)</p>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="keywords">
+                <strong>Research Focus:</strong> Foundation Models | Self-Supervised Learning | Few-Shot Learning | Multi-Modal Fusion | Scalable AI Pipelines | Cloud-Based Training | Modern Transformers | Reproducible ML | Interdisciplinary Collaboration
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">Executive Summary</h2>
+                <div class="abstract">
+                    <p><strong>Vision:</strong> Develop a scalable, versatile foundation model (CFM-100K) for cardiac MRI that leverages modern deep learning paradigms including self-supervision, few-shot learning, and multi-modal fusion. Deploy via cloud infrastructure for large-scale clinical translation with competitive publication record across top-tier AI/ML and medical venues.</p>
+
+                    <p style="margin-top: 15px;"><strong>Key Innovation Areas:</strong></p>
+                    <ul style="margin-top: 10px;">
+                        <li>Foundation model trained on 100K+ studies with self-supervised pretraining (unlabeled data)</li>
+                        <li>Meta-learning framework for rapid adaptation to rare diseases (few-shot: 5-10 examples)</li>
+                        <li>Transformer-based architectures beyond standard CNNs (Vision Transformers, Swin, ViViT)</li>
+                        <li>Multi-modal fusion: imaging (cine, LGE, T1/T2, perfusion) + clinical data + genomics</li>
+                        <li>Distributed training pipeline: 32-64 GPU clusters on cloud platforms (AWS/GCP/Azure)</li>
+                        <li>Fully open-source with reproducible workflows (PyTorch, Lightning, Hydra, MONAI)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">I. Research Scope & Objectives</h2>
+
+                <h3 class="subsection-title">A. Core Research Dimensions</h3>
+                <div class="scope-grid">
+                    <div class="scope-item">
+                        <h4>🏗️ Scalable AI Pipelines</h4>
+                        <ul>
+                            <li>Distributed training across 8-64 A100/H100 GPUs</li>
+                            <li>Multi-node federated learning (10+ hospitals)</li>
+                            <li>Data versioning (DVC, Pachyderm)</li>
+                            <li>Experiment tracking (Weights & Biases)</li>
+                            <li>AutoML hyperparameter search</li>
+                        </ul>
+                    </div>
+
+                    <div class="scope-item">
+                        <h4>🔬 Reproducible Model Development</h4>
+                        <ul>
+                            <li>Containerized workflows (Docker, Singularity)</li>
+                            <li>Infrastructure-as-Code (Terraform, Helm)</li>
+                            <li>Comprehensive documentation & tutorials</li>
+                            <li>CI/CD pipelines (GitHub Actions)</li>
+                            <li>100% unit test coverage</li>
+                        </ul>
+                    </div>
+
+                    <div class="scope-item">
+                        <h4>☁️ Cloud-Based Training</h4>
+                        <ul>
+                            <li>Multi-cloud deployment (AWS SageMaker, GCP Vertex, Azure ML)</li>
+                            <li>Spot instance optimization ($200K budget)</li>
+                            <li>Kubernetes orchestration</li>
+                            <li>On-the-fly DICOM streaming</li>
+                            <li>Auto-scaling inference</li>
+                        </ul>
+                    </div>
+
+                    <div class="scope-item">
+                        <h4>🧠 Modern Architectures Beyond CNNs</h4>
+                        <ul>
+                            <li>Vision Transformers (ViT, Swin, ViViT)</li>
+                            <li>Hybrid CNN-Transformer models</li>
+                            <li>Efficient attention variants</li>
+                            <li>Neural Architecture Search (NAS)</li>
+                            <li>Foundational pre-training paradigms</li>
+                        </ul>
+                    </div>
+
+                    <div class="scope-item">
+                        <h4>🌍 Foundation Models</h4>
+                        <ul>
+                            <li>100K+ study pretraining dataset</li>
+                            <li>Self-supervised on 36M+ unlabeled images</li>
+                            <li>Zero-shot generalization to 20+ diseases</li>
+                            <li>Transfer to other modalities (CT, echo)</li>
+                            <li>Public model release (Hugging Face)</li>
+                        </ul>
+                    </div>
+
+                    <div class="scope-item">
+                        <h4>⚡ Few-Shot Learning</h4>
+                        <ul>
+                            <li>Model-Agnostic Meta-Learning (MAML)</li>
+                            <li>Prototypical networks</li>
+                            <li>Rapid adaptation: &lt;50 examples/disease</li>
+                            <li>Rare cardiomyopathy detection</li>
+                            <li>Pediatric cardiac anomalies</li>
+                        </ul>
+                    </div>
+
+                    <div class="scope-item">
+                        <h4>🔓 Self-Supervised Learning</h4>
+                        <ul>
+                            <li>Contrastive learning (SimCLR, MoCo, DINO)</li>
+                            <li>Masked autoencoders (MAE)</li>
+                            <li>Temporal consistency prediction</li>
+                            <li>Multi-modal CLIP-style alignment</li>
+                            <li>90% annotation reduction</li>
+                        </ul>
+                    </div>
+
+                    <div class="scope-item">
+                        <h4>📊 Large-Dataset Workflows</h4>
+                        <ul>
+                            <li>100K study dataset creation</li>
+                            <li>Multi-center data harmonization</li>
+                            <li>Active learning loops</li>
+                            <li>Pseudo-labeling at scale</li>
+                            <li>Cross-scanner vendor validation</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3 class="subsection-title">B. Research Requirements Alignment</h3>
+                <div class="highlight-box">
+                    <h4>✅ Versatility Across Imaging Modalities & Tasks:</h4>
+                    <ul>
+                        <li><strong>Imaging modalities:</strong> Cine SSFP, LGE, T1/T2 mapping, perfusion, flow, tagging</li>
+                        <li><strong>Anatomical views:</strong> SAX, 2CH, 3CH, 4CH (adaptable)</li>
+                        <li><strong>10+ downstream tasks:</strong> Segmentation, classification, regression, risk prediction</li>
+                        <li><strong>Disease coverage:</strong> DCM, HCM, MINF, amyloidosis, myocarditis, ARVC, sarcoidosis</li>
+                        <li><strong>Cross-modality transfer:</strong> Adapt to CT, echocardiography, nuclear imaging</li>
+                    </ul>
+
+                    <h4 style="margin-top: 20px;">✅ Algorithmic Paradigms:</h4>
+                    <ul>
+                        <li><strong>Supervised:</strong> Multi-task learning with shared representations</li>
+                        <li><strong>Semi-supervised:</strong> Pseudo-labeling with quality filtering</li>
+                        <li><strong>Self-supervised:</strong> Contrastive, generative, temporal prediction</li>
+                        <li><strong>Meta-learning:</strong> MAML for rapid task adaptation</li>
+                        <li><strong>Transfer learning:</strong> Fine-tuning with knowledge preservation</li>
+                    </ul>
+
+                    <h4 style="margin-top: 20px;">✅ Advanced Deep Learning Frameworks:</h4>
+                    <ul>
+                        <li><strong>Core frameworks:</strong> PyTorch 2.x, TensorFlow 2.x</li>
+                        <li><strong>Medical imaging:</strong> MONAI, SimpleITK, NiBabel</li>
+                        <li><strong>Distributed training:</strong> DeepSpeed, Horovod, Ray</li>
+                        <li><strong>Transformers:</strong> Hugging Face, timm (PyTorch Image Models)</li>
+                        <li><strong>Experiment management:</strong> Weights & Biases, MLflow, Hydra</li>
+                    </ul>
+
+                    <h4 style="margin-top: 20px;">✅ Exploratory & Interdisciplinary Activities:</h4>
+                    <ul>
+                        <li><strong>Cross-domain research:</strong> ML engineers + Cardiologists + Radiologists + Bioinformaticians</li>
+                        <li><strong>Novel fusion methods:</strong> Imaging + genomics + wearables + EHR integration</li>
+                        <li><strong>Explainability research:</strong> Attention visualization, CAM, SHAP for clinical insights</li>
+                        <li><strong>Regulatory innovation:</strong> FDA/CE pathways for AI medical devices</li>
+                        <li><strong>Ethics & fairness:</strong> Bias audits across demographics</li>
+                    </ul>
+
+                    <h4 style="margin-top: 20px;">✅ Large-Scale Training Workflows:</h4>
+                    <ul>
+                        <li><strong>Dataset scale:</strong> 100K studies (36M+ images)</li>
+                        <li><strong>Batch size:</strong> 256-2048 across distributed nodes</li>
+                        <li><strong>Training duration:</strong> ~500K GPU-hours</li>
+                        <li><strong>Optimization:</strong> Mixed-precision, gradient checkpointing, ZeRO optimizer</li>
+                        <li><strong>Data loading:</strong> GPU-accelerated augmentation (DALI)</li>
+                    </ul>
+
+                    <h4 style="margin-top: 20px;">✅ Multi-Modal Learning:</h4>
+                    <ul>
+                        <li><strong>Imaging multi-modality:</strong> Early/late/intermediate fusion architectures</li>
+                        <li><strong>Clinical multi-modal:</strong> Imaging + tabular (demographics, labs) + temporal (time-series) + text (reports)</li>
+                        <li><strong>Genomic integration:</strong> Polygenic risk scores + rare variants</li>
+                        <li><strong>Cross-modal contrastive:</strong> Image-report alignment (CLIP-style)</li>
+                    </ul>
+
+                    <h4 style="margin-top: 20px;">✅ Self-Supervised Approaches:</h4>
+                    <ul>
+                        <li><strong>Contrastive methods:</strong> SimCLR, MoCo v3, BYOL, DINO</li>
+                        <li><strong>Generative methods:</strong> Masked autoencoders (MAE), diffusion models</li>
+                        <li><strong>Temporal SSL:</strong> Predict future cardiac phases from history</li>
+                        <li><strong>Performance gains:</strong> AUROC 0.712→0.771 for ischemia (SSL improvement)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">II. Foundation Model Architecture (CFM-100K)</h2>
+
+                <h3 class="subsection-title">Core Components</h3>
+
+                <div class="method-card">
+                    <h4>Vision Transformer Backbone</h4>
+                    <ul>
+                        <li><strong>Architecture:</strong> 3D Swin Transformer with temporal encoding (ViViT-based)</li>
+                        <li><strong>Input:</strong> Multi-sequence volumes (cine SAX) with full cardiac cycle</li>
+                        <li><strong>Patch embedding:</strong> 16×16×2 space-time patches</li>
+                        <li><strong>Depth:</strong> 12 transformer blocks with hierarchical shifted windows</li>
+                        <li><strong>Capacity:</strong> 300M-1B parameters (scalable)</li>
+                        <li><strong>Efficiency:</strong> Linear complexity attention via local windows</li>
+                    </ul>
+                </div>
+
+                <div class="method-card">
+                    <h4>Multi-Sequence Encoder</h4>
+                    <ul>
+                        <li><strong>Separate ViT encoders:</strong> Cine (SSFP), LGE, T1/T2 mapping, perfusion</li>
+                        <li><strong>Cross-attention fusion:</strong> Weighted combination based on sequence confidence</li>
+                        <li><strong>Shared latent space:</strong> 2048-dim representation learned via contrastive objectives</li>
+                        <li><strong>Temporal alignment:</strong> Cardiac phase synchronization across sequences</li>
+                    </ul>
+                </div>
+
+                <div class="method-card">
+                    <h4>Self-Supervised Pretraining</h4>
+                    <ul>
+                        <li><strong>Contrastive learning:</strong> SimCLR with NT-Xent loss on augmented cardiac cycles</li>
+                        <li><strong>Masked autoencoding:</strong> Reconstruct 75% masked patches (MAE-style)</li>
+                        <li><strong>Temporal prediction:</strong> Predict frame t+n from frames 1..t</li>
+                        <li><strong>Cross-modal alignment:</strong> CLIP-style image-report contrastive loss</li>
+                        <li><strong>Training scale:</strong> 100K studies (36M images) over 1000 GPU-days</li>
+                    </ul>
+                </div>
+
+                <div class="method-card">
+                    <h4>Multi-Task Head Design</h4>
+                    <ul>
+                        <li><strong>Shared encoder:</strong> Pre-trained foundation backbone</li>
+                        <li><strong>Task-specific decoders:</strong>
+                            <ul style="margin-left: 20px; margin-top: 10px;">
+                                <li>Semantic segmentation (6-class): UNet decoder + skip connections</li>
+                                <li>Disease classification: FC layers + softmax (10+ diseases)</li>
+                                <li>Volume regression: FC layers + L1 loss (EF, volumes, mass)</li>
+                                <li>Scar quantification: Pixel-level regression + uncertainty</li>
+                                <li>Strain computation: Feature tracking from embeddings</li>
+                                <li>Risk prediction: Temporal aggregation + survival loss</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">III. Learning Paradigms</h2>
+
+                <h3 class="subsection-title">A. Self-Supervised Learning Strategy</h3>
+
+                <div class="highlight-box">
+                    <h4>Contrastive Learning (SimCLR-based)</h4>
+                    <div class="formula">
+                        Loss = -log [exp(sim(z_i, z_j) / τ) / Σ_k exp(sim(z_i, z_k) / τ)]<br>
+                        where z_i = projection(encoder(aug_i(x))), τ = temperature parameter
+                    </div>
+                    <ul>
+                        <li>Strong augmentations: Rotation (±10°), elastic deformation, intensity jittering</li>
+                        <li>Weak augmentations: Gaussian blur, color distortion</li>
+                        <li>Batch size: 1024-2048 for stable NCE loss</li>
+                        <li>Projection head: 3-layer MLP with 2048→512 dimensions</li>
+                    </ul>
+
+                    <h4 style="margin-top: 20px;">Masked Autoencoder (MAE)</h4>
+                    <div class="formula">
+                        Reconstruction Loss = ||x - decoder(encoder(mask(x)))||²
+                    </div>
+                    <ul>
+                        <li>Masking strategy: Random 75% patch masking</li>
+                        <li>Encoder: ViT processes only visible patches (efficient)</li>
+                        <li>Decoder: Symmetric ViT on all patches (learnable mask tokens)</li>
+                        <li>Reconstruction target: Original pixel values in each patch</li>
+                    </ul>
+
+                    <h4 style="margin-top: 20px;">Temporal Consistency Prediction</h4>
+                    <ul>
+                        <li>Predict cardiac phases t+1, t+2, ..., t+k from history</li>
+                        <li>Temporal CNN encoder: 1D convolutions over phase sequence</li>
+                        <li>Loss: MSE on latent embeddings (not pixel space)</li>
+                        <li>Benefit: Learn temporal dynamics of cardiac cycle</li>
+                    </ul>
+
+                    <h4 style="margin-top: 20px;">Cross-Modal Alignment</h4>
+                    <ul>
+                        <li>Image encoder: ViT on cardiac MRI</li>
+                        <li>Text encoder: BioBERT on radiology reports</li>
+                        <li>Contrastive loss: Align image-report pairs</li>
+                        <li>Enables zero-shot disease recognition from text descriptions</li>
+                    </ul>
+
+                    <h4 style="margin-top: 20px;">Expected SSL Performance Gains</h4>
+                    <ul>
+                        <li>AUROC improvement: 0.712 → 0.771 for ischemia detection</li>
+                        <li>LVEF prediction: R² improvement from 0.894 → 0.949</li>
+                        <li>Segmentation DSC: 0.88 → 0.93 with pre-trained backbone</li>
+                        <li>Downstream fine-tuning: Only 2 labeled images/class needed</li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">B. Few-Shot Learning via Meta-Learning</h3>
+
+                <div class="method-card">
+                    <h4>Model-Agnostic Meta-Learning (MAML)</h4>
+                    <ul>
+                        <li><strong>Goal:</strong> Learn model parameters θ* that are sensitive to task variations</li>
+                        <li><strong>Inner loop:</strong> Single gradient step on support set (5-10 examples)</li>
+                        <li><strong>Outer loop:</strong> Update meta-parameters on query set</li>
+                        <li><strong>Adaptation:</strong> &lt;1 second to adapt to new disease</li>
+                    </ul>
+                    <div class="formula">
+                        θ* = MAML_train(support_set)<br>
+                        L_meta = L_query(model(θ*))
+                    </div>
+
+                    <h4 style="margin-top: 15px;">Application: Rare Cardiomyopathies</h4>
+                    <ul>
+                        <li><strong>ARVC (Arrhythmogenic RV Cardiomyopathy):</strong> 10 example scans → adapt foundation model</li>
+                        <li><strong>Cardiac Sarcoidosis:</strong> Rare inflammatory disease, few labeled cases</li>
+                        <li><strong>Fabry Cardiomyopathy:</strong> Lysosomal storage disorder, &lt;100K patients globally</li>
+                        <li><strong>Pediatric anomalies:</strong> Congenital heart disease with limited training data</li>
+                        <li><strong>Performance target:</strong> &gt;0.85 DSC with 10-shot learning</li>
+                    </ul>
+                </div>
+
+                <div class="method-card">
+                    <h4>Prototypical Networks</h4>
+                    <ul>
+                        <li><strong>Concept:</strong> Learn metric space where same-class samples cluster</li>
+                        <li><strong>Prototype:</strong> Class center = mean embedding of support examples</li>
+                        <li><strong>Distance:</strong> Euclidean or Mahalanobis in learned embedding space</li>
+                        <li><strong>Advantage:</strong> Simpler than MAML, faster inference</li>
+                        <li><strong>Multi-task:</strong> Learn separate metrics for segmentation vs classification</li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">C. Multi-Task Learning Architecture</h3>
+
+                <div class="highlight-box">
+                    <p><strong>Single Foundation Model → 10+ Downstream Tasks:</strong></p>
+                    <ul>
+                        <li>✓ <strong>Semantic Segmentation:</strong> LV/RV/LA/RA/myocardium (6-class)</li>
+                        <li>✓ <strong>Disease Classification:</strong> DCM vs HCM vs MINF vs normal vs amyloid vs myocarditis</li>
+                        <li>✓ <strong>Functional Assessment:</strong> LVEF, RVEF, stroke volume, cardiac output regression</li>
+                        <li>✓ <strong>Tissue Characterization:</strong> Scar quantification, edema detection</li>
+                        <li>✓ <strong>Image Quality Assessment:</strong> Motion artifacts, contrast adequacy</li>
+                        <li>✓ <strong>Cardiac Phase Detection:</strong> ED, ES, and temporal alignment</li>
+                        <li>✓ <strong>Risk Prediction:</strong> Mortality, hospitalization risk at 1/5 year</li>
+                        <li>✓ <strong>Perfusion Analysis:</strong> Ischemia detection, myocardial blood flow quantification</li>
+                        <li>✓ <strong>Strain Computation:</strong> Global/regional longitudinal, circumferential, radial strain</li>
+                        <li>✓ <strong>Report Generation:</strong> Structured radiology report synthesis</li>
+                    </ul>
+
+                    <h4 style="margin-top: 15px;">Training Strategy</h4>
+                    <ul>
+                        <li><strong>Shared encoder:</strong> Foundation model backbone (frozen/fine-tuned)</li>
+                        <li><strong>Task-specific decoders:</strong> Independent heads for each task</li>
+                        <li><strong>Loss weighting:</strong> Task-specific coefficients (learned via uncertainty)</li>
+                        <li><strong>Joint optimization:</strong> Gradient-based multi-task learning</li>
+                        <li><strong>Transfer:</strong> Positive transfer across related tasks (segmentation → disease classification)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">IV. Cloud-Based Scalable Infrastructure</h2>
+
+                <h3 class="subsection-title">Distributed Training Setup</h3>
+
+                <table>
+                    <tr>
+                        <td><strong>Compute Resource</strong></td>
+                        <td><strong>Specification</strong></td>
+                    </tr>
+                    <tr>
+                        <td>GPUs per Node</td>
+                        <td>8 × A100 (80GB) or H100 (141GB)</td>
+                    </tr>
+                    <tr>
+                        <td>Number of Nodes</td>
+                        <td>4-8 nodes (32-64 GPUs total)</td>
+                    </tr>
+                    <tr>
+                        <td>Interconnect</td>
+                        <td>NVLink/NVSwitch or 400Gbps Ethernet</td>
+                    </tr>
+                    <tr>
+                        <td>CPU per Node</td>
+                        <td>96-core AMD EPYC or Intel Xeon Platinum</td>
+                    </tr>
+                    <tr>
+                        <td>Host Memory</td>
+                        <td>512 GB DDR5 per node</td>
+                    </tr>
+                    <tr>
+                        <td>Storage</td>
+                        <td>100+ TB NVMe (local) + cloud object storage</td>
+                    </tr>
+                    <tr>
+                        <td>Training Time</td>
+                        <td>~500K GPU-hours = 500K / 64 = 7,812 GPU-hours per node</td>
+                    </tr>
+                    <tr>
+                        <td>Cost (spot instances)</td>
+                        <td>~$200K (AWS/GCP spot pricing)</td>
+                    </tr>
+                </table>
+
+                <h3 class="subsection-title">Cloud Platform Integration</h3>
+
+                <div class="method-card">
+                    <h4>Multi-Cloud Deployment</h4>
+                    <ul>
+                        <li><strong>AWS SageMaker:</strong> Distributed training with Horovod, multi-GPU sync</li>
+                        <li><strong>Google Cloud AI Platform:</strong> Vertex AI with custom training containers</li>
+                        <li><strong>Azure ML:</strong> AzureML pipelines with distributed PyTorch training</li>
+                        <li><strong>On-premise:</strong> Local Kubernetes cluster for edge deployment</li>
+                    </ul>
+                </div>
+
+                <div class="method-card">
+                    <h4>Containerization & Orchestration</h4>
+                    <ul>
+                        <li><strong>Container images:</strong> Docker with PyTorch base + MONAI + dependencies</li>
+                        <li><strong>Kubernetes:</strong> Helm charts for reproducible deployment</li>
+                        <li><strong>Job submission:</strong> Kubeflow for ML workflow orchestration</li>
+                        <li><strong>Monitoring:</strong> Prometheus + Grafana for resource utilization</li>
+                    </ul>
+                </div>
+
+                <div class="method-card">
+                    <h4>Data Pipeline</h4>
+                    <ul>
+                        <li><strong>DICOM ingestion:</strong> Real-time PACS integration via HL7/DICOM protocols</li>
+                        <li><strong>Preprocessing:</strong> GPU-accelerated (DALI) normalization + augmentation</li>
+                        <li><strong>Data versioning:</strong> DVC with S3/GCS backend for dataset lineage</li>
+                        <li><strong>Streaming:</strong> TFRecord format for efficient multi-node I/O</li>
+                        <li><strong>Caching:</strong> Local SSD cache with LRU eviction policy</li>
+                    </ul>
+                </div>
+
+                <div class="method-card">
+                    <h4>Distributed Training Techniques</h4>
+                    <ul>
+                        <li><strong>Data Parallel:</strong> DistributedDataParallel (DDP) with gradient aggregation</li>
+                        <li><strong>Model Parallel:</strong> Pipeline parallelism for large transformers</li>
+                        <li><strong>ZeRO optimizer:</strong> DeepSpeed ZeRO-2/3 for memory efficiency</li>
+                        <li><strong>Mixed precision:</strong> BF16/FP16 training with AMP (automatic mixed precision)</li>
+                        <li><strong>Gradient checkpointing:</strong> Trade compute for memory in transformer blocks</li>
+                        <li><strong>Synchronization:</strong> AllReduce with optimized communication backend (NCCL, Gloo)</li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">Experiment Management & MLOps</h3>
+
+                <div class="highlight-box">
+                    <ul>
+                        <li><strong>Experiment tracking:</strong> Weights & Biases logging (metrics, gradients, model checkpoints)</li>
+                        <li><strong>Configuration management:</strong> Hydra for reproducible configs (YAML-based)</li>
+                        <li><strong>Hyperparameter tuning:</strong> Ray Tune with population-based training (PBT)</li>
+                        <li><strong>CI/CD pipelines:</strong> GitHub Actions for automated testing on PRs</li>
+                        <li><strong>Model registry:</strong> MLflow for versioning and model promotion</li>
+                        <li><strong>Reproducibility:</strong> Fixed random seeds, dependency pinning, full config logging</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">V. Modern Deep Learning Architectures</h2>
+
+                <h3 class="subsection-title">Beyond Standard CNNs</h3>
+
+                <div class="method-card">
+                    <h4>Vision Transformers (ViT)</h4>
+                    <ul>
+                        <li><strong>Pure attention:</strong> No convolutions, only linear projections + self-attention</li>
+                        <li><strong>Advantages:</strong> Long-range dependencies, better for global cardiac structure</li>
+                        <li><strong>Implementation:</strong> ViT-Base (86M params), ViT-Large (307M), ViT-Huge (632M)</li>
+                        <li><strong>Computational cost:</strong> Higher during training, competitive during inference</li>
+                    </ul>
+                </div>
+
+                <div class="method-card">
+                    <h4>Hierarchical Vision Transformers (Swin)</h4>
+                    <ul>
+                        <li><strong>Shifted windows:</strong> Local attention in non-overlapping windows</li>
+                        <li><strong>Hierarchical features:</strong> Multi-scale representations (4 stages)</li>
+                        <li><strong>Efficiency:</strong> Linear complexity attention instead of quadratic</li>
+                        <li><strong>3D variant (Swin-3D):</strong> Spatiotemporal windows for video understanding</li>
+                    </ul>
+                </div>
+
+                <div class="method-card">
+                    <h4>Video Vision Transformers (ViViT)</h4>
+                    <ul>
+                        <li><strong>Spatiotemporal patches:</strong> 3D patches (space + time)</li>
+                        <li><strong>Factorized attention:</strong> Spatial → Temporal decomposition for efficiency</li>
+                        <li><strong>Application:</strong> Full cardiac cycle modeling (30 frames, 2 seconds)</li>
+                        <li><strong>Architecture:</strong> ViViT-Factorized with adaptive temporal depth</li>
+                    </ul>
+                </div>
+
+                <div class="method-card">
+                    <h4>Hybrid CNN-Transformer</h4>
+                    <ul>
+                        <li><strong>Concept:</strong> Combine inductive bias of CNNs with expressiveness of transformers</li>
+                        <li><strong>ConvNeXt backbone:</strong> Modern CNN architecture with transformer-like design</li>
+                        <li><strong>Cross-attention decoder:</strong> Transformer layers with CNN feature fusion</li>
+                        <li><strong>Benefit:</strong> Faster convergence than pure ViT, better data efficiency</li>
+                    </ul>
+                </div>
+
+                <div class="method-card">
+                    <h4>Efficient Transformers</h4>
+                    <ul>
+                        <li><strong>Linear attention:</strong> O(n) complexity instead of O(n²) self-attention</li>
+                        <li><strong>Sparse attention:</strong> Attend only to nearby patches (local + sparse global)</li>
+                        <li><strong>Kernel methods:</strong> Approximate attention with feature maps</li>
+                        <li><strong>Use case:</strong> Real-time inference on edge devices</li>
+                    </ul>
+                </div>
+
+                <div class="method-card">
+                    <h4>Neural Architecture Search (NAS)</h4>
+                    <ul>
+                        <li><strong>Objective:</strong> Discover optimal architecture for cardiac segmentation/classification</li>
+                        <li><strong>Search space:</strong> Depth, width, attention heads, expansion ratios</li>
+                        <li><strong>Method:</strong> Differentiable NAS (DARTS) or evolutionary algorithms</li>
+                        <li><strong>Constraints:</strong> Latency budget, memory footprint for deployment</li>
+                        <li><strong>Result:</strong> Hardware-aware optimal models</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">VI. Publication & Dissemination Strategy</h2>
+
+                <h3 class="subsection-title">Target Tier-1 Venues</h3>
+
+                <div class="results-box">
+                    <h4>🎯 Top-Tier AI/ML Conferences:</h4>
+                    <ul>
+                        <li><strong>NeurIPS</strong> (Neural Information Processing Systems) - Spotlight/Oral target</li>
+                        <li><strong>ICML</strong> (International Conference on Machine Learning)</li>
+                        <li><strong>ICLR</strong> (International Conference on Learning Representations)</li>
+                        <li><strong>CVPR</strong> (Computer Vision and Pattern Recognition) - Medical imaging track</li>
+                        <li><strong>MICCAI</strong> (Medical Image Computing & Computer Assisted Intervention) - Top papers</li>
+                        <li><strong>MIDL</strong> (Medical Imaging with Deep Learning)</li>
+                    </ul>
+
+                    <h4 style="margin-top: 20px;">🏥 Medical Conferences:</h4>
+                    <ul>
+                        <li><strong>SCMR Annual Scientific Sessions</strong> (Society for Cardiovascular MR)</li>
+                        <li><strong>AHA Scientific Sessions</strong> (American Heart Association)</li>
+                        <li><strong>ESC Congress</strong> (European Society of Cardiology)</li>
+                        <li><strong>ISMRM</strong> (International Society for Magnetic Resonance in Medicine)</li>
+                    </ul>
+
+                    <h4 style="margin-top: 20px;">📰 High-Impact Journals (IF &gt; 10):</h4>
+                    <ul>
+                        <li><strong>Nature Machine Intelligence</strong> (IF ~25) - Foundation model paper</li>
+                        <li><strong>Nature Biomedical Engineering</strong> (IF ~29)</li>
+                        <li><strong>Nature Medicine</strong> (IF ~82) - Clinical validation</li>
+                        <li><strong>JAMA Cardiology</strong> (IF ~18) - Prospective trial</li>
+                        <li><strong>Circulation: Cardiovascular Imaging</strong> (IF ~6.5)</li>
+                        <li><strong>JACC: Cardiovascular Imaging</strong> (IF ~9.8)</li>
+                        <li><strong>Medical Image Analysis</strong> (IF ~10.7)</li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">Publication Roadmap (3-Year Plan)</h3>
+
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <strong>Year 1 (Months 1-12):</strong> Foundation Development
+                        <ul style="margin-top: 10px;">
+                            <li>Paper 1: "CFM-100K: Self-Supervised Foundation Model for Cardiac MRI" → NeurIPS/ICML</li>
+                            <li>Paper 2: "Few-Shot Disease Detection via Meta-Learning" → MICCAI</li>
+                            <li>Pre-print: arXiv (cs.CV, cs.LG)</li>
+                            <li>Code release: GitHub + Hugging Face model hub</li>
+                        </ul>
+                    </div>
+
+                    <div class="timeline-item">
+                        <strong>Year 2 (Months 12-24):</strong> Clinical Translation & Validation
+                        <ul style="margin-top: 10px;">
+                            <li>Paper 3: "Multi-Center Validation: AI-Driven Cardiac MRI Analysis" → Nature Medicine</li>
+                            <li>Paper 4: "Federated Learning for Privacy-Preserving Cardiac Imaging" → MIDL</li>
+                            <li>Benchmark release: Standardized evaluation suite</li>
+                            <li>Challenge organization: MICCAI workshop (cardiac segmentation/disease classification)</li>
+                        </ul>
+                    </div>
+
+                    <div class="timeline-item">
+                        <strong>Year 3 (Months 24-36):</strong> Clinical Impact & Adoption
+                        <ul style="margin-top: 10px;">
+                            <li>Paper 5: "Prospective Trial: AI-Assisted vs Standard CMR Interpretation" → JACC-CI</li>
+                            <li>Paper 6: "Explainable AI for Cardiac Risk Prediction" → Circulation-CI</li>
+                            <li>Regulatory submission: FDA 510(k) pathway for segmentation module</li>
+                            <li>Real-world deployment: 10+ hospital pilot implementations</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3 class="subsection-title">Open-Source & Community Contributions</h3>
+
+                <div class="highlight-box">
+                    <h4>Public Repository Strategy</h4>
+                    <ul>
+                        <li><strong>GitHub repository:</strong> Fully reproducible code with CI/CD pipelines</li>
+                        <li><strong>Pre-trained weights:</strong> Released on Hugging Face Model Hub</li>
+                        <li><strong>Target engagement:</strong> 5K+ GitHub stars within 1 year</li>
+                        <li><strong>Documentation:</strong> 50+ Jupyter tutorial notebooks</li>
+                        <li><strong>Community:</strong> Bi-weekly office hours, active issue response</li>
+                    </ul>
+
+                    <h4 style="margin-top: 15px;">Contributions to Upstream Projects</h4>
+                    <ul>
+                        <li><strong>MONAI:</strong> New cardiac-specific transforms, reference implementations</li>
+                        <li><strong>timm (PyTorch Image Models):</strong> 3D transformer variants for medical imaging</li>
+                        <li><strong>Hugging Face Transformers:</strong> Cardiac MRI-specific model cards</li>
+                        <li><strong>PyTorch Lightning:</strong> Medical imaging examples and best practices</li>
+                    </ul>
+
+                    <h4 style="margin-top: 15px;">Expected Engagement Metrics</h4>
+                    <ul>
+                        <li>GitHub stars: 5K within 1 year, 10K within 3 years</li>
+                        <li>Hugging Face downloads: 10K+ model checkpoint downloads</li>
+                        <li>External contributors: 50+ from academic/industry institutions</li>
+                        <li>Citation impact: 1K+ citations within 2 years, 5K+ within 5 years</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">VII. Interdisciplinary Team & Collaboration</h2>
+
+                <h3 class="subsection-title">Core Team Composition</h3>
+
+                <div class="team-grid">
+                    <div class="team-role">
+                        <h4>🤖 ML Research Engineers</h4>
+                        <ul>
+                            <li>Deep learning architecture design</li>
+                            <li>Self-supervised learning experts</li>
+                            <li>Large-scale distributed training</li>
+                            <li>Model compression & quantization</li>
+                        </ul>
+                    </div>
+
+                    <div class="team-role">
+                        <h4>❤️ Cardiologists</h4>
+                        <ul>
+                            <li>Clinical validation & annotation</li>
+                            <li>Outcome data curation</li>
+                            <li>Clinical trial design</li>
+                            <li>Disease-specific expertise</li>
+                        </ul>
+                    </div>
+
+                    <div class="team-role">
+                        <h4>🔬 Radiologists (CMR specialists)</h4>
+                        <ul>
+                            <li>Image quality assessment</li>
+                            <li>Acquisition protocol optimization</li>
+                            <li>Report generation standards</li>
+                            <li>Multi-vendor validation</li>
+                        </ul>
+                    </div>
+
+                    <div class="team-role">
+                        <h4>📊 Biostatisticians</h4>
+                        <ul>
+                            <li>Study design & sample size</li>
+                            <li>Statistical analysis</li>
+                            <li>Survival analysis</li>
+                            <li>Regulatory submissions</li>
+                        </ul>
+                    </div>
+
+                    <div class="team-role">
+                        <h4>🧬 Bioinformaticians</h4>
+                        <ul>
+                            <li>Genomic data integration</li>
+                            <li>Multi-omics fusion</li>
+                            <li>Pathway analysis</li>
+                            <li>Precision medicine pipelines</li>
+                        </ul>
+                    </div>
+
+                    <div class="team-role">
+                        <h4>💻 Software Engineers</h4>
+                        <ul>
+                            <li>Cloud infrastructure (K8s, Terraform)</li>
+                            <li>DICOM/PACS integration</li>
+                            <li>REST API development</li>
+                            <li>Clinical deployment</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3 class="subsection-title">Industry & Academic Partnerships</h3>
+
+                <div class="highlight-box">
+                    <ul>
+                        <li><strong>Scanner vendors:</strong> Siemens, GE, Philips for multi-vendor validation protocols</li>
+                        <li><strong>Cloud providers:</strong> AWS, Google Cloud, Microsoft Azure (compute credits)</li>
+                        <li><strong>Healthcare systems:</strong> Mayo Clinic, Cleveland Clinic, UCSF (data access, clinical validation)</li>
+                        <li><strong>Biotech partners:</strong> Genomics companies for genetics integration</li>
+                        <li><strong>Regulatory consultants:</strong> FDA/CE marking pathway expertise</li>
+                        <li><strong>Open-source communities:</strong> PyTorch, Hugging Face, MONAI ecosystem</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">VIII. Expected Outcomes & Impact (3-Year Horizon)</h2>
+
+                <div class="results-box">
+                    <h4>🎓 Scientific Impact</h4>
+                    <ul>
+                        <li>10+ publications in top-tier venues (IF &gt; 15)</li>
+                        <li>Foundation model adopted by 100+ research groups globally</li>
+                        <li>5K+ citations within 3 years</li>
+                        <li>Paradigm shift: Foundation models → industry standard for cardiac imaging AI</li>
+                    </ul>
+
+                    <h4 style="margin-top: 20px;">⚕️ Clinical Impact</h4>
+                    <ul>
+                        <li>50% reduction in CMR interpretation time (30 min → 15 min per study)</li>
+                        <li>20% improvement in diagnostic accuracy for rare diseases</li>
+                        <li>90% inter-observer agreement (vs 70% manual)</li>
+                        <li>Cost savings: $500-1000 per study via automation</li>
+                        <li>10+ hospital early adoption within 18 months</li>
+                    </ul>
+
+                    <h4 style="margin-top: 20px;">🌐 Open-Source Impact</h4>
+                    <ul>
+                        <li>GitHub stars: 5K within 1 year, 10K within 3 years</li>
+                        <li>Model downloads: 10K+ Hugging Face checkpoints</li>
+                        <li>External contributions: 50+ community developers</li>
+                        <li>Spin-off projects: Enable 100+ downstream applications</li>
+                    </ul>
+
+                    <h4 style="margin-top: 20px;">📋 Regulatory & Translation</h4>
+                    <ul>
+                        <li>FDA 510(k) clearance for automated segmentation (Class II)</li>
+                        <li>CE marking for European clinical use</li>
+                        <li>3+ commercial partnerships for medical device licensing</li>
+                        <li>Real-world deployment: 50+ hospitals at 3-year mark</li>
+                    </ul>
+
+                    <h4 style="margin-top: 20px;">🏆 Research Excellence</h4>
+                    <ul>
+                        <li>2+ NeurIPS/ICML papers</li>
+                        <li>1+ Nature-family publication</li>
+                        <li>Benchmark dataset: Standard evaluation for cardiac AI</li>
+                        <li>Training workshops at MICCAI, ESC, SCMR</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">IX. Technical Implementation Stack</h2>
+
+                <h3 class="subsection-title">Software & Frameworks</h3>
+
+                <table>
+                    <tr>
+                        <td><strong>Component</strong></td>
+                        <td><strong>Technology Stack</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Deep Learning Frameworks</td>
+                        <td>PyTorch 2.x (primary), TensorFlow 2.x (secondary)</td>
+                    </tr>
+                    <tr>
+                        <td>Medical Imaging</td>
+                        <td>MONAI, SimpleITK, NiBabel, pydicom</td>
+                    </tr>
+                    <tr>
+                        <td>Distributed Training</td>
+                        <td>DeepSpeed (ZeRO), Horovod, PyTorch DDP</td>
+                    </tr>
+                    <tr>
+                        <td>Transformers</td>
+                        <td>Hugging Face Transformers, timm (PyTorch Image Models)</td>
+                    </tr>
+                    <tr>
+                        <td>Data Processing</td>
+                        <td>DALI (GPU), Albumentations, TorchVision</td>
+                    </tr>
+                    <tr>
+                        <td>Experiment Management</td>
+                        <td>Weights & Biases, MLflow, Hydra (configs)</td>
+                    </tr>
+                    <tr>
+                        <td>Hyperparameter Tuning</td>
+                        <td>Ray Tune, Optuna, Population-Based Training</td>
+                    </tr>
+                    <tr>
+                        <td>Testing & CI/CD</td>
+                        <td>pytest, GitHub Actions, pre-commit hooks</td>
+                    </tr>
+                    <tr>
+                        <td>Containerization</td>
+                        <td>Docker, Singularity (HPC clusters)</td>
+                    </tr>
+                    <tr>
+                        <td>Orchestration</td>
+                        <td>Kubernetes, Helm, Kubeflow</td>
+                    </tr>
+                    <tr>
+                        <td>Model Serving</td>
+                        <td>TorchServe, ONNX Runtime, TensorRT</td>
+                    </tr>
+                    <tr>
+                        <td>Data Versioning</td>
+                        <td>DVC (Data Version Control), Git-LFS</td>
+                    </tr>
+                </table>
+
+                <h3 class="subsection-title">Reproducibility Standards</h3>
+
+                <div class="highlight-box">
+                    <h4>Code Quality & Testing</h4>
+                    <ul>
+                        <li>100% unit test coverage (pytest)</li>
+                        <li>Type hints (mypy) for reliability</li>
+                        <li>Code formatting (black, isort)</li>
+                        <li>Linting (pylint, flake8)</li>
+                        <li>Pre-commit hooks for automatic checks</li>
+                    </ul>
+
+                    <h4 style="margin-top: 15px;">Documentation</h4>
+                    <ul>
+                        <li>Sphinx-generated API documentation</li>
+                        <li>50+ Jupyter tutorial notebooks</li>
+                        <li>Architecture decision records (ADRs)</li>
+                        <li>Video walkthroughs on YouTube</li>
+                        <li>Model cards (Hugging Face style)</li>
+                    </ul>
+
+                    <h4 style="margin-top: 15px;">Version Control & Reproducibility</h4>
+                    <ul>
+                        <li>Semantic versioning (v1.0.0 format)</li>
+                        <li>Tagged releases with DOIs (Zenodo)</li>
+                        <li>Comprehensive changelog for all updates</li>
+                        <li>Fixed random seeds in all experiments</li>
+                        <li>Dependency pinning (requirements.txt, pyproject.toml)</li>
+                        <li>Configuration versioning (Hydra YAML snapshots)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">Summary: Research Roadmap</h2>
+
+                <div class="results-box">
+                    <p><strong>This comprehensive research proposal represents the cutting edge of cardiac imaging AI, incorporating:</strong></p>
+
+                    <ul style="margin-top: 15px; font-size: 1.05em;">
+                        <li>✅ <strong>Foundation Models:</strong> 100K+ studies, self-supervised pretraining</li>
+                        <li>✅ <strong>Self-Supervised Learning:</strong> Contrastive, MAE, temporal prediction</li>
+                        <li>✅ <strong>Few-Shot Learning:</strong> Meta-learning for rare diseases</li>
+                        <li>✅ <strong>Modern Architectures:</strong> Vision Transformers, ViViT, Swin, efficient attention</li>
+                        <li>✅ <strong>Multi-Modal Fusion:</strong> Imaging + clinical + genomic data</li>
+                        <li>✅ <strong>Scalable Cloud Infrastructure:</strong> 32-64 GPUs, distributed training, federated learning</li>
+                        <li>✅ <strong>Reproducible Development:</strong> 100% test coverage, CI/CD, containerization</li>
+                        <li>✅ <strong>Open-Source Commitment:</strong> GitHub + Hugging Face + MONAI ecosystem</li>
+                        <li>✅ <strong>Tier-1 Publication Record:</strong> NeurIPS, Nature, JACC targets</li>
+                        <li>✅ <strong>Clinical Translation:</strong> Prospective trials, FDA/CE pathways, real-world deployment</li>
+                    </ul>
+
+                    <p style="margin-top: 20px; font-size: 1.05em; color: #667eea; font-weight: bold;">
+                        This research will establish a new paradigm for AI-driven cardiac imaging and serve as a foundation for precision cardiovascular medicine.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <h3>Advanced Cardiac MRI Foundation Models Research Initiative</h3>
+            <div class="contact-info">
+                <p style="margin-top: 20px;">This comprehensive research framework spans foundation model development, scalable AI infrastructure, modern deep learning paradigms, and clinical translation.</p>
+                <p style="margin-top: 15px; font-size: 0.9em; opacity: 0.8;">
+                    Research Focus: Self-Supervised Learning | Few-Shot Adaptation | Multi-Modal Fusion | Cloud-Scale Training | Reproducible ML | Open-Source Impact<br>
+                    Publication Targets: NeurIPS, ICML, Nature Medicine, JACC | Clinical Partners: SCMR, AHA, ESC, ISMRM
+                </p>
+            </div>
+            <p style="margin-top: 25px; font-size: 0.85em;">
+                © 2025 Research Initiative | Collaborative Interdisciplinary Effort
+            </p>
+        </div>
+    </div>
+</body>
+</html>

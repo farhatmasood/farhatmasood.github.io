@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACMAF | Advanced Cardiac MRI Research Platform</title>
+    
+    <!-- React Core -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Styling & Icons -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Academic Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        body { background-color: #020617; color: #e2e8f0; font-family: 'Inter', sans-serif; overflow: hidden; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Custom Scrollbar */
+        .panel-scroll::-webkit-scrollbar { width: 6px; }
+        .panel-scroll::-webkit-scrollbar-track { background: #0f172a; }
+        .panel-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+
+        .glass-panel { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(10px); border: 1px solid rgba(51, 65, 85, 0.5); }
+    </style>
+</head>
+<body>
+    <div id="root" class="h-screen w-screen flex flex-col"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- Icon Component ---
+        const Icon = ({ name, size = 18, className = "" }) => {
+            const iconRef = useRef(null);
+            useEffect(() => {
+                if (iconRef.current && window.lucide) {
+                    const iconNode = window.lucide.icons[name];
+                    if(iconNode) {
+                        iconRef.current.innerHTML = '';
+                        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                        svg.setAttribute('width', size);
+                        svg.setAttribute('height', size);
+                        svg.setAttribute('viewBox', '0 0 24 24');
+                        svg.setAttribute('fill', 'none');
+                        svg.setAttribute('stroke', 'currentColor');
+                        svg.setAttribute('stroke-width', '2');
+                        svg.setAttribute('stroke-linecap', 'round');
+                        svg.setAttribute('stroke-linejoin', 'round');
+                        if (className) svg.classList.add(...className.split(' ').filter(c => c));
+                        iconNode.forEach(([tag, attrs]) => {
+                            const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+                            Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+                            svg.appendChild(el);
+                        });
+                        iconRef.current.appendChild(svg);
+                    }
+                }
+            }, [name, size, className]);
+            return <span ref={iconRef} className="flex items-center justify-center"></span>;
+        };
+
+        // --- Realistic Cine Frames (updated with more realistic URLs) ---
+        const cineFrames = [
+            "https://www.researchgate.net/publication/272749255/figure/fig6/AS:271671634427951@1441782974013/End-diastolic-short-axis-views-covering-the-heart-from-the-apex-to-the-base-derived-from.png",
+            "https://www.researchgate.net/publication/281141022/figure/fig1/AS:341924100755483@1458532466496/Median-cine-MRI-slice-at-end-diastole-with-superimposed-contours-of-the-LV-green.png",
+            "https://www.researchgate.net/publication/342008768/figure/fig1/AS:900419685462018@1591688190611/Examples-of-end-systolic-short-axis-cine-images-with-clearly-lower-papillary-muscle.ppm",
+            "https://www.mdpi.com/biomedicines/biomedicines-12-02324/article_deploy/html/images/biomedicines-12-02324-g001.png"
+        ];
+
+        // --- Modules ---
+
+        const ModuleDashboard = () => (
+            <div className="p-8 max-w-7xl mx-auto h-full overflow-y-auto">
+                <header className="mb-8 border-b border-slate-800 pb-6">
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <h1 className="text-3xl font-bold text-white mb-2">Research Dashboard</h1>
+                            <p className="text-slate-400 font-mono text-sm">
+                                Project: SCALABLE_CARDIAC_FOUNDATION_V1 <br/>
+                                Focus: Few-Shot Adaptation of Vision Transformers for Cardiac Imaging
+                            </p>
+                        </div>
+                        <div className="flex gap-4">
+                            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono">
+                                <Icon name="Cloud" size={12} /> Cluster: ACTIVE
+                            </div>
+                            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-mono">
+                                <Icon name="GitBranch" size={12} /> v4.2.0-rc
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                    <div className="glass-panel p-5 rounded-xl"><div className="text-xs uppercase text-slate-400">Pre-training Data</div><div className="text-2xl font-mono font-bold text-white">4.2 TB</div><div className="text-xs text-slate-500">Multi-center (Unlabeled, Large-Dataset Workflows)</div></div>
+                    <div className="glass-panel p-5 rounded-xl"><div className="text-xs uppercase text-slate-400">SSL Loss (InfoNCE)</div><div className="text-2xl font-mono font-bold text-white">0.042</div><div className="text-xs text-slate-500">Converged @ Ep 400 (Self-Supervision)</div></div>
+                    <div className="glass-panel p-5 rounded-xl"><div className="text-xs uppercase text-slate-400">Few-Shot DSC</div><div className="text-2xl font-mono font-bold text-white">0.88</div><div className="text-xs text-slate-500">MedSAM-2 Adapter (Few-Shot Learning)</div></div>
+                    <div className="glass-panel p-5 rounded-xl"><div className="text-xs uppercase text-slate-400">Inference Latency</div><div className="text-2xl font-mono font-bold text-white">12ms</div><div className="text-xs text-slate-500">TensorRT Optimized (Scalable AI Pipelines)</div></div>
+                </div>
+
+                <div className="glass-panel p-6 rounded-xl mb-8">
+                    <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                        <Icon name="Workflow" className="text-indigo-500"/> Pipeline Architecture
+                    </h3>
+                    <div className="flex items-center justify-between text-sm text-slate-300">
+                        <div className="p-4 rounded-lg bg-slate-800 border border-slate-700 w-48 text-center">Input DICOM<br/><span className="text-xs font-mono opacity-70">Multi-Modal (Versatile Modalities)</span></div>
+                        <div className="h-0.5 bg-slate-700 flex-1 mx-2 relative"><div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-slate-700 rotate-45 translate-x-1/2"></div></div>
+                        <div className="p-4 rounded-lg bg-indigo-500/10 border-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.2)] w-48 text-center">Self-Supervised Encoder<br/><span className="text-xs font-mono opacity-70">ViT-L/16 (MAE, Foundational Models)</span></div>
+                        <div className="h-0.5 bg-slate-700 flex-1 mx-2 relative"><div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-slate-700 rotate-45 translate-x-1/2"></div></div>
+                        <div className="p-4 rounded-lg bg-slate-800 border border-slate-700 w-48 text-center">Task Adapters<br/><span className="text-xs font-mono opacity-70">LoRA Layers (Few-Shot)</span></div>
+                        <div className="h-0.5 bg-slate-700 flex-1 mx-2 relative"><div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-slate-700 rotate-45 translate-x-1/2"></div></div>
+                        <div className="p-4 rounded-lg bg-slate-800 border border-slate-700 w-48 text-center">Downstream Heads<br/><span className="text-xs font-mono opacity-70">Seg / Class / Gen (Multimodal)</span></div>
+                    </div>
+                </div>
+
+                <div className="glass-panel p-6 rounded-xl mb-8">
+                    <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                        <Icon name="Target" className="text-indigo-500"/> Scope of Research
+                    </h3>
+                    <ul className="list-disc list-inside text-sm text-slate-300 space-y-2">
+                        <li>Scalable AI Pipelines for Large-Scale Training Workflows</li>
+                        <li>Reproducible Model Development with Modern Deep Learning Frameworks</li>
+                        <li>Cloud-Based Training on Interdisciplinary Datasets</li>
+                        <li>Modern Architectures Beyond Standard CNNs (e.g., Transformers)</li>
+                        <li>Foundational Models and Self-Supervised Approaches</li>
+                        <li>Few-Shot Learning for Versatile Tasks Across Imaging Modalities</li>
+                        <li>Large-Dataset Workflows with Multimodal Learning</li>
+                        <li>Exploratory Algorithmic Paradigms in Medical AI</li>
+                    </ul>
+                </div>
+
+                <div className="glass-panel p-6 rounded-xl">
+                    <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                        <Icon name="ClipboardCheck" className="text-indigo-500"/> Platform Requirements
+                    </h3>
+                    <ul className="list-disc list-inside text-sm text-slate-300 space-y-2">
+                        <li>Versatility Across Different Imaging Modalities and Tasks</li>
+                        <li>Advanced Deep Learning Frameworks (e.g., PyTorch, TensorFlow)</li>
+                        <li>Exploratory and Interdisciplinary Research Activities</li>
+                        <li>Large-Scale Training Workflows with Cloud Integration</li>
+                        <li>Multimodal Learning and Self-Supervised Approaches</li>
+                    </ul>
+                </div>
+
+                <div className="mt-8 grid grid-cols-2 gap-6">
+                    <img src="https://h2o.ai/resources/product-brief/h2o-mlops/_jcr_content/root/container/section_1483830588/par/advancedcolumncontro/columns0/image.coreimg.png/1676998821222/download.png" alt="MLOps Dashboard" className="rounded-xl border border-slate-800" />
+                    <img src="https://media.springernature.com/full/springer-static/image/art%3A10.1038%2Fs41551-022-00914-1/MediaObjects/41551_2022_914_Fig1_HTML.png" alt="SSL Loss Curve" className="rounded-xl border border-slate-800" />
+                </div>
+            </div>
+        );
+
+        const ModuleMLOps = () => {
+            const [step, setStep] = useState(0);
+            useEffect(() => { const id = setInterval(() => setStep(s => s + 1), 150); return () => clearInterval(id); }, []);
+            return (
+                <div className="p-8 h-full flex flex-col max-w-7xl mx-auto">
+                    <header className="mb-6 flex justify-between items-center">
+                        <h2 className="text-2xl font-bold text-white">Distributed Training Operations</h2>
+                        <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-sm font-medium">Launch New Experiment</button>
+                    </header>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
+                        <div className="lg:col-span-2 space-y-6">
+                            <div className="glass-panel p-6 rounded-xl">
+                                <h3 className="text-sm font-bold text-slate-400 uppercase mb-4">Compute Cluster (AWS p4d.24xlarge - Cloud-Based Training)</h3>
+                                <div className="grid grid-cols-4 gap-4">
+                                    {[...Array(8)].map((_, i) => (
+                                        <div key={i} className="bg-slate-900 border border-slate-700 p-3 rounded">
+                                            <div className="flex justify-between text-xs mb-2"><span className="text-slate-300">A100-80G #{i}</span><span className="text-emerald-400">98%</span></div>
+                                            <div className="w-full bg-slate-800 h-2 rounded overflow-hidden"><div className="bg-emerald-500 h-full" style={{width: `${85 + (step % 15)}%`}}></div></div>
+                                            <div className="mt-2 text-xs text-slate-500 font-mono">Temp: {65 + (i%6)}°C</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <img src="https://www.slideteam.net/media/catalog/product/cache/1280x720/m/l/ml_devops_cycle_it_dashboard_to_machine_learning_model_processing_slide01.jpg" alt="MLOps Dashboard" className="rounded-xl border border-slate-800 w-full" />
+                        </div>
+                        <div className="glass-panel p-0 rounded-xl overflow-hidden flex flex-col">
+                            <div className="p-4 border-b border-slate-700 bg-slate-900"><h3 className="text-sm font-bold text-slate-300">Live Logs (Worker 0 - Reproducible Development)</h3></div>
+                            <div className="flex-1 p-4 font-mono text-xs text-slate-400 overflow-y-auto bg-black space-y-1">
+                                <div className="text-emerald-500">[INFO] DDP Initialized: Rank 0/8</div>
+                                {[...Array(20)].map((_, i) => (
+                                    <div key={i}>Ep {100 + i}: Loss={(2.8 - i*0.08).toFixed(3)} | LR=3e-4 (Self-Supervised)</div>
+                                ))}
+                                <div className="animate-pulse text-indigo-400">_</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const ModuleSegmentation = () => {
+            const [frameIdx, setFrameIdx] = useState(0);
+            const [modelType, setModelType] = useState('medsam');
+            const [showOverlay, setShowOverlay] = useState(true);
+            const [playing, setPlaying] = useState(true);
+
+            useEffect(() => {
+                if (!playing) return;
+                const id = setInterval(() => setFrameIdx(i => (i + 1) % cineFrames.length), 300);
+                return () => clearInterval(id);
+            }, [playing]);
+
+            const overlayUrl = modelType === 'medsam' 
+                ? "https://media.springernature.com/lw1200/springer-static/image/art%3A10.1038%2Fs41467-024-44824-z/MediaObjects/41467_2024_44824_Fig1_HTML.png"
+                : "https://www.researchgate.net/publication/366135701/figure/fig4/AS:11431281105993975@1670555751850/Additional-qualitative-comparison-between-UNETR-and-the-baseline-UNETR-The-baseline.jpg";
+
+            return (
+                <div className="flex h-full">
+                    <div className="flex-1 bg-black relative flex flex-col items-center justify-center p-8">
+                        <div className="relative rounded-lg overflow-hidden shadow-2xl border border-slate-800">
+                            <img src={cineFrames[frameIdx]} alt="Realistic Cardiac MRI Short-Axis" className="max-w-full max-h-[80vh] object-contain" />
+                            {showOverlay && (
+                                <div className="absolute inset-0 pointer-events-none">
+                                    <img src={overlayUrl} alt="Realistic Segmentation Overlay" className="absolute inset-0 opacity-70 mix-blend-screen object-contain" />
+                                </div>
+                            )}
+                            <div className="absolute top-4 left-4 bg-black/70 p-3 rounded font-mono text-xs text-indigo-300">
+                                <div>MODEL: {modelType === 'medsam' ? 'MedSAM-2 (Foundation, Self-Supervised)' : 'UNETR (Transformer, Fine-Tuned)'}</div>
+                                <div>FRAME: {frameIdx + 1}/{cineFrames.length} (Modern Architectures)</div>
+                            </div>
+                        </div>
+                        <div className="mt-6 flex gap-4 items-center">
+                            <button onClick={() => setPlaying(!playing)} className="px-4 py-2 bg-indigo-600 rounded text-white">{playing ? 'Pause' : 'Play'} Cine</button>
+                            <input type="range" min="0" max={cineFrames.length-1} value={frameIdx} onChange={e => setFrameIdx(Number(e.target.value))} className="w-64" />
+                        </div>
+                    </div>
+
+                    <div className="w-80 bg-slate-900 border-l border-slate-800 p-6 flex flex-col gap-6">
+                        <div>
+                            <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4">Model Selection (Beyond CNNs)</h3>
+                            <button onClick={() => setModelType('medsam')} className={`w-full p-4 rounded border text-left mb-3 ${modelType==='medsam' ? 'bg-indigo-600 border-indigo-500' : 'bg-slate-800 border-slate-700'}`}>
+                                <div className="font-bold">MedSAM-2 Foundation</div>
+                                <div className="text-xs opacity-70">Zero-Shot, Few-Shot • Generalized (Foundational Models)</div>
+                            </button>
+                            <button onClick={() => setModelType('unetr')} className={`w-full p-4 rounded border text-left ${modelType==='unetr' ? 'bg-indigo-600 border-indigo-500' : 'bg-slate-800 border-slate-700'}`}>
+                                <div className="font-bold">UNETR Transformer</div>
+                                <div className="text-xs opacity-70">Fine-Tuned • Precise (Algorithmic Paradigms)</div>
+                            </button>
+                        </div>
+                        <div className="pt-6 border-t border-slate-800">
+                            <label className="flex items-center gap-3 text-sm cursor-pointer">
+                                <input type="checkbox" checked={showOverlay} onChange={e => setShowOverlay(e.target.checked)} className="rounded" />
+                                <span>Show Segmentation Overlay (Versatile Tasks)</span>
+                            </label>
+                        </div>
+                        <div className="space-y-4">
+                            <h4 className="text-sm font-bold uppercase text-slate-400">Realistic Examples</h4>
+                            <img src="https://www.researchgate.net/publication/370227344/figure/fig4/AS:11431281153293473@1682392187880/More-examples-of-the-pre-trained-SAM-and-MedSAM-on-different-3D-and-2D-medical-image.ppm" alt="MedSAM Example" className="rounded border border-slate-700" />
+                            <img src="https://www.academicradiology.org/cms/10.1016/j.acra.2024.06.008/asset/9b29c05b-c745-4c1c-a333-f4742d0f3deb/main.assets/gr1_lrg.jpg" alt="UNETR Example" className="rounded border border-slate-700" />
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const ModuleGenReport = () => {
+            const [generating, setGenerating] = useState(false);
+            const [text, setText] = useState("");
+            const fullReport = `CARDIAC MRI REPORT\n\nIndication: Evaluation of left ventricular function and myocardial tissue characterization in interdisciplinary research.\n\nFindings:\nShort-axis cine sequences demonstrate normal biventricular size and systolic function using foundational models. Left ventricular ejection fraction is 62% (normal range) via few-shot learning. No regional wall motion abnormalities detected with self-supervised approaches.\n\nLate gadolinium enhancement images show no focal scar or fibrosis. Native T1 mapping values are within normal limits (multimodal learning).\n\nImpression:\nNormal cardiac MRI study. No evidence of cardiomyopathy or infarction. Supports scalable AI pipelines and reproducible development.`;
+
+            useEffect(() => {
+                if (generating) {
+                    let i = 0; setText("");
+                    const id = setInterval(() => {
+                        setText(prev => prev + fullReport.charAt(i)); i++;
+                        if (i >= fullReport.length) { clearInterval(id); setGenerating(false); }
+                    }, 30);
+                    return () => clearInterval(id);
+                }
+            }, [generating]);
+
+            return (
+                <div className="p-8 max-w-5xl mx-auto h-full flex flex-col">
+                    <header className="mb-8">
+                        <h2 className="text-2xl font-bold text-white mb-2">Multimodal Report Generation</h2>
+                        <p className="text-slate-400 text-sm">Vision-Language Model inference from cardiac MRI embeddings (Multimodal Learning)</p>
+                    </header>
+                    <div className="grid grid-cols-2 gap-8 flex-1">
+                        <div className="glass-panel p-8 rounded-xl flex flex-col items-center justify-center">
+                            <img src="https://www.ahajournals.org/cms/10.1161/CIRCIMAGING.112.980037/asset/01fde253-3d02-49cf-9dcd-70090d5c381d/assets/graphic/329fig02.jpeg" alt="Realistic Clinical Report Example" className="rounded-lg shadow-lg max-h-full" />
+                            <p className="mt-4 text-xs text-slate-500 font-mono">Real clinical report layout (Exploratory Research)</p>
+                        </div>
+                        <div className="flex flex-col">
+                            <div className="flex-1 bg-slate-900 border border-slate-800 rounded-xl p-6 font-mono text-sm text-slate-300 leading-relaxed whitespace-pre-wrap overflow-y-auto">
+                                {text || <span className="text-slate-600 italic">Click Generate to create report from current MRI (Large-Dataset Workflows)...</span>}
+                                {generating && <span className="animate-pulse ml-1">|</span>}
+                            </div>
+                            <button onClick={() => setGenerating(true)} disabled={generating} className="mt-6 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold rounded-lg">
+                                {generating ? 'Generating Report...' : 'Generate Clinical Report'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- Main App ---
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('dashboard');
+            const tabs = [
+                { id: 'dashboard', icon: 'LayoutDashboard', label: 'Overview' },
+                { id: 'mlops', icon: 'Server', label: 'MLOps Cluster' },
+                { id: 'segmentation', icon: 'Scan', label: 'Foundation Models' },
+                { id: 'report', icon: 'FileText', label: 'Multimodal GenAI' },
+            ];
+
+            return (
+                <div className="flex h-screen w-full">
+                    <div className="w-20 lg:w-64 bg-slate-900 border-r border-slate-800 flex flex-col">
+                        <div className="p-6 border-b border-slate-800 flex items-center gap-3">
+                            <div className="bg-indigo-600 p-2 rounded-lg"><Icon name="Cpu" className="text-white" /></div>
+                            <span className="font-bold text-white hidden lg:block">ACMAF<span className="text-indigo-500">.RS</span></span>
+                        </div>
+                        <nav className="flex-1 p-3 space-y-2">
+                            {tabs.map(tab => (
+                                <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                                    className={`w-full flex items-center gap-4 p-3 rounded-lg transition-all ${activeTab === tab.id ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-600/30' : 'text-slate-400 hover:bg-slate-800'}`}>
+                                    <Icon name={tab.icon} />
+                                    <span className="hidden lg:block">{tab.label}</span>
+                                </button>
+                            ))}
+                        </nav>
+                    </div>
+                    <main className="flex-1 bg-[#020617] overflow-hidden">
+                        {activeTab === 'dashboard' && <ModuleDashboard />}
+                        {activeTab === 'mlops' && <ModuleMLOps />}
+                        {activeTab === 'segmentation' && <ModuleSegmentation />}
+                        {activeTab === 'report' && <ModuleGenReport />}
+                    </main>
+                </div>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Name Lister</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 2em;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1a1a1a;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+        }
+        input[type="file"] {
+            display: block;
+            margin: 1.5rem 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #output {
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 1rem;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            min-height: 50px;
+            color: #222;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>File Name Lister 📋</h1>
+        <p>Select one or more files to see their names listed below.</p>
+        
+        <input type="file" id="fileInput" multiple>
+        
+        <h2>Selected Files:</h2>
+        <pre id="output">... waiting for file selection ...</pre>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const outputArea = document.getElementById('output');
+
+        // This event listener triggers when the user selects files.
+        fileInput.addEventListener('change', (event) => {
+            // Get the list of selected files.
+            const files = event.target.files;
+
+            // If no files are selected, display the default message.
+            if (files.length === 0) {
+                outputArea.textContent = '... waiting for file selection ...';
+                return;
+            }
+            
+            // This operation is instantaneous, so no "reading" is needed.
+            // 1. Convert the FileList object to a standard array.
+            // 2. Use .map() to create a new array containing a numbered list of file names.
+            const fileNameList = Array.from(files).map((file, index) => {
+                return `${index + 1}. ${file.name}`;
+            });
+            
+            // 3. Join the array items into a single string with each name on a new line.
+            outputArea.textContent = fileNameList.join('\n');
+        });
+    </script>
+
+</body>
+</html>

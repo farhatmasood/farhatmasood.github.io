@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical ECG Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .menu-btn, .info-btn {
+            -webkit-tap-highlight-color: transparent;
+        }
+        .menu-item {
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .menu-item.active .check-mark {
+            display: inline;
+        }
+        .check-mark {
+            display: none;
+            color: #10B981; /* Tailwind green-500 */
+        }
+        #graph-container {
+            width: 100%;
+            flex-grow: 1;
+            display: grid; /* Use grid for layout */
+            padding: 1rem;
+            position: relative;
+            background-color: #f7fafc; /* gray-100 */
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            width: 90%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow: auto;
+            position: relative;
+        }
+        .modal-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: #4a5568; /* gray-600 */
+        }
+    </style>
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+</head>
+<body class="bg-gray-100 flex flex-col h-screen">
+
+    <nav class="bg-white shadow-md p-2 flex items-center justify-center space-x-2 md:space-x-4 flex-wrap">
+        <!-- Rhythm Dropdown -->
+        <div class="relative inline-block text-left">
+            <button type="button" id="examples-btn" class="menu-btn inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none">
+                Rhythm
+                <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+            </button>
+            <div id="examples-menu" class="origin-top-right absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none hidden z-20">
+                <div class="py-1" role="menu">
+                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm menu-item" data-example="NSR">Normal Sinus Rhythm <span class="check-mark">&#10003;</span></a>
+                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm menu-item" data-example="AFIB">Atrial Fibrillation <span class="check-mark">&#10003;</span></a>
+                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm menu-item" data-example="VTACH">Ventricular Tachycardia <span class="check-mark">&#10003;</span></a>
+                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm menu-item" data-example="BRADY">Sinus Bradycardia <span class="check-mark">&#10003;</span></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Color Scheme Dropdown -->
+        <div class="relative inline-block text-left">
+            <button type="button" id="colors-btn" class="menu-btn inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none">
+                Color Scheme
+                <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+            </button>
+            <div id="colors-menu" class="origin-top-right absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none hidden z-20">
+                <div class="py-1" role="menu">
+                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm menu-item" data-color="DARK_GREEN">Monitor Green <span class="check-mark">&#10003;</span></a>
+                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm menu-item" data-color="BLACK">Monitor White <span class="check-mark">&#10003;</span></a>
+                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm menu-item" data-color="GRAY">Print Gray <span class="check-mark">&#10003;</span></a>
+                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm menu-item" data-color="BLUE">Blue <span class="check-mark">&#10003;</span></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leads Dropdown -->
+        <div class="relative inline-block text-left">
+            <button type="button" id="graphs-btn" class="menu-btn inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none">
+                Leads: <span id="num-graphs-label">12</span>
+                <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+            </button>
+            <div id="graphs-menu" class="origin-top-right absolute left-0 mt-2 w-24 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none hidden z-20">
+                <div class="py-1" role="menu">
+                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm menu-item" data-graphs="1">1</a>
+                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm menu-item" data-graphs="3">3</a>
+                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm menu-item" data-graphs="6">6</a>
+                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm menu-item" data-graphs="12">12</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Controls Panel -->
+    <div id="controls-panel" class="bg-gray-200 p-2 flex items-center justify-center space-x-2 md:space-x-6 flex-wrap">
+        <button id="guide-btn" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
+             ECG Guide
+        </button>
+        <button id="play-pause-btn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full w-12 h-12 flex items-center justify-center">
+            <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /></svg>
+            <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6" /></svg>
+        </button>
+        <div class="text-center">
+             <div id="bpm-display" class="text-3xl font-bold text-red-500">--</div>
+             <div class="text-sm text-gray-600">BPM</div>
+        </div>
+        <div class="flex items-center space-x-2">
+            <label for="speed-slider" class="text-sm font-medium text-gray-700">Speed (<span id="speed-label">25</span>mm/s):</label>
+            <input id="speed-slider" type="range" min="25" max="50" step="25" value="25" class="w-24 h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer">
+        </div>
+        <div class="flex items-center space-x-2">
+             <label for="gain-slider" class="text-sm font-medium text-gray-700">Gain (<span id="gain-label">1.0</span>x):</label>
+            <input id="gain-slider" type="range" min="0.5" max="2" step="0.5" value="1" class="w-24 h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer">
+        </div>
+    </div>
+
+    <div class="text-center py-2 bg-gray-100 shadow-inner flex items-center justify-center">
+        <h1 id="page-title" class="text-xl font-semibold text-gray-700">Normal Sinus Rhythm</h1>
+        <button id="rhythm-info-btn" class="info-btn ml-2 text-blue-500 hover:text-blue-700">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        </button>
+    </div>
+
+    <div id="graph-container">
+        <!-- Canvases will be dynamically inserted here -->
+    </div>
+
+    <!-- ECG Guide Modal -->
+    <div id="guide-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <span id="modal-close-btn-guide" class="modal-close-btn">&times;</span>
+            <h2 class="text-2xl font-bold mb-4 text-center">ECG Waveform Components</h2>
+            <svg viewBox="0 0 900 450" xmlns="http://www.w3.org/2000/svg" class="w-full">
+                <!-- Grid -->
+                <defs>
+                    <pattern id="smallGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="#fecaca" stroke-width="0.5"/></pattern>
+                    <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse"><rect width="50" height="50" fill="url(#smallGrid)"/><path d="M 50 0 L 0 0 0 50" fill="none" stroke="#f87171" stroke-width="1"/></pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#grid)" />
+                <!-- Center Line -->
+                <line x1="0" y1="225" x2="900" y2="225" stroke="#a1a1aa" stroke-width="1" />
+                
+                <!-- Calibration Pulse -->
+                <g>
+                    <path d="M 40,225 V 125 H 90 V 225" stroke="#1f2937" stroke-width="3" fill="none"/>
+                    <text x="50" y="115" font-size="14" fill="#111827">10 mm/mV</text>
+                </g>
+
+                <!-- Waveform Path -->
+                <path d="M0,225 H100 C130,225 140,200 160,200 C180,200 190,225 220,225 H280 C285,225 288,235 290,240 L310,125 L320,325 L328,225 C335,175 380,225 430,225 H500 C540,225 560,190 600,190 C640,190 680,225 900,225" stroke="#1f2937" stroke-width="3" fill="none" />
+                
+                <!-- Labels and Annotations -->
+                <g font-family="Inter, sans-serif" font-size="16" fill="#111827">
+                    <!-- Waves -->
+                    <text x="155" y="190" font-weight="bold">P</text>
+                    <text x="290" y="260" font-weight="bold">Q</text>
+                    <text x="315" y="115" font-weight="bold">R</text>
+                    <text x="325" y="345" font-weight="bold">S</text>
+                    <text x="595" y="180" font-weight="bold">T</text>
+                    
+                    <!-- Intervals & Segments -->
+                    <g stroke="#3b82f6" stroke-width="1.5">
+                        <path d="M140,280 V290 H280 V280" fill="none"/><text x="180" y="310">PR Interval</text>
+                        <path d="M290,350 V360 H328 V350" fill="none"/><text x="288" y="380">QRS</text>
+                        <path d="M290,310 V320 H650 V310" fill="none"/><text x="430" y="340">QT Interval</text>
+                        <line x1="340" y1="225" x2="520" y2="225" stroke-dasharray="5 3"/><path d="M340,210 V200 H520 V210" fill="none"/><text x="400" y="190">ST Segment</text>
+                        <line x1="180" y1="225" x2="280" y2="225" stroke-dasharray="5 3"/><path d="M180,250 V260 H280 V250" fill="none"/><text x="200" y="280">PR Segment</text>
+                    </g>
+                    <!-- J Point -->
+                    <g fill="#ef4444">
+                       <circle cx="335" cy="225" r="4" /><line x1="335" y1="225" x2="360" y2="180" stroke="#ef4444" stroke-width="1"/><text x="365" y="175" font-weight="bold">J Point</text>
+                    </g>
+                </g>
+                <!-- Axis Label -->
+                <text x="750" y="430" font-size="14" fill="#111827">Speed: 25 mm/sec</text>
+            </svg>
+        </div>
+    </div>
+
+    <!-- Rhythm Info Modal -->
+    <div id="rhythm-info-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <span id="modal-close-btn-rhythm" class="modal-close-btn">&times;</span>
+            <h2 id="rhythm-info-title" class="text-2xl font-bold mb-4 text-center">Rhythm Information</h2>
+            <div id="rhythm-info-content" class="text-gray-700 space-y-2"></div>
+        </div>
+    </div>
+
+
+    <script>
+        // DOM Elements
+        const graphContainer = document.getElementById('graph-container');
+        const pageTitle = document.getElementById('page-title');
+        const bpmDisplay = document.getElementById('bpm-display');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const playIcon = document.getElementById('play-icon');
+        const pauseIcon = document.getElementById('pause-icon');
+        const speedSlider = document.getElementById('speed-slider');
+        const speedLabel = document.getElementById('speed-label');
+        const gainSlider = document.getElementById('gain-slider');
+        const gainLabel = document.getElementById('gain-label');
+        const guideBtn = document.getElementById('guide-btn');
+        const guideModal = document.getElementById('guide-modal');
+        const modalCloseBtnGuide = document.getElementById('modal-close-btn-guide');
+        const rhythmInfoBtn = document.getElementById('rhythm-info-btn');
+        const rhythmInfoModal = document.getElementById('rhythm-info-modal');
+        const rhythmInfoTitle = document.getElementById('rhythm-info-title');
+        const rhythmInfoContent = document.getElementById('rhythm-info-content');
+        const modalCloseBtnRhythm = document.getElementById('modal-close-btn-rhythm');
+
+        // State Variables
+        let numGraphs = 12;
+        let currentExample = "NSR";
+        let currentColorSchema = "DARK_GREEN";
+        let dataSources = [];
+        let animationFrameId;
+        let isAnimationPaused = false;
+        let gain = 1.0;
+        let speed = 25; // in mm/s
+        let pixelsPerMm = 4;
+
+        const leadNames = ["I", "II", "III", "aVR", "aVL", "aVF", "V1", "V2", "V3", "V4", "V5", "V6"];
+
+        const colorSchemas = {
+            "DARK_GREEN": { name: "Monitor Green", bgTop: "#000000", bgBot: "#000000", grid: "#004000", majorGrid: "#006400", graphColors: ["#00FF00"] },
+            "BLACK": { name: "Monitor White", bgTop: "#000000", bgBot: "#000000", grid: "#5A5A5A", majorGrid: "#888888", graphColors: ["#FFFFFF"]},
+            "GRAY": { name: "Print Gray", bgTop: "#FFFFFF", bgBot: "#F0F0F0", grid: "#E0E0E0", majorGrid: "#C0C0C0", graphColors: ["#000000"] },
+            "BLUE": { name: "Blue", bgTop: "#000040", bgBot: "#000080", grid: "#0000A0", majorGrid: "#0000FF", graphColors: ["#FFFF00"] }
+        };
+
+        const rhythmDescriptions = {
+            "NSR": {
+                title: "Normal Sinus Rhythm",
+                description: `<p>This is the normal, healthy rhythm of the heart. Electrical impulses originate in the sinoatrial (SA) node and travel through the normal conduction pathways.</p>
+                              <ul class="list-disc list-inside"><li><strong>Rate:</strong> 60-100 beats per minute.</li><li><strong>Rhythm:</strong> Regular.</li><li><strong>P waves:</strong> Upright, uniform, and one preceding each QRS complex.</li><li><strong>PR interval:</strong> 0.12-0.20 seconds.</li><li><strong>QRS duration:</strong> Less than 0.12 seconds.</li></ul>`
+            },
+            "AFIB": {
+                title: "Atrial Fibrillation",
+                description: `<p>A supraventricular tachyarrhythmia characterized by chaotic, disorganized atrial activity. This leads to an irregular and often rapid ventricular response.</p>
+                              <ul class="list-disc list-inside"><li><strong>Rate:</strong> Atrial rate is 350-600 bpm; ventricular rate is variable (can be slow or rapid).</li><li><strong>Rhythm:</strong> Irregularly irregular.</li><li><strong>P waves:</strong> Absent. Replaced by fine, chaotic fibrillatory waves.</li><li><strong>QRS duration:</strong> Usually normal (less than 0.12 seconds).</li></ul>`
+            },
+            "VTACH": {
+                title: "Ventricular Tachycardia",
+                description: `<p>A life-threatening arrhythmia originating from an ectopic focus in the ventricles. It is a rapid, regular rhythm that can severely compromise cardiac output.</p>
+                              <ul class="list-disc list-inside"><li><strong>Rate:</strong> 100-250 beats per minute.</li><li><strong>Rhythm:</strong> Regular or slightly irregular.</li><li><strong>P waves:</strong> Usually not visible; if seen, they are dissociated from the QRS complexes (AV dissociation).</li><li><strong>QRS duration:</strong> Wide (> 0.12 seconds), with a bizarre morphology.</li></ul>`
+            },
+            "BRADY": {
+                title: "Sinus Bradycardia",
+                description: `<p>A rhythm originating from the SA node, but at a rate slower than normal. It can be a normal finding in athletes but can also indicate cardiac pathology.</p>
+                              <ul class="list-disc list-inside"><li><strong>Rate:</strong> Less than 60 beats per minute.</li><li><strong>Rhythm:</strong> Regular.</li><li><strong>P waves:</strong> Normal, upright, one preceding each QRS.</li><li><strong>PR interval:</strong> Normal (0.12-0.20 seconds).</li><li><strong>QRS duration:</strong> Normal (less than 0.12 seconds).</li></ul>`
+            }
+        };
+
+        function generateECGData(rhythm, heartRate, time) {
+            const beatDuration = 60.0 / heartRate;
+            let t_cycle = (time % beatDuration) / beatDuration;
+
+            if (rhythm === 'AFIB') {
+                const randomFactor = 0.7 + Math.random() * 0.6;
+                const irregularBeatDuration = beatDuration * randomFactor;
+                t_cycle = (time % irregularBeatDuration) / irregularBeatDuration;
+            }
+
+            const p_wave = (rhythm === 'AFIB') ? (Math.random() - 0.5) * 0.05 : 0.1 * Math.exp(-Math.pow((t_cycle - 0.15) / 0.04, 2));
+            const q_wave = -0.15 * Math.exp(-Math.pow((t_cycle - 0.25) / 0.01, 2));
+            const r_wave = 1.0 * Math.exp(-Math.pow((t_cycle - 0.28) / 0.02, 2));
+            const s_wave = -0.25 * Math.exp(-Math.pow((t_cycle - 0.31) / 0.02, 2));
+            const t_wave = 0.25 * Math.exp(-Math.pow((t_cycle - 0.45) / 0.06, 2));
+            
+            if (rhythm === 'VTACH') {
+                const vt_qrs = 1.0 * Math.exp(-Math.pow((t_cycle - 0.2) / 0.05, 2)) - 0.5 * Math.exp(-Math.pow((t_cycle - 0.28) / 0.05, 2));
+                return { y: { p: 0, qrs: vt_qrs, t: 0, baseline: 0 }, isRPeak: t_cycle > 0.18 && t_cycle < 0.22 };
+            }
+
+            const baselineWander = 0.02 * Math.sin(time * Math.PI * 2 * 0.1);
+            const isRPeak = t_cycle > 0.27 && t_cycle < 0.29;
+
+            return { y: { p: p_wave, qrs: q_wave + r_wave + s_wave, t: t_wave, baseline: baselineWander }, isRPeak };
+        }
+
+        function getLeadAmplitude(leadName, wave) {
+            const { p, qrs, t, baseline } = wave;
+            const leadAmplitudes = {
+                "I":    { p: 0.15, qrs: 0.6, t: 0.2 }, "II":   { p: 0.25, qrs: 1.0, t: 0.3 }, "III":  { p: 0.1, qrs: 0.4, t: 0.1 },
+                "aVR":  { p: -0.2, qrs: -0.8, t: -0.25 }, "aVL":  { p: 0.05, qrs: 0.1, t: 0.0 }, "aVF":  { p: 0.17, qrs: 0.7, t: 0.2 },
+                "V1":   { p: 0.1, qrs: -0.4, t: -0.2 }, "V2":   { p: 0.15, qrs: -0.1, t: 0.1 }, "V3":   { p: 0.1, qrs: 0.4, t: 0.2 },
+                "V4":   { p: 0.1, qrs: 0.8, t: 0.3 }, "V5":   { p: 0.05, qrs: 1.0, t: 0.25 }, "V6":   { p: 0.0, qrs: 0.7, t: 0.2 }
+            };
+            const amp = leadAmplitudes[leadName] || { p: 1, qrs: 1, t: 1 };
+            
+            if(leadName.startsWith('V')) {
+                 const v_num = parseInt(leadName.charAt(1));
+                 const r_prog = (v_num - 1) / 5; 
+                 const s_prog = 1 - r_prog;
+                 const v_qrs = (qrs > 0 ? qrs * 1.5 * r_prog : qrs * 1.2 * s_prog);
+                 return (amp.p * p) + v_qrs + (amp.t * t) + baseline;
+            }
+            return (amp.p * p) + (amp.qrs * qrs) + (amp.t * t) + baseline;
+        }
+
+        // --- Main Drawing Logic ---
+        function drawGraphs(forceRedraw = false) {
+             if (!forceRedraw && isAnimationPaused) return;
+             graphContainer.querySelectorAll('canvas').forEach((canvas, i) => {
+                 if (dataSources[i]) drawSingleGraph(canvas, dataSources[i], i);
+             });
+        }
+        
+        function setupCanvases() {
+            graphContainer.innerHTML = '';
+            const layout = getLayoutParams(currentExample, numGraphs);
+            graphContainer.className = layout.containerClass;
+            
+            for (let i = 0; i < numGraphs; i++) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'relative bg-white rounded-lg shadow-md';
+                const canvas = document.createElement('canvas');
+                canvas.className = 'w-full h-full';
+                canvas.dataset.index = i;
+                wrapper.appendChild(canvas);
+                graphContainer.appendChild(wrapper);
+            }
+        }
+
+        function getLayoutParams(example, count) {
+             let containerClass = 'w-full h-full grid gap-2';
+             if (count === 1) { containerClass += ' grid-cols-1 grid-rows-1'; }
+             else if (count === 3) { containerClass += ' grid-cols-1 grid-rows-3'; }
+             else if (count === 6) { containerClass += ' grid-cols-2 grid-rows-3'; }
+             else { containerClass += ' grid-cols-2 grid-rows-6'; } 
+             return { containerClass };
+        }
+
+        function drawSingleGraph(canvas, ds, index) {
+            const ctx = canvas.getContext('2d');
+            const { width, height } = canvas.getBoundingClientRect();
+            if (canvas.width !== width || canvas.height !== height) { canvas.width = width; canvas.height = height; }
+
+            const schema = colorSchemas[currentColorSchema];
+            ctx.fillStyle = schema.bgTop; ctx.fillRect(0, 0, width, height);
+            
+            ctx.lineWidth = 0.5;
+            ctx.strokeStyle = schema.grid;
+            for (let x = 0; x < width; x += pixelsPerMm) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke(); }
+            for (let y = 0; y < height; y += pixelsPerMm) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke(); }
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = schema.majorGrid;
+            for (let x = 0; x < width; x += pixelsPerMm * 5) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke(); }
+            for (let y = 0; y < height; y += pixelsPerMm * 5) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke(); }
+
+            const mV_to_px = (mV) => height / 2 - (mV * 10 * pixelsPerMm * gain);
+            const time_to_px = (t) => (t - ds.startTime) * speed * pixelsPerMm;
+
+            ctx.strokeStyle = schema.graphColors[0];
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ds.samples.forEach((point, i) => {
+                const px = time_to_px(point.t);
+                const py = mV_to_px(point.y);
+                if (i === 0) { ctx.moveTo(px, py); } else { ctx.lineTo(px, py); }
+            });
+            ctx.stroke();
+
+            ctx.fillStyle = schema.graphColors[0];
+            ctx.font = 'bold 14px Inter';
+            ctx.fillText(ds.name, 10, 20);
+        }
+
+        function setupDataSources() {
+            isAnimationPaused = false;
+            const screenDuration = (graphContainer.clientWidth / (speed * pixelsPerMm)) || 4.0;
+            const samplesNeeded = Math.ceil(screenDuration / 0.004); // 250Hz sampling rate
+
+            dataSources = [];
+            for (let j = 0; j < numGraphs; j++) {
+                dataSources.push({
+                    name: leadNames[j % 12],
+                    samples: new Array(samplesNeeded).fill({y: 0, t: 0, isRPeak: false}),
+                    startTime: 0,
+                });
+            }
+        }
+        
+        let lastTime = 0;
+        let totalTime = 0;
+        let lastRPeakTime = 0;
+
+        function animate(timestamp) {
+            animationFrameId = requestAnimationFrame(animate);
+            if (!lastTime) lastTime = timestamp;
+            const deltaTime = (timestamp - lastTime) / 1000.0;
+            lastTime = timestamp;
+
+            if (isAnimationPaused) return;
+
+            totalTime += deltaTime;
+            const heartRate = { "NSR": 75, "AFIB": 110, "VTACH": 180, "BRADY": 45 }[currentExample];
+            const newDataPoints = Math.ceil(deltaTime / 0.004);
+
+            for (let i = 0; i < newDataPoints; i++) {
+                const sampleTime = totalTime + i * 0.004;
+                const { y: wave, isRPeak } = generateECGData(currentExample, heartRate, sampleTime);
+                
+                if (isRPeak && (sampleTime - lastRPeakTime > 0.3)) { // Prevent double counting
+                    const bpm = 60 / (sampleTime - lastRPeakTime);
+                    bpmDisplay.textContent = Math.round(bpm);
+                    lastRPeakTime = sampleTime;
+                }
+
+                for (let j = 0; j < numGraphs; j++) {
+                    const leadY = getLeadAmplitude(dataSources[j].name, wave);
+                    const dataPoint = { y: leadY, t: sampleTime };
+                    dataSources[j].samples.shift();
+                    dataSources[j].samples.push(dataPoint);
+                    dataSources[j].startTime = dataSources[j].samples[0].t;
+                }
+            }
+            drawGraphs();
+        }
+        
+        function updateAndRedraw() {
+            cancelAnimationFrame(animationFrameId);
+            setupDataSources();
+            setupCanvases();
+            drawGraphs(true);
+            updateActiveMenuItems();
+            totalTime = 0;
+            lastTime = 0;
+            lastRPeakTime = 0;
+            bpmDisplay.textContent = '--';
+            animationFrameId = requestAnimationFrame(animate);
+        }
+        
+        function updateActiveMenuItems() {
+             document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+             document.querySelector(`.menu-item[data-example="${currentExample}"]`)?.classList.add('active');
+             document.querySelector(`.menu-item[data-color="${currentColorSchema}"]`)?.classList.add('active');
+             document.querySelector(`.menu-item[data-graphs="${numGraphs}"]`)?.classList.add('active');
+             document.getElementById('num-graphs-label').textContent = numGraphs;
+             pageTitle.textContent = document.querySelector(`.menu-item[data-example="${currentExample}"]`).innerText;
+        }
+
+        function setupEventListeners() {
+            const menus = { 'examples-btn': 'examples-menu', 'colors-btn': 'colors-menu', 'graphs-btn': 'graphs-menu' };
+            Object.keys(menus).forEach(btnId => {
+                const btn = document.getElementById(btnId);
+                const menu = document.getElementById(menus[btnId]);
+                btn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    menu.classList.toggle('hidden');
+                });
+            });
+            
+            document.getElementById('examples-menu').addEventListener('click', e => { if (e.target.closest('.menu-item')?.dataset.example) { currentExample = e.target.closest('.menu-item').dataset.example; updateAndRedraw(); } });
+            document.getElementById('colors-menu').addEventListener('click', e => { if (e.target.closest('.menu-item')?.dataset.color) { currentColorSchema = e.target.closest('.menu-item').dataset.color; drawGraphs(true); updateActiveMenuItems(); } });
+            document.getElementById('graphs-menu').addEventListener('click', e => { if (e.target.closest('.menu-item')?.dataset.graphs) { numGraphs = parseInt(e.target.closest('.menu-item').dataset.graphs); updateAndRedraw(); } });
+            
+            playPauseBtn.addEventListener('click', () => {
+                isAnimationPaused = !isAnimationPaused;
+                playIcon.classList.toggle('hidden', !isAnimationPaused);
+                pauseIcon.classList.toggle('hidden', isAnimationPaused);
+                if (!isAnimationPaused) lastTime = performance.now(); 
+            });
+
+            speedSlider.addEventListener('input', e => { speed = parseInt(e.target.value); speedLabel.textContent = speed; updateAndRedraw(); });
+            gainSlider.addEventListener('input', e => { gain = parseFloat(e.target.value); gainLabel.textContent = gain.toFixed(1); });
+            
+            guideBtn.addEventListener('click', () => guideModal.classList.remove('hidden'));
+            modalCloseBtnGuide.addEventListener('click', () => guideModal.classList.add('hidden'));
+            guideModal.addEventListener('click', e => { if (e.target === guideModal) guideModal.classList.add('hidden'); });
+
+            rhythmInfoBtn.addEventListener('click', () => {
+                const info = rhythmDescriptions[currentExample];
+                rhythmInfoTitle.textContent = info.title;
+                rhythmInfoContent.innerHTML = info.description;
+                rhythmInfoModal.classList.remove('hidden');
+            });
+            modalCloseBtnRhythm.addEventListener('click', () => rhythmInfoModal.classList.add('hidden'));
+            rhythmInfoModal.addEventListener('click', e => { if (e.target === rhythmInfoModal) rhythmInfoModal.classList.add('hidden'); });
+
+
+            window.addEventListener('click', () => Object.values(menus).forEach(menuId => document.getElementById(menuId).classList.add('hidden')));
+            window.addEventListener('resize', () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(updateAndRedraw, 100); });
+        }
+        
+        let resizeTimeout;
+
+        // Initial setup
+        setupEventListeners();
+        updateAndRedraw();
+
+    </script>
+
+</body>
+</html>
+

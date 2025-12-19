@@ -1,0 +1,1401 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Lumbar Spine MRI Automated Analysis System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #64748b;
+            --accent: #0f766e;
+            --neutral: #f8fafc;
+            --base-100: #ffffff;
+            --base-content: #1e293b;
+        }
+        
+        .font-serif { font-family: 'Crimson Text', serif; }
+        .font-sans { font-family: 'Inter', sans-serif; }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+        }
+        
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .toc-fixed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 280px;
+            background: var(--base-100);
+            border-right: 1px solid #e2e8f0;
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 2rem 1.5rem;
+        }
+        
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+        }
+        
+        .section-spacing {
+            padding: 4rem 0;
+        }
+        
+        .citation-link {
+            color: var(--accent);
+            text-decoration: underline;
+            font-weight: 500;
+        }
+        
+        .citation-link:hover {
+            color: var(--primary);
+        }
+        
+        .tech-card {
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .tech-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .data-flow-arrow {
+            position: relative;
+        }
+        
+        .data-flow-arrow::after {
+            content: '→';
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--accent);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 1024px) {
+            .toc-fixed {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .toc-fixed.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mermaid-control-btn:not(.reset-zoom) {
+                display: none;
+            }
+            .mermaid-controls {
+                top: auto;
+                bottom: 15px;
+                right: 15px;
+            }
+        }
+
+        /* Additional mermaid container styling */
+        .mermaid-container {
+            display: flex;
+            justify-content: center;
+            min-height: 300px;
+            max-height: 800px;
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 30px 0;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mermaid-container .mermaid {
+            width: 100%;
+            max-width: 100%;
+            height: 100%;
+            cursor: grab;
+            transition: transform 0.3s ease;
+            transform-origin: center center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            touch-action: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .mermaid-container .mermaid svg {
+            max-width: 100%;
+            height: 100%;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .mermaid-container .mermaid:active {
+            cursor: grabbing;
+        }
+
+        .mermaid-container.zoomed .mermaid {
+            height: 100%;
+            width: 100%;
+            cursor: grab;
+        }
+
+        .mermaid-controls {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 10px;
+            z-index: 20;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 8px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .mermaid-control-btn {
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #374151;
+            font-size: 14px;
+            min-width: 36px;
+            height: 36px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mermaid-control-btn:hover {
+            background: #f8fafc;
+            border-color: #3b82f6;
+            color: #3b82f6;
+            transform: translateY(-1px);
+        }
+
+        .mermaid-control-btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+  <base target="_blank">
+</head>
+
+  <body class="font-sans bg-neutral text-base-content">
+    <!-- Table of Contents -->
+    <nav class="toc-fixed glass-effect">
+      <div class="mb-8">
+        <h3 class="font-serif text-lg font-semibold text-primary mb-4">Contents</h3>
+        <ul class="space-y-2 text-sm">
+          <li>
+            <a href="#executive-summary" class="block py-2 px-3 rounded hover:bg-gray-100 transition-colors">Executive Summary</a>
+          </li>
+          <li>
+            <a href="#system-architecture" class="block py-2 px-3 rounded hover:bg-gray-100 transition-colors">1. System Architecture</a>
+          </li>
+          <li>
+            <a href="#dataset-preprocessing" class="block py-2 px-3 rounded hover:bg-gray-100 transition-colors">2. Dataset &amp; Preprocessing</a>
+          </li>
+          <li>
+            <a href="#segmentation-module" class="block py-2 px-3 rounded hover:bg-gray-100 transition-colors">3. Segmentation Module</a>
+          </li>
+          <li>
+            <a href="#measurement-computation" class="block py-2 px-3 rounded hover:bg-gray-100 transition-colors">4. Measurement Computation</a>
+          </li>
+          <li>
+            <a href="#disease-grading" class="block py-2 px-3 rounded hover:bg-gray-100 transition-colors">5. Disease Severity Grading</a>
+          </li>
+          <li>
+            <a href="#report-generation" class="block py-2 px-3 rounded hover:bg-gray-100 transition-colors">6. Report Generation</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Hero Section -->
+      <section class="hero-gradient relative overflow-hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-20"></div>
+        <div class="relative z-10 container mx-auto px-4 sm:px-6 md:px-8 py-16">
+          <!-- Bento Grid Layout -->
+          <div class="grid grid-cols-1 gap-8 items-center lg:grid-cols-2">
+            <!-- Title &amp; Subtitle -->
+            <div class="text-white">
+              <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+                <em>Automated Analysis</em>
+                <br/>
+                of Lumbar Spine MRI
+              </h1>
+              <p class="text-lg sm:text-xl lg:text-2xl font-light opacity-90 leading-relaxed">
+                End-to-end Python system for research-grade segmentation, measurement, and reporting
+              </p>
+            </div>
+
+            <!-- Visual Element -->
+            <div class="relative">
+              <img src="https://kimi-web-img.moonshot.cn/img/media.springernature.com/bf25802a6c4381ceea817b91954296185ccf6b7c.png" alt="Lumbar spine MRI scan showing vertebral structures" class="w-full rounded-lg shadow-2xl opacity-90" size="large" aspect="wide" color="bw" style="photo" query="lumbar spine MRI" referrerpolicy="no-referrer" data-modified="1" data-score="0.00"/>
+              <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent rounded-lg"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Executive Summary -->
+      <section id="executive-summary" class="section-spacing bg-white">
+        <div class="container mx-auto px-4 sm:px-6 md:px-8">
+          <div class="max-w-4xl mx-auto">
+            <h2 class="font-serif text-4xl font-bold text-primary mb-8">Executive Summary</h2>
+
+            <div class="prose prose-lg max-w-none">
+              <p class="text-xl leading-relaxed text-gray-700 mb-6">
+                This report outlines the design and implementation of an end-to-end automated analysis system for lumbar spine Magnetic Resonance Imaging (MRI) scans, developed in Python for research purposes. The system integrates a prompt-based segmentation module using the Segment Anything Model (SAM), a computational engine for critical spinal measurements, a disease severity grading module, and a structured radiology report generator.
+              </p>
+
+              <div class="grid grid-cols-1 gap-6 my-8 md:grid-cols-2">
+                <div class="tech-card bg-blue-50 p-6 rounded-lg">
+                  <div class="flex items-center mb-4">
+                    <i class="fas fa-brain text-primary text-2xl mr-3"></i>
+                    <h3 class="font-semibold text-lg">Advanced AI Segmentation</h3>
+                  </div>
+                  <p class="text-gray-700">Utilizes Segment Anything Model (SAM) for precise anatomical structure delineation with prompt-based guidance.</p>
+                </div>
+
+                <div class="tech-card bg-teal-50 p-6 rounded-lg">
+                  <div class="flex items-center mb-4">
+                    <i class="fas fa-ruler-combined text-accent text-2xl mr-3"></i>
+                    <h3 class="font-semibold text-lg">Quantitative Measurements</h3>
+                  </div>
+                  <p class="text-gray-700">Computes critical spinal parameters including disc heights, vertebral dimensions, and angular measurements.</p>
+                </div>
+
+                <div class="tech-card bg-green-50 p-6 rounded-lg">
+                  <div class="flex items-center mb-4">
+                    <i class="fas fa-clipboard-check text-green-600 text-2xl mr-3"></i>
+                    <h3 class="font-semibold text-lg">Clinical Grading</h3>
+                  </div>
+                  <p class="text-gray-700">Automated Pfirrmann grading for disc degeneration and Modic change classification using deep learning.</p>
+                </div>
+
+                <div class="tech-card bg-purple-50 p-6 rounded-lg">
+                  <div class="flex items-center mb-4">
+                    <i class="fas fa-file-medical text-purple-600 text-2xl mr-3"></i>
+                    <h3 class="font-semibold text-lg">Structured Reporting</h3>
+                  </div>
+                  <p class="text-gray-700">Generates comprehensive radiology reports using vision-language models for clinical interpretation.</p>
+                </div>
+              </div>
+
+              <p class="text-lg leading-relaxed text-gray-700">
+                Built upon a foundation of publicly available, multi-planar MRI datasets and leveraging a suite of Python libraries for image processing, deep learning, and natural language processing to provide a comprehensive, quantitative, and qualitative assessment of spinal health.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- System Architecture -->
+      <section id="system-architecture" class="section-spacing bg-gray-50">
+        <div class="container mx-auto px-4 sm:px-6 md:px-8">
+          <div class="max-w-6xl mx-auto">
+            <h2 class="font-serif text-4xl font-bold text-primary mb-8">1. System Architecture and Core Methodology</h2>
+
+            <div class="mb-12">
+              <h3 class="font-serif text-2xl font-semibold mb-6">1.1 Overview of the End-to-End Pipeline</h3>
+              <div class="prose prose-lg max-w-none text-gray-700">
+                <p class="mb-6">
+                  The proposed system is a comprehensive, automated framework designed for the quantitative analysis of lumbar spine Magnetic Resonance Imaging (MRI) scans. The architecture is structured as a modular, end-to-end pipeline that processes raw MRI data to generate a structured radiology report.
+                </p>
+
+                <div class="mermaid-container">
+                  <div class="mermaid-controls">
+                    <button class="mermaid-control-btn zoom-in" title="放大">
+                      <i class="fas fa-search-plus"></i>
+                    </button>
+                    <button class="mermaid-control-btn zoom-out" title="缩小">
+                      <i class="fas fa-search-minus"></i>
+                    </button>
+                    <button class="mermaid-control-btn reset-zoom" title="重置">
+                      <i class="fas fa-expand-arrows-alt"></i>
+                    </button>
+                    <button class="mermaid-control-btn fullscreen" title="全屏查看">
+                      <i class="fas fa-expand"></i>
+                    </button>
+                  </div>
+                  <div class="mermaid">
+                    flowchart TD
+                    A[&#34;Raw MRI Data&#34;] --&gt; B[&#34;Data Ingestion
+                    <br/>DICOM Processing&#34;]
+                    B --&gt; C[&#34;Segmentation Module
+                    <br/>SAM Model&#34;]
+                    C --&gt; D[&#34;Measurement Computation
+                    <br/>OpenCV Analysis&#34;]
+                    D --&gt; E[&#34;Disease Grading
+                    <br/>CNN Classifiers&#34;]
+                    E --&gt; F[&#34;Report Generation
+                    <br/>Vision-Language Model&#34;]
+                    F --&gt; G[&#34;Structured Radiology Report&#34;]
+
+                    style A fill:#f8fafc,stroke:#64748b,stroke-width:2px,color:#1e293b
+                    style G fill:#dbeafe,stroke:#1e3a8a,stroke-width:2px,color:#1e293b
+                    style B fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#1e293b
+                    style C fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#1e293b
+                    style D fill:#e0e7ff,stroke:#6366f1,stroke-width:2px,color:#1e293b
+                    style E fill:#fdf4ff,stroke:#a855f7,stroke-width:2px,color:#1e293b
+                    style F fill:#f0fdf4,stroke:#0f766e,stroke-width:2px,color:#1e293b
+                  </div>
+                </div>
+
+                <p class="mb-6">
+                  The pipeline begins with the ingestion of multi-planar (axial and sagittal) MRI datasets, which are then preprocessed to ensure uniformity and compatibility with the subsequent analysis modules. The core of the system is a prompt-based segmentation engine, which utilizes a state-of-the-art foundation model to delineate key anatomical structures.
+                </p>
+              </div>
+            </div>
+
+            <div class="mb-12">
+              <h3 class="font-serif text-2xl font-semibold mb-6">1.2 Key Technologies and Libraries</h3>
+
+              <div class="grid grid-cols-1 gap-8 mb-8 lg:grid-cols-2">
+                <div class="tech-card bg-white p-6 rounded-lg">
+                  <h4 class="font-semibold text-lg mb-4 flex items-center">
+                    <i class="fas fa-image text-blue-600 mr-3"></i>
+                    Image Processing &amp; Analysis
+                  </h4>
+                  <ul class="space-y-2 text-gray-700">
+                    <li><strong>OpenCV:</strong> <a href="https://www.nature.com/articles/s41598-025-05091-0" class="citation-link">Geometric transformations and contour detection</a>
+                    </li>
+                    <li><strong>NumPy &amp; Pandas:</strong> Efficient data structures for numerical operations</li>
+                    <li><strong>Matplotlib &amp; Seaborn:</strong> Data visualization and performance metrics</li>
+                  </ul>
+                </div>
+
+                <div class="tech-card bg-white p-6 rounded-lg">
+                  <h4 class="font-semibold text-lg mb-4 flex items-center">
+                    <i class="fas fa-brain text-green-600 mr-3"></i>
+                    Deep Learning Frameworks
+                  </h4>
+                  <ul class="space-y-2 text-gray-700">
+                    <li><strong>PyTorch &amp; TensorFlow:</strong> <a href="https://norma.ncirl.ie/8795/1/lekshmisasidharankandamchirayil.pdf" class="citation-link">Model development and training</a>
+                    </li>
+                    <li><strong>Segment Anything Model (SAM):</strong> Prompt-based segmentation</li>
+                    <li><strong>ResNet &amp; VGG16:</strong> Classification architectures</li>
+                  </ul>
+                </div>
+
+                <div class="tech-card bg-white p-6 rounded-lg">
+                  <h4 class="font-semibold text-lg mb-4 flex items-center">
+                    <i class="fas fa-language text-purple-600 mr-3"></i>
+                    Vision-Language Models
+                  </h4>
+                  <ul class="space-y-2 text-gray-700">
+                    <li><strong>GIT Model:</strong> <a href="https://pubmed.ncbi.nlm.nih.gov/39685549/" class="citation-link">Generative Image-to-Text</a>
+                    </li>
+                    <li><strong>Transformers:</strong> BERT and LLM integration</li>
+                    <li><strong>Weights &amp; Biases:</strong> Experiment tracking</li>
+                  </ul>
+                </div>
+
+                <div class="tech-card bg-white p-6 rounded-lg">
+                  <h4 class="font-semibold text-lg mb-4 flex items-center">
+                    <i class="fas fa-database text-orange-600 mr-3"></i>
+                    Data Management
+                  </h4>
+                  <ul class="space-y-2 text-gray-700">
+                    <li><strong>DICOM Processing:</strong> Medical image format handling</li>
+                    <li><strong>Scikit-learn:</strong> <a href="https://link.springer.com/article/10.1007/s00586-025-09179-z" class="citation-link">Model evaluation and validation</a>
+                    </li>
+                    <li><strong>Pydicom:</strong> DICOM metadata extraction</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Dataset and Preprocessing -->
+      <section id="dataset-preprocessing" class="section-spacing bg-white">
+        <div class="container mx-auto px-4 sm:px-6 md:px-8">
+          <div class="max-w-6xl mx-auto">
+            <h2 class="font-serif text-4xl font-bold text-primary mb-8">2. Dataset Selection and Preprocessing</h2>
+
+            <div class="mb-12">
+              <h3 class="font-serif text-2xl font-semibold mb-6">2.1 Primary Dataset: Mendeley Lumbar Spine MRI</h3>
+
+              <div class="grid grid-cols-1 gap-8 mb-8 lg:grid-cols-3">
+                <div class="lg:col-span-2">
+                  <p class="text-gray-700 mb-6">
+                    The cornerstone of this research project is the &#34;Lumbar Spine MRI Dataset&#34; available on Mendeley Data, identified by the DOI
+                    <a href="https://data.mendeley.com/datasets/k57fr854j2/2" class="citation-link">`10.17632/k57fr854j2.2`</a>.
+                    This dataset provides the necessary volume and variety of data to train and validate complex deep learning models.
+                  </p>
+
+                  <div class="bg-blue-50 p-6 rounded-lg mb-6">
+                    <h4 class="font-semibold text-lg mb-3">Dataset Specifications</h4>
+                    <ul class="space-y-2 text-gray-700">
+                      <li><strong>Patients:</strong> 515 symptomatic back pain patients</li>
+                      <li><strong>Imaging Sequences:</strong> T1-weighted and T2-weighted scans</li>
+                      <li><strong>Views:</strong> Both axial and sagittal planes</li>
+                      <li><strong>Total Images:</strong> <a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0302067" class="citation-link">48,345 individual DICOM images</a>
+                      </li>
+                      <li><strong>Source:</strong> Irbid Specialty Hospital, Jordan (2015-2016)</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div>
+                  <img src="https://kimi-web-img.moonshot.cn/img/media.springernature.com/702d68ba7828d64b1bd15e895a288f80515a0fa7.png" alt="Sagittal and axial lumbar spine MRI scans" class="w-full rounded-lg shadow-lg" size="medium" aspect="wide" color="bw" style="photo" query="lumbar spine MRI sagittal axial" referrerpolicy="no-referrer" data-modified="1" data-score="0.00"/>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-12">
+              <h3 class="font-serif text-2xl font-semibold mb-6">2.2 Ancillary Datasets for Training</h3>
+
+              <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+                <div class="tech-card bg-gray-50 p-6 rounded-lg">
+                  <h4 class="font-semibold text-lg mb-4">Pfirrmann Grading Dataset</h4>
+                  <p class="text-gray-700 mb-4">
+                    <a href="https://data.mendeley.com/datasets/x6ggzp2ycn" class="citation-link">DOI: 10.17632/x6ggzp2ycn.1</a> -
+                    Contains 515 T2-weighted mid-sagittal MRI slices with manual Pfirrmann grade annotations (I-V) by expert radiologists.
+                  </p>
+                  <ul class="space-y-1 text-sm text-gray-600">
+                    <li>• Manual segmentation labels available</li>
+                    <li>• IVD height measurements provided</li>
+                    <li>• Ground truth for degeneration grading</li>
+                  </ul>
+                </div>
+
+                <div class="tech-card bg-gray-50 p-6 rounded-lg">
+                  <h4 class="font-semibold text-lg mb-4">Measurement Validation Dataset</h4>
+                  <p class="text-gray-700 mb-4">
+                    <a href="https://data.mendeley.com/datasets/zwd3hgr6gg/2" class="citation-link">DOI: 10.17632/zwd3hgr6gg.2</a> -
+                    Provides expert-verified spinal measurements including foraminal widths and anteroposterior diameter.
+                  </p>
+                  <ul class="space-y-1 text-sm text-gray-600">
+                    <li>• Average error: 0.28-0.90mm vs expert measurements</li>
+                    <li>• MATLAB source code included</li>
+                    <li>• Benchmark for measurement accuracy</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-12">
+              <h3 class="font-serif text-2xl font-semibold mb-6">2.3 Image Preprocessing Pipeline</h3>
+
+              <div class="mermaid-container">
+                <div class="mermaid-controls">
+                  <button class="mermaid-control-btn zoom-in" title="放大">
+                    <i class="fas fa-search-plus"></i>
+                  </button>
+                  <button class="mermaid-control-btn zoom-out" title="缩小">
+                    <i class="fas fa-search-minus"></i>
+                  </button>
+                  <button class="mermaid-control-btn reset-zoom" title="重置">
+                    <i class="fas fa-expand-arrows-alt"></i>
+                  </button>
+                  <button class="mermaid-control-btn fullscreen" title="全屏查看">
+                    <i class="fas fa-expand"></i>
+                  </button>
+                </div>
+                <div class="mermaid">
+                  flowchart LR
+                  A[&#34;DICOM Input&#34;] --&gt; B[&#34;Anonymization&#34;]
+                  B --&gt; C[&#34;Format Conversion
+                  <br/>PNG 384x384&#34;]
+                  C --&gt; D[&#34;Intensity Normalization
+                  <br/>[0,1] Range&#34;]
+                  D --&gt; E[&#34;Multi-Sequence Fusion
+                  <br/>T1 + T2 Weighted&#34;]
+                  E --&gt; F[&#34;Normalized Output&#34;]
+
+                  style A fill:#f8fafc,stroke:#64748b,stroke-width:2px,color:#1e293b
+                  style F fill:#dbeafe,stroke:#1e3a8a,stroke-width:2px,color:#1e293b
+                  style B fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#1e293b
+                  style C fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#1e293b
+                  style D fill:#e0e7ff,stroke:#6366f1,stroke-width:2px,color:#1e293b
+                  style E fill:#fdf4ff,stroke:#a855f7,stroke-width:2px,color:#1e293b
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 gap-6 mt-8 lg:grid-cols-3">
+                <div class="tech-card bg-white p-6 rounded-lg">
+                  <h4 class="font-semibold mb-3">DICOM Processing</h4>
+                  <p class="text-gray-700 text-sm">
+                    Conversion from DICOM to PNG format while preserving essential metadata including pixel spacing for accurate measurements.
+                  </p>
+                </div>
+
+                <div class="tech-card bg-white p-6 rounded-lg">
+                  <h4 class="font-semibold mb-3">Intensity Normalization</h4>
+                  <p class="text-gray-700 text-sm">
+                    Signal intensity adjustment to reduce variations from different scanners and protocols, ensuring consistent model input.
+                  </p>
+                </div>
+
+                <div class="tech-card bg-white p-6 rounded-lg">
+                  <h4 class="font-semibold mb-3">Multi-Sequence Fusion</h4>
+                  <p class="text-gray-700 text-sm">
+                    Integration of T1-weighted and T2-weighted images to provide comprehensive tissue characterization for analysis.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Segmentation Module -->
+      <section id="segmentation-module" class="section-spacing bg-gray-50">
+        <div class="container mx-auto px-4 sm:px-6 md:px-8">
+          <div class="max-w-6xl mx-auto">
+            <h2 class="font-serif text-4xl font-bold text-primary mb-8">3. Prompt-Based Segmentation Module</h2>
+
+            <div class="mb-12">
+              <h3 class="font-serif text-2xl font-semibold mb-6">3.1 Segment Anything Model (SAM)</h3>
+
+              <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+                <div>
+                  <p class="text-gray-700 mb-6">
+                    The Segment Anything Model (SAM) is a foundational model for image segmentation that has demonstrated impressive capabilities across a wide range of domains, including medical imaging. <a href="https://www.mdpi.com/1424-8220/25/12/3596" class="citation-link">Its ability to perform zero-shot and few-shot segmentation</a> based on simple prompts makes it an ideal candidate for this system.
+                  </p>
+
+                  <div class="bg-blue-50 p-6 rounded-lg mb-6">
+                    <h4 class="font-semibold text-lg mb-3">SAM Architecture Components</h4>
+                    <ul class="space-y-2 text-gray-700">
+                      <li><strong>Image Encoder:</strong> Processes input to produce rich feature representations</li>
+                      <li><strong>Prompt Encoder:</strong> Converts user inputs into guidance embeddings</li>
+                      <li><strong>Mask Decoder:</strong> Generates final segmentation masks</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div>
+                  <img src="https://kimi-web-img.moonshot.cn/img/viso.ai/f74bf03e56c95d8d76f2bcbfcab968cd0c68661e.png" alt="AI image segmentation interface with user prompts" class="w-full rounded-lg shadow-lg" size="medium" aspect="wide" style="photo" query="AI image segmentation interface" referrerpolicy="no-referrer" data-modified="1" data-score="0.00"/>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-12">
+              <h3 class="font-serif text-2xl font-semibold mb-6">3.2 Prompting Strategies</h3>
+
+              <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+                <div class="tech-card bg-white p-6 rounded-lg">
+                  <h4 class="font-semibold text-lg mb-4 flex items-center">
+                    <i class="fas fa-dot-circle text-blue-600 mr-3"></i>
+                    Point Prompts
+                  </h4>
+                  <p class="text-gray-700 mb-4">
+                    Simple point prompts are effective for well-defined structures like the nucleus pulposus and annulus fibrosus.
+                  </p>
+                  <ul class="space-y-2 text-sm text-gray-600">
+                    <li>• Single point for nucleus pulposus center</li>
+                    <li>• Multiple points for annulus fibrosus boundary</li>
+                    <li>• Automated point placement using detection</li>
+                  </ul>
+                </div>
+
+                <div class="tech-card bg-white p-6 rounded-lg">
+                  <h4 class="font-semibold text-lg mb-4 flex items-center">
+                    <i class="fas fa-square text-green-600 mr-3"></i>
+                    Box Prompts
+                  </h4>
+                  <p class="text-gray-700 mb-4">
+                    Bounding boxes provide more context for larger structures like vertebral bodies and intervertebral discs.
+                  </p>
+                  <ul class="space-y-2 text-sm text-gray-600">
+                    <li>• Vertebral body segmentation guidance</li>
+                    <li>• Disc space boundary definition</li>
+                    <li>• Prevention of adjacent structure leakage</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-12">
+              <h3 class="font-serif text-2xl font-semibold mb-6">3.3 Key Anatomical Structures</h3>
+
+              <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <div class="tech-card bg-white p-6 rounded-lg">
+                  <h4 class="font-semibold mb-3">Intervertebral Discs (IVDs)</h4>
+                  <p class="text-gray-700 text-sm mb-3">
+                    Segmented in both axial and sagittal views for comprehensive 3D morphology assessment.
+                  </p>
+                  <ul class="space-y-1 text-xs text-gray-600">
+                    <li>• Sagittal: Disc height measurements</li>
+                    <li>• Axial: Cross-sectional area analysis</li>
+                    <li>• Herniation and bulge detection</li>
+                  </ul>
+                </div>
+
+                <div class="tech-card bg-white p-6 rounded-lg">
+                  <h4 class="font-semibold mb-3">Vertebral Bodies (VBs)</h4>
+                  <p class="text-gray-700 text-sm mb-3">
+                    Load-bearing structures requiring precise segmentation for dimensional analysis.
+                  </p>
+                  <ul class="space-y-1 text-xs text-gray-600">
+                    <li>• Height measurements (anterior, middle, posterior)</li>
+                    <li>• Corner point identification</li>
+                    <li>• Modic change assessment</li>
+                  </ul>
+                </div>
+
+                <div class="tech-card bg-white p-6 rounded-lg">
+                  <h4 class="font-semibold mb-3">Thecal Sac &amp; Neural Foramina</h4>
+                  <p class="text-gray-700 text-sm mb-3">
+                    Critical for stenosis assessment and nerve root compression evaluation.
+                  </p>
+                  <ul class="space-y-1 text-xs text-gray-600">
+                    <li>• Anteroposterior diameter measurement</li>
+                    <li>• Cross-sectional area calculation</li>
+                    <li>• Foraminal width assessment</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Measurement Computation -->
+      <section id="measurement-computation" class="section-spacing bg-white">
+        <div class="container mx-auto px-4 sm:px-6 md:px-8">
+          <div class="max-w-6xl mx-auto">
+            <h2 class="font-serif text-4xl font-bold text-primary mb-8">4. Critical Spinal Measurement Computation</h2>
+
+            <div class="mb-12">
+              <h3 class="font-serif text-2xl font-semibold mb-6">4.1 Intervertebral Disc Parameters</h3>
+
+              <div class="grid grid-cols-1 gap-8 mb-8 lg:grid-cols-2">
+                <div>
+                  <h4 class="font-semibold text-lg mb-4">Key Disc Measurements</h4>
+                  <div class="space-y-4">
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                      <h5 class="font-medium mb-2">Anterior Disc Height (ADH)</h5>
+                      <p class="text-sm text-gray-700">Perpendicular distance between anterior-superior corner of lower VB and anterior-inferior corner of upper VB.</p>
+                    </div>
+
+                    <div class="bg-green-50 p-4 rounded-lg">
+                      <h5 class="font-medium mb-2">Posterior Disc Height (PDH)</h5>
+                      <p class="text-sm text-gray-700">Perpendicular distance between posterior-superior corner of lower VB and posterior-inferior corner of upper VB.</p>
+                    </div>
+
+                    <div class="bg-purple-50 p-4 rounded-lg">
+                      <h5 class="font-medium mb-2">Mid-Disc Height (MDH)</h5>
+                      <p class="text-sm text-gray-700">Distance between midpoints of superior and inferior endplates of adjacent vertebral bodies.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <img src="https://kimi-web-img.moonshot.cn/img/pub.mdpi-res.com/cbb636beadd35147a75a78a5296d31b768acd8c6.png" alt="Lumbar spine MRI sagittal view with vertebral disc height measurement lines" class="w-full rounded-lg shadow-lg" size="medium" aspect="wide" style="photo" query="lumbar spine MRI sagittal view with measurement lines" referrerpolicy="no-referrer" data-modified="1" data-score="0.00"/>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-12">
+              <h3 class="font-serif text-2xl font-semibold mb-6">4.2 Vertebral Body Dimensions</h3>
+
+              <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <div class="tech-card bg-gray-50 p-6 rounded-lg">
+                  <h4 class="font-semibold mb-3">Height Measurements</h4>
+                  <ul class="space-y-2 text-sm text-gray-700">
+                    <li><strong>Anterior Vertebral Height (AVH):</strong> Superior to inferior endplate distance at anterior margin</li>
+                    <li><strong>Middle Vertebral Height (MVH):</strong> Midpoint to midpoint distance</li>
+                    <li><strong>Posterior Vertebral Height (PVH):</strong> Superior to inferior endplate distance at posterior margin</li>
+                  </ul>
+                </div>
+
+                <div class="tech-card bg-gray-50 p-6 rounded-lg">
+                  <h4 class="font-semibold mb-3">Width &amp; Depth</h4>
+                  <ul class="space-y-2 text-sm text-gray-700">
+                    <li><strong>Transverse Width:</strong> Side-to-side dimension at mid-vertebral level</li>
+                    <li><strong>Anteroposterior Depth:</strong> Front-to-back dimension</li>
+                    <li><strong>Cross-sectional Area:</strong> Calculated from axial view segmentation</li>
+                  </ul>
+                </div>
+
+                <div class="tech-card bg-gray-50 p-6 rounded-lg">
+                  <h4 class="font-semibold mb-3">Geometric Calculations</h4>
+                  <ul class="space-y-2 text-sm text-gray-700">
+                    <li><strong>Corner Detection:</strong> <a href="https://www.nature.com/articles/s41598-025-05091-0" class="citation-link">OpenCV polygonal approximation</a>
+                    </li>
+                    <li><strong>Landmark Identification:</strong> Automated anatomical point detection</li>
+                    <li><strong>Distance Measurement:</strong> Pixel-to-millimeter conversion</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-12">
+              <h3 class="font-serif text-2xl font-semibold mb-6">4.3 Composite Indices and Angular Measurements</h3>
+
+              <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+                <div class="space-y-6">
+                  <div class="tech-card bg-white p-6 rounded-lg border-l-4 border-blue-500">
+                    <h4 class="font-semibold text-lg mb-3">Disc Height Index (DHI)</h4>
+                    <div class="bg-gray-50 p-3 rounded mb-3">
+                      <code class="text-lg font-mono">DHI = MDH / PVH</code>
+                    </div>
+                    <p class="text-gray-700 text-sm">
+                      Normalized measure of disc height accounting for variations in patient size. Lower values indicate greater disc height loss relative to vertebral size.
+                    </p>
+                  </div>
+
+                  <div class="tech-card bg-white p-6 rounded-lg border-l-4 border-green-500">
+                    <h4 class="font-semibold text-lg mb-3">Disc Height-to-Diameter Ratio (HDR)</h4>
+                    <div class="bg-gray-50 p-3 rounded mb-3">
+                      <code class="text-lg font-mono">HDR = MDH / DD</code>
+                    </div>
+                    <p class="text-gray-700 text-sm">
+                      Measure of disc &#34;flatness&#34; or degree of collapse. Lower values indicate flatter, more degenerated discs.
+                    </p>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="tech-card bg-white p-6 rounded-lg border-l-4 border-purple-500">
+                    <h4 class="font-semibold text-lg mb-3">Lumbar Lordotic Angle (LLA)</h4>
+                    <p class="text-gray-700 text-sm mb-3">
+                      Angle between superior endplate of L1 and superior endplate of S1, assessing overall sagittal alignment.
+                    </p>
+                    <ul class="space-y-1 text-sm text-gray-600">
+                      <li>• Normal LLA: 20° to 60°</li>
+                      <li>• Measured on mid-sagittal slice</li>
+                      <li>• Segmental angulation also calculated</li>
+                    </ul>
+                  </div>
+
+                  <div class="mt-6 text-center">
+                    <p class="text-sm text-gray-600 italic">
+                      <a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0302067" class="citation-link">Research shows positive correlation between DHI/HDR and disc degeneration severity</a>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Disease Severity Grading -->
+      <section id="disease-grading" class="section-spacing bg-gray-50">
+        <div class="container mx-auto px-4 sm:px-6 md:px-8">
+          <div class="max-w-6xl mx-auto">
+            <h2 class="font-serif text-4xl font-bold text-primary mb-8">5. Disease Severity Grading Module</h2>
+
+            <div class="mb-12">
+              <h3 class="font-serif text-2xl font-semibold mb-6">5.1 Intervertebral Disc Degeneration Grading</h3>
+
+              <div class="mb-8">
+                <p class="text-gray-700 mb-6">
+                  The system utilizes the widely accepted <strong>Pfirrmann grading system</strong>, which classifies discs into one of five stages (Grade I to V) based on key MRI characteristics observed on sagittal T2-weighted images.
+                  <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC5073831/" class="citation-link">This system provides standardized assessment criteria</a> for automated analysis.
+                </p>
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="w-full bg-white rounded-lg shadow-lg overflow-hidden">
+                  <thead class="bg-primary text-white">
+                    <tr>
+                      <th class="px-6 py-4 text-left">Grade</th>
+                      <th class="px-6 py-4 text-left">Disc Structure</th>
+                      <th class="px-6 py-4 text-left">Nucleus-Annulus Distinction</th>
+                      <th class="px-6 py-4 text-left">Signal Intensity (T2WI)</th>
+                      <th class="px-6 py-4 text-left">Disc Height</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-200">
+                    <tr class="bg-blue-50">
+                      <td class="px-6 py-4 font-semibold">I</td>
+                      <td class="px-6 py-4">Homogenous, bright white</td>
+                      <td class="px-6 py-4">Clear</td>
+                      <td class="px-6 py-4">Hyperintense, isointense to CSF</td>
+                      <td class="px-6 py-4">Normal</td>
+                    </tr>
+                    <tr>
+                      <td class="px-6 py-4 font-semibold">II</td>
+                      <td class="px-6 py-4">Inhomogenous with/without bands</td>
+                      <td class="px-6 py-4">Clear</td>
+                      <td class="px-6 py-4">Hyperintense, isointense to CSF</td>
+                      <td class="px-6 py-4">Normal</td>
+                    </tr>
+                    <tr class="bg-yellow-50">
+                      <td class="px-6 py-4 font-semibold">III</td>
+                      <td class="px-6 py-4">Inhomogenous, grey</td>
+                      <td class="px-6 py-4">Unclear</td>
+                      <td class="px-6 py-4">Intermediate</td>
+                      <td class="px-6 py-4">Normal to slightly decreased</td>
+                    </tr>
+                    <tr>
+                      <td class="px-6 py-4 font-semibold">IV</td>
+                      <td class="px-6 py-4">Inhomogenous, grey to black</td>
+                      <td class="px-6 py-4">Lost</td>
+                      <td class="px-6 py-4">Intermediate to hypointense</td>
+                      <td class="px-6 py-4">Normal to moderately decreased</td>
+                    </tr>
+                    <tr class="bg-red-50">
+                      <td class="px-6 py-4 font-semibold">V</td>
+                      <td class="px-6 py-4">Inhomogenous, black</td>
+                      <td class="px-6 py-4">Lost</td>
+                      <td class="px-6 py-4">Hypointense</td>
+                      <td class="px-6 py-4">Collapsed disc space</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="mb-12">
+              <h3 class="font-serif text-2xl font-semibold mb-6">5.2 Modic Changes Classification</h3>
+
+              <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+                <div class="tech-card bg-white p-6 rounded-lg">
+                  <h4 class="font-semibold text-lg mb-4 flex items-center">
+                    <i class="fas fa-fire text-red-600 mr-3"></i>
+                    Type I - Inflammatory
+                  </h4>
+                  <p class="text-gray-700 text-sm mb-3">
+                    <a href="https://radiopaedia.org/articles/modic-type-endplate-changes" class="citation-link">Bone marrow edema and inflammation</a> representing active degenerative process.
+                  </p>
+                  <div class="bg-gray-50 p-3 rounded">
+                    <p class="text-xs text-gray-600"><strong>MRI:</strong> Hypointense on T1, Hyperintense on T2</p>
+                  </div>
+                  <p class="text-xs text-gray-600 mt-2">Associated with severe pain and worse prognosis</p>
+                </div>
+
+                <div class="tech-card bg-white p-6 rounded-lg">
+                  <h4 class="font-semibold text-lg mb-4 flex items-center">
+                    <i class="fas fa-circle text-yellow-600 mr-3"></i>
+                    Type II - Fatty
+                  </h4>
+                  <p class="text-gray-700 text-sm mb-3">
+                    Replacement of bone marrow with fatty tissue, representing chronic stabilization phase.
+                  </p>
+                  <div class="bg-gray-50 p-3 rounded">
+                    <p class="text-xs text-gray-600"><strong>MRI:</strong> Hyperintense on T1, Isointense on T2</p>
+                  </div>
+                  <p class="text-xs text-gray-600 mt-2">Generally less symptomatic than Type I</p>
+                </div>
+
+                <div class="tech-card bg-white p-6 rounded-lg">
+                  <h4 class="font-semibold text-lg mb-4 flex items-center">
+                    <i class="fas fa-square text-gray-600 mr-3"></i>
+                    Type III - Sclerotic
+                  </h4>
+                  <p class="text-gray-700 text-sm mb-3">
+                    End-stage changes with subchondral bone sclerosis and fibrosis.
+                  </p>
+                  <div class="bg-gray-50 p-3 rounded">
+                    <p class="text-xs text-gray-600"><strong>MRI:</strong> Hypointense on both T1 and T2</p>
+                  </div>
+                  <p class="text-xs text-gray-600 mt-2">Marker of advanced, long-standing degeneration</p>
+                </div>
+              </div>
+
+              <div class="mt-8">
+                <h4 class="font-semibold text-lg mb-4">Automated Detection Architecture</h4>
+                <p class="text-gray-700 mb-4">
+                  <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10782244/" class="citation-link">Research demonstrates high accuracy in automated Modic change detection</a> using a two-stage approach combining SSD for localization and ResNet18 for classification, achieving 86.25% accuracy and 85.60% F1-score.
+                </p>
+              </div>
+            </div>
+
+            <div class="mb-12">
+              <h3 class="font-serif text-2xl font-semibold mb-6">5.3 Spinal Stenosis Assessment</h3>
+
+              <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+                <div class="tech-card bg-white p-6 rounded-lg">
+                  <h4 class="font-semibold text-lg mb-4">Central Canal Stenosis</h4>
+                  <p class="text-gray-700 text-sm mb-3">
+                    Assessment of spinal canal narrowing through thecal sac measurements.
+                  </p>
+                  <ul class="space-y-1 text-xs text-gray-600">
+                    <li>• Cross-sectional area measurement</li>
+                    <li>• Anteroposterior diameter</li>
+                    <li>• Threshold: &lt; 100mm² indicates significant stenosis</li>
+                  </ul>
+                </div>
+
+                <div class="tech-card bg-white p-6 rounded-lg">
+                  <h4 class="font-semibold text-lg mb-4">Foraminal Stenosis</h4>
+                  <p class="text-gray-700 text-sm mb-3">
+                    Evaluation of neural foramen narrowing and nerve root compression.
+                  </p>
+                  <ul class="space-y-1 text-xs text-gray-600">
+                    <li>• Vertical height measurement (sagittal)</li>
+                    <li>• Cross-sectional area (axial)</li>
+                    <li>• Contributing factors: herniations, osteophytes</li>
+                  </ul>
+                </div>
+
+                <div class="tech-card bg-white p-6 rounded-lg">
+                  <h4 class="font-semibold text-lg mb-4">Facet Joint Arthropathy</h4>
+                  <p class="text-gray-700 text-sm mb-3">
+                    Assessment of facet joint degeneration and its contribution to stenosis.
+                  </p>
+                  <ul class="space-y-1 text-xs text-gray-600">
+                    <li>• Joint space narrowing evaluation</li>
+                    <li>• Osteophyte formation detection</li>
+                    <li>• Hypertrophy grading</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Report Generation -->
+      <section id="report-generation" class="section-spacing bg-white">
+        <div class="container mx-auto px-4 sm:px-6 md:px-8">
+          <div class="max-w-6xl mx-auto">
+            <h2 class="font-serif text-4xl font-bold text-primary mb-8">6. Structured Radiology Report Generation</h2>
+
+            <div class="mb-12">
+              <h3 class="font-serif text-2xl font-semibold mb-6">6.1 Report Template Structure</h3>
+
+              <div class="bg-gray-50 p-8 rounded-lg mb-8">
+                <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+                  <div>
+                    <h4 class="font-semibold text-lg mb-4">Standard Report Sections</h4>
+                    <div class="space-y-4">
+                      <div class="bg-white p-4 rounded border-l-4 border-blue-500">
+                        <h5 class="font-medium mb-2">Patient Information &amp; Study Details</h5>
+                        <p class="text-sm text-gray-700">Anonymized ID, study date, imaging protocol specifications</p>
+                      </div>
+
+                      <div class="bg-white p-4 rounded border-l-4 border-green-500">
+                        <h5 class="font-medium mb-2">Findings Section</h5>
+                        <p class="text-sm text-gray-700">Level-by-level measurements, gradings, and pathological findings</p>
+                      </div>
+
+                      <div class="bg-white p-4 rounded border-l-4 border-purple-500">
+                        <h5 class="font-medium mb-2">Impression &amp; Summary</h5>
+                        <p class="text-sm text-gray-700">High-level overview, critical findings, clinical significance</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <img src="https://kimi-web-img.moonshot.cn/img/rs-os-lyh-dt-publicread-picture-bosmetadata-prod.liangyihui.net/7af0cbb46004a0cbc9ea54a01adfb1388dd372eb.png" alt="Medical radiology report example" class="w-full rounded-lg shadow-lg" size="medium" aspect="wide" style="photo" query="medical radiology report" referrerpolicy="no-referrer" data-modified="1" data-score="0.00"/>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-12">
+              <h3 class="font-serif text-2xl font-semibold mb-6">6.2 Vision-Language Model Integration</h3>
+
+              <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+                <div>
+                  <h4 class="font-semibold text-lg mb-4">Generative Image-to-Text (GIT) Model</h4>
+                  <p class="text-gray-700 mb-4">
+                    <a href="https://pubmed.ncbi.nlm.nih.gov/39685549/" class="citation-link">Advanced vision-language model</a> that generates descriptive radiology reports by learning the relationship between MRI visual features and radiological language.
+                  </p>
+
+                  <div class="bg-blue-50 p-6 rounded-lg">
+                    <h5 class="font-medium mb-3">Training Process</h5>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                      <li>• Fine-tuning on lumbar spine MRI datasets</li>
+                      <li>• Learning radiological terminology and structure</li>
+                      <li>• Evaluation using ROUGE-L, METEOR, BERTScore metrics</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 class="font-semibold text-lg mb-4">Report Generation Features</h4>
+                  <div class="space-y-4">
+                    <div class="bg-green-50 p-4 rounded">
+                      <h5 class="font-medium mb-2">Automated Data Population</h5>
+                      <p class="text-sm text-gray-700">Quantitative measurements and severity scores automatically inserted into structured templates</p>
+                    </div>
+
+                    <div class="bg-yellow-50 p-4 rounded">
+                      <h5 class="font-medium mb-2">Qualitative Descriptions</h5>
+                      <p class="text-sm text-gray-700">Narrative-style descriptions that convey clinical significance beyond raw data</p>
+                    </div>
+
+                    <div class="bg-purple-50 p-4 rounded">
+                      <h5 class="font-medium mb-2">Clinical Relevance</h5>
+                      <p class="text-sm text-gray-700">Generation of actionable summaries highlighting critical findings for referring clinicians</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-12">
+              <h3 class="font-serif text-2xl font-semibold mb-6">6.3 Clinical Implementation</h3>
+
+              <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <div class="tech-card bg-white p-6 rounded-lg">
+                  <h4 class="font-semibold mb-3">Diagnostic Efficiency</h4>
+                  <p class="text-gray-700 text-sm">
+                    Automated report generation reduces interpretation time while maintaining diagnostic accuracy and consistency across different readers.
+                  </p>
+                </div>
+
+                <div class="tech-card bg-white p-6 rounded-lg">
+                  <h4 class="font-semibold mb-3">Quantitative Precision</h4>
+                  <p class="text-gray-700 text-sm">
+                    Objective measurements provide reproducible metrics for tracking disease progression and treatment response over time.
+                  </p>
+                </div>
+
+                <div class="tech-card bg-white p-6 rounded-lg">
+                  <h4 class="font-semibold mb-3">Research Applications</h4>
+                  <p class="text-gray-700 text-sm">
+                    Comprehensive data extraction enables large-scale epidemiological studies and clinical research on spinal pathologies.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                primaryColor: '#1e3a8a',
+                primaryTextColor: '#1e293b',
+                primaryBorderColor: '#1e40af',
+                lineColor: '#64748b',
+                secondaryColor: '#f1f5f9',
+                tertiaryColor: '#ffffff',
+                background: '#ffffff',
+                mainBkg: '#ffffff',
+                secondBkg: '#f8fafc',
+                tertiaryColor: '#e2e8f0'
+            },
+            flowchart: {
+                useMaxWidth: false,
+                htmlLabels: true,
+                curve: 'basis'
+            },
+            fontSize: 14,
+            fontFamily: 'Inter, sans-serif'
+        });
+
+        // Initialize Mermaid Controls for zoom and pan
+        function initializeMermaidControls() {
+            const containers = document.querySelectorAll('.mermaid-container');
+
+            containers.forEach(container => {
+            const mermaidElement = container.querySelector('.mermaid');
+            let scale = 1;
+            let isDragging = false;
+            let startX, startY, translateX = 0, translateY = 0;
+
+            // 触摸相关状态
+            let isTouch = false;
+            let touchStartTime = 0;
+            let initialDistance = 0;
+            let initialScale = 1;
+            let isPinching = false;
+
+            // Zoom controls
+            const zoomInBtn = container.querySelector('.zoom-in');
+            const zoomOutBtn = container.querySelector('.zoom-out');
+            const resetBtn = container.querySelector('.reset-zoom');
+            const fullscreenBtn = container.querySelector('.fullscreen');
+
+            function updateTransform() {
+                mermaidElement.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+
+                if (scale > 1) {
+                container.classList.add('zoomed');
+                } else {
+                container.classList.remove('zoomed');
+                }
+
+                mermaidElement.style.cursor = isDragging ? 'grabbing' : 'grab';
+            }
+
+            if (zoomInBtn) {
+                zoomInBtn.addEventListener('click', () => {
+                scale = Math.min(scale * 1.25, 4);
+                updateTransform();
+                });
+            }
+
+            if (zoomOutBtn) {
+                zoomOutBtn.addEventListener('click', () => {
+                scale = Math.max(scale / 1.25, 0.3);
+                if (scale <= 1) {
+                    translateX = 0;
+                    translateY = 0;
+                }
+                updateTransform();
+                });
+            }
+
+            if (resetBtn) {
+                resetBtn.addEventListener('click', () => {
+                scale = 1;
+                translateX = 0;
+                translateY = 0;
+                updateTransform();
+                });
+            }
+
+            if (fullscreenBtn) {
+                fullscreenBtn.addEventListener('click', () => {
+                if (container.requestFullscreen) {
+                    container.requestFullscreen();
+                } else if (container.webkitRequestFullscreen) {
+                    container.webkitRequestFullscreen();
+                } else if (container.msRequestFullscreen) {
+                    container.msRequestFullscreen();
+                }
+                });
+            }
+
+            // Mouse Events
+            mermaidElement.addEventListener('mousedown', (e) => {
+                if (isTouch) return; // 如果是触摸设备，忽略鼠标事件
+
+                isDragging = true;
+                startX = e.clientX - translateX;
+                startY = e.clientY - translateY;
+                mermaidElement.style.cursor = 'grabbing';
+                updateTransform();
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (isDragging && !isTouch) {
+                translateX = e.clientX - startX;
+                translateY = e.clientY - startY;
+                updateTransform();
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isDragging && !isTouch) {
+                isDragging = false;
+                mermaidElement.style.cursor = 'grab';
+                updateTransform();
+                }
+            });
+
+            document.addEventListener('mouseleave', () => {
+                if (isDragging && !isTouch) {
+                isDragging = false;
+                mermaidElement.style.cursor = 'grab';
+                updateTransform();
+                }
+            });
+
+            // 获取两点之间的距离
+            function getTouchDistance(touch1, touch2) {
+                return Math.hypot(
+                touch2.clientX - touch1.clientX,
+                touch2.clientY - touch1.clientY
+                );
+            }
+
+            // Touch Events - 触摸事件处理
+            mermaidElement.addEventListener('touchstart', (e) => {
+                isTouch = true;
+                touchStartTime = Date.now();
+
+                if (e.touches.length === 1) {
+                // 单指拖动
+                isPinching = false;
+                isDragging = true;
+
+                const touch = e.touches[0];
+                startX = touch.clientX - translateX;
+                startY = touch.clientY - translateY;
+
+                } else if (e.touches.length === 2) {
+                // 双指缩放
+                isPinching = true;
+                isDragging = false;
+
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                initialDistance = getTouchDistance(touch1, touch2);
+                initialScale = scale;
+                }
+
+                e.preventDefault();
+            }, { passive: false });
+
+            mermaidElement.addEventListener('touchmove', (e) => {
+                if (e.touches.length === 1 && isDragging && !isPinching) {
+                // 单指拖动
+                const touch = e.touches[0];
+                translateX = touch.clientX - startX;
+                translateY = touch.clientY - startY;
+                updateTransform();
+
+                } else if (e.touches.length === 2 && isPinching) {
+                // 双指缩放
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                const currentDistance = getTouchDistance(touch1, touch2);
+
+                if (initialDistance > 0) {
+                    const newScale = Math.min(Math.max(
+                    initialScale * (currentDistance / initialDistance),
+                    0.3
+                    ), 4);
+                    scale = newScale;
+                    updateTransform();
+                }
+                }
+
+                e.preventDefault();
+            }, { passive: false });
+
+            mermaidElement.addEventListener('touchend', (e) => {
+                // 重置状态
+                if (e.touches.length === 0) {
+                isDragging = false;
+                isPinching = false;
+                initialDistance = 0;
+
+                // 延迟重置isTouch，避免鼠标事件立即触发
+                setTimeout(() => {
+                    isTouch = false;
+                }, 100);
+                } else if (e.touches.length === 1 && isPinching) {
+                // 从双指变为单指，切换为拖动模式
+                isPinching = false;
+                isDragging = true;
+
+                const touch = e.touches[0];
+                startX = touch.clientX - translateX;
+                startY = touch.clientY - translateY;
+                }
+
+                updateTransform();
+            });
+
+            mermaidElement.addEventListener('touchcancel', (e) => {
+                isDragging = false;
+                isPinching = false;
+                initialDistance = 0;
+
+                setTimeout(() => {
+                isTouch = false;
+                }, 100);
+
+                updateTransform();
+            });
+
+            // Enhanced wheel zoom with better center point handling
+            container.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const rect = container.getBoundingClientRect();
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+
+                const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                const newScale = Math.min(Math.max(scale * delta, 0.3), 4);
+
+                // Adjust translation to zoom towards center
+                if (newScale !== scale) {
+                const scaleDiff = newScale / scale;
+                translateX = translateX * scaleDiff;
+                translateY = translateY * scaleDiff;
+                scale = newScale;
+
+                if (scale <= 1) {
+                    translateX = 0;
+                    translateY = 0;
+                }
+
+                updateTransform();
+                }
+            });
+
+            // Initialize display
+            updateTransform();
+            });
+        }
+
+        // Initialize mermaid controls after DOM loads
+        setTimeout(initializeMermaidControls, 1000);
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Mobile TOC toggle
+        const tocToggle = document.createElement('button');
+        tocToggle.innerHTML = '<i class="fas fa-bars"></i>';
+        tocToggle.className = 'fixed top-4 left-4 z-50 bg-primary text-white p-3 rounded-lg shadow-lg lg:hidden';
+        tocToggle.onclick = () => {
+            const toc = document.querySelector('.toc-fixed');
+            toc.classList.toggle('open');
+        };
+        document.body.appendChild(tocToggle);
+
+        // Close TOC when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            const toc = document.querySelector('.toc-fixed');
+            const isOpen = toc.classList.contains('open');
+            const isToggle = e.target.closest('button') === tocToggle;
+            const isInsideToc = e.target.closest('.toc-fixed') === toc;
+            
+            if (isOpen && !isToggle && !isInsideToc) {
+                toc.classList.remove('open');
+            }
+        });
+
+        // On window resize, if the window is large, remove the 'open' class from TOC
+        window.addEventListener('resize', () => {
+            const toc = document.querySelector('.toc-fixed');
+            if (window.innerWidth > 1024) {
+                toc.classList.remove('open');
+            }
+        });
+    </script>
+  
+
+</body></html>

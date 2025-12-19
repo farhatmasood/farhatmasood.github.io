@@ -3,530 +3,690 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recovery Calculation Software</title>
+    <title>Tactical Recovery Analysis System</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f0f2f5;
-        }
-        select, input[type="number"] {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='%236b7280' class='w-6 h-6'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9' /%3E%3C/svg%3E");
-            background-position: right 0.5rem center;
-            background-repeat: no-repeat;
-            background-size: 1.5em 1.5em;
-            padding-right: 2.5rem;
-        }
-        input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type="number"] { -moz-appearance: textfield; background-image: none; padding-right: 0.75rem; }
-        
-        #tooltip {
-            position: absolute;
-            display: none;
-            background-color: #1f2937;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 0.875rem;
-            z-index: 100;
-            pointer-events: none;
-            transition: opacity 0.2s;
-        }
-        
-        #recoveryScene {
-            cursor: grab;
-            background-color: #e5e7eb;
-            border-radius: 0.5rem;
-        }
-        #recoveryScene:active {
-            cursor: grabbing;
-        }
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-        .winch-line {
-            stroke-dasharray: 5 5;
-            animation: winch 2s linear infinite;
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Custom Print Styles */
+        @media print {
+            body { background-color: white !important; color: black !important; -webkit-print-color-adjust: exact; }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            .print-page-break { page-break-after: always; }
+            /* Reset Tailwind dark mode overrides for print */
+            .bg-slate-900 { background-color: white !important; }
+            .text-slate-100 { color: black !important; }
+            .border-slate-700 { border-color: #ddd !important; }
         }
-        @keyframes winch {
-            to { stroke-dashoffset: -20; }
-        }
+        .print-only { display: none; }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-2 sm:p-4">
+<body class="bg-slate-900 text-slate-100 overflow-hidden h-screen flex flex-col">
+    <div id="root" class="h-full flex flex-col"></div>
 
-    <div class="w-full max-w-6xl bg-white shadow-2xl rounded-2xl overflow-hidden">
-        <header class="bg-gray-800 text-white p-4 flex flex-col sm:flex-row justify-between items-center gap-2">
-            <div class="flex items-center space-x-3">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-400" viewBox="0 0 24 24" fill="currentColor"><path d="M21.9 12.6L20.3 6.8C20.1 6 19.3 5.5 18.5 5.5H15V4c0-.6-.4-1-1-1H3c-.6 0-1 .4-1 1v1H1c-.6 0-1 .4-1 1v4c0 .6.4 1 1 1h1v2H1c-.6 0-1 .4-1 1v4c0 .6.4 1 1 1h1v1c0 .6.4 1 1 1h11c.6 0 1-.4 1-1v-2h3.5c.8 0 1.6-.5 1.8-1.3l1.6-5.8c.2-.7-.1-1.5-.9-1.7zM13 18H4v-2h9v2zm0-4H4v-2h9v2zm0-4H4V8h9v2zM6 5h7v1H6V5zm10.7 7.2l-1.6 5.8c-.1.3-.3.5-.6.5h-2.5V7.5h3.5c.3 0 .5.2.6.5l1.6 5.8c.1.3 0 .7-.3.8zM22 10.5c-.6 0-1 .4-1 1s.4 1 1 1 .9-.4.9-1-.4-1-1-1zm-4.5-1.5c-.6 0-1 .4-1 1s.4 1 1 1 1-.4 1-1-.4-1-1-1z"/></svg>
-                <h1 class="text-lg sm:text-xl font-bold">Recovery Calculation Software</h1>
-            </div>
-            <div class="flex space-x-2">
-                <button id="appliancesBtn" class="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 rounded-md transition-colors">Appliances</button>
-                <button id="aboutBtn" class="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 rounded-md transition-colors">About</button>
-            </div>
-        </header>
+    <script type="text/babel">
+        const { useState, useRef, useMemo, useCallback } = React;
 
-        <main class="p-4 md:p-8">
-            <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
-                <!-- Left Column: Inputs -->
-                <div class="lg:col-span-2 space-y-6">
-                    <h2 class="text-2xl font-bold text-gray-800 border-b pb-2">Inputs</h2>
-                     <div>
-                        <label for="casualty" class="block text-sm font-medium text-gray-700 mb-1" data-tooltip="The weight of the vehicle that is stuck and needs recovery.">Type of Casualty (Tons)</label>
-                        <select id="casualty" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                             <option value="0" data-type="none" disabled selected>Please select</option>
-                            <option value="1" data-type="jeep">Jeeps</option>
-                            <option value="3" data-type="truck">3/4 Ton Vehicles</option>
-                            <option value="6" data-type="truck">2-1/2 Ton Vehicles</option>
-                            <option value="18" data-type="truck">5 Ton Recovery Vehicles</option>
-                            <option value="48" data-type="tank">Tank M-48A5</option>
-                            <option value="36" data-type="tank">Tank T-59M</option>
-                            <option value="36.7" data-type="tank">Tank T-69IIM</option>
-                            <option value="44" data-type="tank">Tank T-85IIAP</option>
-                            <option value="46" data-type="tank">Tank T-80 UD</option>
-                            <option value="52" data-type="tank">Tank Centurion</option>
-                            <option value="46" data-type="tank">SP M-109A2/M 110A2</option>
-                            <option value="other" data-type="truck">Other</option>
-                        </select>
-                        <input type="number" id="otherCasualty" placeholder="Enter tons" class="hidden w-full mt-2 p-2 border border-gray-300 rounded-md shadow-sm">
-                    </div>
-                    <div>
-                        <label for="recoveryVeh" class="block text-sm font-medium text-gray-700 mb-1" data-tooltip="The available pulling force of the vehicle performing the recovery.">Recovery Vehicle Pull (Tons)</label>
-                        <select id="recoveryVeh" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value="0" data-type="none" disabled selected>Please select</option>
-                            <option value="22.5" data-type="truck">Truck Wrecker M-816</option>
-                            <option value="25" data-type="truck">Tatra AV-8</option>
-                            <option value="6" data-type="truck">Truck Wrecker FIAT 90.17WM</option>
-                            <option value="45" data-type="tank">ARV M-88A1</option>
-                            <option value="35" data-type="tank">ARV W-653</option>
-                            <option value="22.5" data-type="tank">Towing Tractor T-59</option>
-                            <option value="5" data-type="truck">2-1/2 Ton Vehicle</option>
-                            <option value="7.5" data-type="truck">Truck Wrecker IVECO 140E24W</option>
-                            <option value="other" data-type="truck">Other</option>
-                        </select>
-                         <input type="number" id="otherRecovery" placeholder="Enter tons" class="hidden w-full mt-2 p-2 border border-gray-300 rounded-md shadow-sm">
-                    </div>
-                     <div>
-                        <label for="groundFactor" class="block text-sm font-medium text-gray-700 mb-1" data-tooltip="Coefficient of Rolling Resistance for the ground surface.">Ground Condition</label>
-                        <select id="groundFactor" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value="0" data-color="#a3be8c" disabled selected>Please select</option>
-                            <option value="0.015" data-color="#d8dee9">Smooth Road (Asphalt/Concrete)</option>
-                            <option value="0.05" data-color="#eceff4">Gravel</option>
-                            <option value="0.08" data-color="#a3be8c">Firm Dirt / Grass</option>
-                            <option value="0.20" data-color="#ebcb8b">Sand</option>
-                            <option value="0.30" data-color="#816754">Mud</option>
-                            <option value="0.50" data-color="#654321">Deep Mud / Clay</option>
-                        </select>
-                    </div>
-                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div>
-                            <label for="gradient" class="block text-sm font-medium text-gray-700 mb-1" data-tooltip="The angle of the slope the casualty vehicle is on.">Slope (°)</label>
-                            <input type="number" id="gradient" placeholder="0-90" class="w-full p-2 border border-gray-300 rounded-md shadow-sm">
-                        </div>
-                        <div>
-                            <label for="damageRes" class="block text-sm font-medium text-gray-700 mb-1" data-tooltip="Resistance from vehicle damage (e.g., locked wheels). Enter 0 if none.">Damage</label>
-                            <input type="number" id="damageRes" placeholder="Tons" class="w-full p-2 border border-gray-300 rounded-md shadow-sm">
-                        </div>
-                        <div>
-                            <label for="addRes" class="block text-sm font-medium text-gray-700 mb-1" data-tooltip="Any other resistance, like debris or suction from deep mud. Enter 0 if none.">Additional</label>
-                            <input type="number" id="addRes" placeholder="Tons" class="w-full p-2 border border-gray-300 rounded-md shadow-sm">
-                        </div>
-                    </div>
-                     <div class="pt-6 flex flex-col sm:flex-row items-center justify-start space-y-2 sm:space-y-0 sm:space-x-4">
-                        <button id="calculateBtn" class="w-full sm:w-auto flex-grow px-8 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-transform transform hover:scale-105">Calculate</button>
-                        <button id="resetBtn" class="w-full sm:w-auto flex-grow px-8 py-3 bg-gray-600 text-white font-semibold rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-transform transform hover:scale-105">Reset All</button>
-                    </div>
-                </div>
+        // --- ICONS (Lucide Replacements for Single File) ---
+        const Icon = ({ path, className, ...props }) => (
+            <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className={className} 
+                {...props}
+            >
+                {path}
+            </svg>
+        );
 
-                <!-- Right Column: Visualization & Outputs -->
-                <div class="lg:col-span-3 space-y-8">
-                    <div class="relative">
-                        <h2 class="text-2xl font-bold text-gray-800 border-b pb-2 mb-4 flex justify-between items-center">
-                            <span>Live Visualization</span>
-                            <button id="viewTackleBtn" class="hidden px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">View Tackle</button>
-                        </h2>
-                        <div class="bg-gray-200 rounded-lg p-2 flex items-center justify-center min-h-[250px] lg:min-h-[300px] overflow-hidden">
-                            <svg id="recoveryScene" viewBox="0 0 800 450" class="w-full h-auto"></svg>
-                        </div>
-                        <div class="absolute top-16 right-4 flex flex-col space-y-2">
-                             <button id="zoomInBtn" class="bg-white/50 backdrop-blur-sm p-2 rounded-full shadow-lg hover:bg-white transition-colors" data-tooltip="Zoom In">+</button>
-                             <button id="zoomOutBtn" class="bg-white/50 backdrop-blur-sm p-2 rounded-full shadow-lg hover:bg-white transition-colors" data-tooltip="Zoom Out">-</button>
-                             <button id="zoomResetBtn" class="bg-white/50 backdrop-blur-sm p-2 rounded-full shadow-lg hover:bg-white transition-colors" data-tooltip="Reset View">⟲</button>
-                        </div>
-                    </div>
+        const AnchorIcon = (p) => <Icon {...p} path={<><circle cx="12" cy="5" r="3"/><line x1="12" y1="22" x2="12" y2="8"/><path d="M5 12H2a10 10 0 0 0 20 0h-3"/></>} />;
+        const TruckIcon = (p) => <Icon {...p} path={<><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></>} />;
+        const SettingsIcon = (p) => <Icon {...p} path={<><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></>} />;
+        const MoveVerticalIcon = (p) => <Icon {...p} path={<><polyline points="8 18 12 22 16 18"/><polyline points="8 6 12 2 16 6"/><line x1="12" y1="2" x2="12" y2="22"/></>} />;
+        const ActivityIcon = (p) => <Icon {...p} path={<><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></>} />;
+        const ZoomInIcon = (p) => <Icon {...p} path={<><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></>} />;
+        const ZoomOutIcon = (p) => <Icon {...p} path={<><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></>} />;
+        const RotateCcwIcon = (p) => <Icon {...p} path={<><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></>} />;
+        const AlertTriangleIcon = (p) => <Icon {...p} path={<><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></>} />;
+        const ChevronsRightIcon = (p) => <Icon {...p} path={<><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></>} />;
+        const PrinterIcon = (p) => <Icon {...p} path={<><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></>} />;
+        const SigmaIcon = (p) => <Icon {...p} path={<><path d="M18 7V4H6l6 8-6 8h12v-3"/></>} />;
+        const XIcon = (p) => <Icon {...p} path={<><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>} />;
 
-                    <div>
-                         <h2 class="text-2xl font-bold text-gray-800 border-b pb-2 mb-4">Calculation Results</h2>
-                         <div class="space-y-4 bg-gray-50 p-6 rounded-lg">
-                            <div class="flex justify-between items-center" data-tooltip="Force required to overcome the friction of the ground surface."><span class="font-medium text-gray-700">Rolling Resistance (Tons)</span><span id="outRR" class="font-bold text-lg text-indigo-600 bg-white px-4 py-1 rounded-md shadow-sm">0.0</span></div>
-                             <div class="flex justify-between items-center" data-tooltip="Force required to pull the vehicle up the slope."><span class="font-medium text-gray-700">Gradient Resistance (Tons)</span><span id="outGR" class="font-bold text-lg text-indigo-600 bg-white px-4 py-1 rounded-md shadow-sm">0.0</span></div>
-                             <div class="flex justify-between items-center" data-tooltip="Total force needed to move the casualty, before friction losses from tackle."><span class="font-medium text-gray-700">Total Resistance (Tons)</span><span id="outDBP" class="font-bold text-lg text-indigo-600 bg-white px-4 py-1 rounded-md shadow-sm">0.0</span></div>
-                             <div class="flex justify-between items-center" data-tooltip="Added resistance from tackle friction (approx. 5% of total resistance per pulley)."><span class="font-medium text-gray-700">Friction Loss (Tackle)</span><span id="outSF" class="font-bold text-lg text-indigo-600 bg-white px-4 py-1 rounded-md shadow-sm">0.0</span></div>
-                             <div class="flex justify-between items-center border-t pt-4 mt-4 border-gray-300" data-tooltip="The total winch pull required, including resistance and friction losses."><span class="font-bold text-gray-800 text-lg">Estimated Winch Pull (Tons)</span><span id="outEP" class="font-extrabold text-2xl text-green-600 bg-green-100 px-4 py-1 rounded-lg">0.0</span></div>
-                             <div class="flex justify-between items-center" data-tooltip="The multiplication of force needed from tackle equipment (e.g., snatch blocks)."><span class="font-bold text-gray-800">Mechanical Advantage</span><span id="outMA" class="font-extrabold text-2xl text-blue-600 bg-blue-100 px-4 py-1 rounded-lg">1</span></div>
-                             <div class="flex justify-between items-center" data-tooltip="The required pulley system configuration. Click to see diagram."><span class="font-bold text-gray-800">Tackle Layout Ratio</span><button id="outTL" class="font-extrabold text-2xl text-blue-600 bg-blue-100 px-4 py-1 rounded-lg hover:bg-blue-200 transition-colors">1 : 1</button></div>
-                         </div>
-                    </div>
+        // --- DATA ---
+        const CASUALTIES = [
+            { id: 'c_jeep', name: 'Jeep / Light Utility (1T)', weight: 1, type: 'jeep' },
+            { id: 'c_truck34', name: '3/4 Ton Truck', weight: 3, type: 'truck' },
+            { id: 'c_truck25', name: '2.5 Ton Truck', weight: 6, type: 'truck' },
+            { id: 'c_truck5', name: '5 Ton Recovery', weight: 18, type: 'truck' },
+            { id: 'c_m113', name: 'APC M113 (12T)', weight: 12, type: 'tank' },
+            { id: 'c_m48', name: 'Tank M-48 (48T)', weight: 48, type: 'tank' },
+            { id: 'c_t80', name: 'Tank T-80 (46T)', weight: 46, type: 'tank' },
+            { id: 'c_other', name: 'Custom Input', weight: 0, type: 'truck' },
+        ];
+
+        const RECOVERY_VEHICLES = [
+            { id: 'r_m816', name: 'Wrecker M-816 (22.5T)', weight: 22.5, type: 'wrecker' },
+            { id: 'r_m88', name: 'ARV M-88A1 (45T)', weight: 45, type: 'tank' },
+            { id: 'r_fiat', name: 'FIAT Wrecker (6T)', weight: 6, type: 'truck' },
+            { id: 'r_other', name: 'Custom Input', weight: 0, type: 'wrecker' },
+        ];
+
+        const SURFACES = [
+            { value: 0.015, label: 'Asphalt / Concrete', color: '#64748b' },
+            { value: 0.05, label: 'Gravel', color: '#94a3b8' },
+            { value: 0.08, label: 'Firm Dirt / Grass', color: '#4d7c0f' },
+            { value: 0.20, label: 'Sand', color: '#d97706' },
+            { value: 0.30, label: 'Mud', color: '#78350f' },
+            { value: 0.50, label: 'Deep Mud / Clay', color: '#451a03' },
+        ];
+
+        // --- COMPONENTS ---
+
+        // Math Equation Renderer
+        const MathEq = React.memo(({ left, num, den }) => (
+            <div className="flex items-center font-serif text-lg my-3 justify-center bg-slate-800/80 p-3 rounded border border-slate-600 shadow-inner">
+                <span className="italic mr-3 font-bold text-indigo-300">{left}</span>
+                <span className="mr-3 text-slate-400">=</span>
+                <div className="flex flex-col items-center">
+                    <div className="border-b border-slate-400 px-3 mb-1 pb-1 text-slate-200">{num}</div>
+                    <div className="text-slate-200">{den}</div>
                 </div>
             </div>
-        </main>
-    </div>
+        ));
 
-    <!-- Modal and Message Box -->
-    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4"><div class="bg-white rounded-lg shadow-xl w-full max-w-lg transform transition-all scale-95 opacity-0" id="modal-content"><div class="p-6"><div class="flex justify-between items-start"><h3 class="text-xl font-semibold text-gray-900" id="modal-title"></h3><button id="closeModalBtn" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button></div><div class="mt-4 text-sm text-gray-600" id="modal-body"></div></div><div class="bg-gray-50 px-6 py-3 text-right rounded-b-lg"><button id="okModalBtn" class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700">OK</button></div></div></div>
-    <div id="messageBox" class="fixed top-5 right-5 bg-red-500 text-white py-3 px-5 rounded-lg shadow-lg z-50 transform translate-x-[120%] transition-transform duration-300"><p id="messageBoxText"></p></div>
-    <div id="tooltip"></div>
+        // SVG Vehicle Assets
+        const JeepSVG = React.memo(({ color = "#60a5fa" }) => (
+            <g transform="scale(0.8)">
+                <path d="M5 25 L0 20 H-5 V10 H20 V20 H25 L20 25 Z" fill={color} stroke="#e2e8f0" strokeWidth="2"/>
+                <rect x="-5" y="0" width="15" height="10" fill="none" stroke="#e2e8f0" strokeWidth="2"/>
+                <circle cx="-2" cy="25" r="6" fill="#1e293b" stroke="#475569" strokeWidth="2"/>
+                <circle cx="18" cy="25" r="6" fill="#1e293b" stroke="#475569" strokeWidth="2"/>
+            </g>
+        ));
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- DOM Elements ---
-            const casualtySelect = document.getElementById('casualty');
-            const otherCasualtyInput = document.getElementById('otherCasualty');
-            const recoveryVehSelect = document.getElementById('recoveryVeh');
-            const otherRecoveryInput = document.getElementById('otherRecovery');
-            const groundFactorSelect = document.getElementById('groundFactor');
-            const gradientInput = document.getElementById('gradient');
-            const damageResInput = document.getElementById('damageRes');
-            const addResInput = document.getElementById('addRes');
-            const calculateBtn = document.getElementById('calculateBtn');
-            const resetBtn = document.getElementById('resetBtn');
-            const viewTackleBtn = document.getElementById('viewTackleBtn');
-            const outTLButton = document.getElementById('outTL');
-            const zoomInBtn = document.getElementById('zoomInBtn');
-            const zoomOutBtn = document.getElementById('zoomOutBtn');
-            const zoomResetBtn = document.getElementById('zoomResetBtn');
+        const TruckSVG = React.memo(({ color = "#f59e0b" }) => (
+            <g transform="scale(0.9)">
+                <rect x="-20" y="5" width="60" height="20" rx="2" fill={color} stroke="#e2e8f0" strokeWidth="2"/>
+                <rect x="40" y="-5" width="20" height="30" rx="2" fill="#334155" stroke="#e2e8f0" strokeWidth="2"/>
+                <circle cx="0" cy="25" r="7" fill="#1e293b" stroke="#475569" strokeWidth="2"/>
+                <circle cx="45" cy="25" r="7" fill="#1e293b" stroke="#475569" strokeWidth="2"/>
+            </g>
+        ));
 
-            // --- Modal & Message Box Elements ---
-            const modal = document.getElementById('modal');
-            const modalContent = document.getElementById('modal-content');
-            const modalTitle = document.getElementById('modal-title');
-            const modalBody = document.getElementById('modal-body');
-            const closeModalBtn = document.getElementById('closeModalBtn');
-            const okModalBtn = document.getElementById('okModalBtn');
-            const aboutBtn = document.getElementById('aboutBtn');
-            const appliancesBtn = document.getElementById('appliancesBtn');
-            const messageBox = document.getElementById('messageBox');
-            const messageBoxText = document.getElementById('messageBoxText');
-            const tooltip = document.getElementById('tooltip');
-            let messageTimeout;
+        const TankSVG = React.memo(({ color = "#10b981" }) => (
+            <g transform="scale(0.8)">
+                <path d="M-30 15 H50 L60 5 H-20 V-5 H40 V5 H60 L70 15 V25 H-30 Z" fill={color} stroke="#e2e8f0" strokeWidth="2"/>
+                <path d="M10 -5 L30 -5 L30 -15 L10 -15 Z" fill="#334155" stroke="#e2e8f0" strokeWidth="2"/>
+                <rect x="-10" y="0" width="50" height="8" rx="2" fill="#064e3b"/>
+                <line x1="30" y1="-15" x2="60" y2="-15" stroke="#e2e8f0" strokeWidth="3"/>
+                <rect x="-35" y="20" width="110" height="8" rx="4" fill="#1e293b"/>
+            </g>
+        ));
+
+        const WreckerSVG = React.memo(({ color = "#ef4444" }) => (
+            <g transform="scale(1)">
+                <rect x="-20" y="0" width="50" height="20" fill={color} stroke="#e2e8f0" strokeWidth="2"/>
+                <path d="M30 0 L50 0 L50 20 L30 20 Z" fill="#334155" stroke="#e2e8f0" strokeWidth="2"/>
+                <path d="M0 0 L-20 -25 L-15 -27 L5 0 Z" fill="#94a3b8"/>
+                <circle cx="0" cy="20" r="7" fill="#1e293b" stroke="#475569" strokeWidth="2"/>
+                <circle cx="35" cy="20" r="7" fill="#1e293b" stroke="#475569" strokeWidth="2"/>
+            </g>
+        ));
+
+        const VehicleRenderer = React.memo(({ type, role }) => {
+            if (role === 'casualty') {
+                if (type === 'jeep') return <JeepSVG color="#60a5fa" />;
+                if (type === 'tank') return <TankSVG color="#10b981" />;
+                return <TruckSVG color="#f59e0b" />;
+            } else {
+                if (type === 'tank') return <TankSVG color="#64748b" />;
+                return <WreckerSVG color="#ef4444" />;
+            }
+        });
+
+        // --- MAIN APPLICATION ---
+        function RecoveryApp() {
+            const [casualtyId, setCasualtyId] = useState('c_truck25');
+            const [customCasualtyWeight, setCustomCasualtyWeight] = useState('10');
             
-            // --- Visualization ---
-            const svg = document.getElementById('recoveryScene');
-            const svgNS = "http://www.w3.org/2000/svg";
-            let viewBox = { x: 0, y: 0, w: 800, h: 450 };
-            let isPanning = false;
-            let startPoint = { x: 0, y: 0 };
+            const [recoveryId, setRecoveryId] = useState('r_m816');
+            const [customRecoveryPull, setCustomRecoveryPull] = useState('20');
+
+            const [groundCoeff, setGroundCoeff] = useState(0.08);
+            const [gradient, setGradient] = useState(15);
+            const [damageRes, setDamageRes] = useState('0');
+            const [addRes, setAddRes] = useState('0');
             
-            // --- SVG Asset Library ---
-            const vehicleSVGs = {
-                jeep: `<g transform="translate(-40,-25)"><path d="M15 25L10 20H5V10H20V20H20L15 25Z" fill="#a3be8c" stroke="#4c566a" stroke-width="2"/><path d="M20 10H5L2 5H23L20 10Z" fill="#a3be8c" stroke="#4c566a" stroke-width="2"/><rect x="5" y="0" width="15" height="5" fill="none" stroke="#4c566a" stroke-width="2"/><circle cx="7" cy="25" r="5" fill="#4c566a"/><circle cx="18" cy="25" r="5" fill="#4c566a"/></g>`,
-                truck: `<g transform="translate(-50,-30)"><rect x="0" y="10" width="70" height="20" fill="#d08770" rx="3" stroke="#4c566a" stroke-width="2"/><rect x="70" y="0" width="20" height="30" fill="#bf616a" rx="3" stroke="#4c566a" stroke-width="2"/><circle cx="15" cy="30" r="7" fill="#4c566a"/><circle cx="55" cy="30" r="7" fill="#4c566a"/></g>`,
-                tank: `<g transform="translate(-60,-30)"><path d="M0 10 H100 L110 0 H10 V-10 H90 V0 H110 L120 10 V20 H0 Z" fill="#5e81ac" stroke="#4c566a" stroke-width="2"/><rect x="-5" y="20" width="130" height="10" fill="#4c566a" rx="5"/><path d="M40 -10 L60 -10 L60 -20 L40 -20 Z" fill="#81a1c1" stroke="#4c566a" stroke-width="2"/><line x1="50" y1="-20" x2="50" y2="-30" stroke="#4c566a" stroke-width="2"/><rect x="20" y="-5" width="60" height="10" fill="#88c0d0" rx="3" stroke="#4c566a" stroke-width="2"/><line x1="80" y1="0" x2="130" y2="0" stroke="#4c566a" stroke-width="5"/></g>`,
-                anchor: `<g transform="translate(-20, -30)"><path d="M0 30 Q5 20, 10 30 T20 30 T30 30 T40 30" fill="none" stroke="#654321" stroke-width="4"/><path d="M10 20 L5 10 L15 10 Z" fill="#a3be8c"/><path d="M30 20 L25 10 L35 10 Z" fill="#a3be8c"/></g>`,
-                pulley: `<g><circle cx="0" cy="0" r="10" fill="#d8dee9" stroke="#4c566a" stroke-width="2"/><circle cx="0" cy="0" r="3" fill="#4c566a"/></g>`
-            };
+            const [zoom, setZoom] = useState(1);
+            const [isDraggingSlope, setIsDraggingSlope] = useState(false);
+            const [showEquations, setShowEquations] = useState(false);
             
-            // --- Helper Functions ---
-            const showMessage = (message, duration = 3000) => {
-                clearTimeout(messageTimeout);
-                messageBoxText.textContent = message;
-                messageBox.classList.remove('translate-x-[120%]');
-                messageTimeout = setTimeout(() => messageBox.classList.add('translate-x-[120%]'), duration);
-            };
-            
-            const showModal = (title, bodyHtml) => {
-                modalTitle.textContent = title;
-                modalBody.innerHTML = bodyHtml;
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                setTimeout(() => modalContent.classList.remove('scale-95', 'opacity-0'), 10);
-            };
+            const svgRef = useRef(null);
 
-            const hideModal = () => {
-                modalContent.classList.add('scale-95', 'opacity-0');
-                setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 200);
-            };
+            // Validation & Calculations
+            const casualtyWeight = useMemo(() => {
+                const base = CASUALTIES.find(c => c.id === casualtyId) || CASUALTIES[0];
+                if (base.id !== 'c_other') return base.weight;
+                const w = parseFloat(customCasualtyWeight);
+                return isNaN(w) || w < 0 ? 0 : w;
+            }, [casualtyId, customCasualtyWeight]);
 
-            const animateValue = (el, start, end, duration) => {
-                let startTimestamp = null;
-                const step = (timestamp) => {
-                    if (!startTimestamp) startTimestamp = timestamp;
-                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                    el.innerHTML = (progress * (end - start) + start).toFixed(1);
-                    if (progress < 1) window.requestAnimationFrame(step);
-                };
-                window.requestAnimationFrame(step);
-            };
-            
-            const resetForm = () => {
-                document.querySelectorAll('select, input').forEach(el => {
-                    if(el.tagName === 'SELECT') el.selectedIndex = 0;
-                    else el.value = '';
-                });
-                otherCasualtyInput.classList.add('hidden');
-                otherRecoveryInput.classList.add('hidden');
-                ['outRR', 'outGR', 'outDBP', 'outSF', 'outEP'].forEach(id => document.getElementById(id).textContent = '0.0');
-                document.getElementById('outMA').textContent = '1';
-                outTLButton.textContent = '1 : 1';
-                viewTackleBtn.classList.add('hidden');
-                updateVisualization(getLiveConfig());
-                resetZoom();
-            };
+            const recoveryPull = useMemo(() => {
+                const base = RECOVERY_VEHICLES.find(r => r.id === recoveryId) || RECOVERY_VEHICLES[0];
+                if (base.id !== 'r_other') return base.weight;
+                const p = parseFloat(customRecoveryPull);
+                return isNaN(p) || p <= 0 ? 0.1 : p;
+            }, [recoveryId, customRecoveryPull]);
 
-            // --- Main Calculation Logic ---
-            const performCalculation = () => {
-                const casualtyWeight = casualtySelect.value === 'other' ? parseFloat(otherCasualtyInput.value) : parseFloat(casualtySelect.value);
-                const recoveryPull = recoveryVehSelect.value === 'other' ? parseFloat(otherRecoveryInput.value) : parseFloat(recoveryVehSelect.value);
-                const coeffRollingRes = parseFloat(groundFactorSelect.value);
-                const gradient = parseFloat(gradientInput.value) || 0;
-                const damageRes = parseFloat(damageResInput.value) || 0;
-                const addRes = parseFloat(addResInput.value) || 0;
+            const dmgVal = parseFloat(damageRes) || 0;
+            const addVal = parseFloat(addRes) || 0;
 
-                if (!(casualtyWeight > 0)) { showMessage("Please select a valid casualty vehicle weight."); return; }
-                if (!(recoveryPull > 0)) { showMessage("Please select a valid recovery vehicle pull force."); return; }
-                if (!(coeffRollingRes > 0)) { showMessage("Please select a valid ground condition."); return; }
-                if (gradient < 0 || gradient > 90) { showMessage("Gradient must be between 0 and 90 degrees."); return; }
-
-                const rollingRes = casualtyWeight * coeffRollingRes;
-                const gradientRes = casualtyWeight * Math.sin(gradient * Math.PI / 180);
-                const totalResistance = rollingRes + gradientRes + damageRes + addRes;
+            const results = useMemo(() => {
+                const rad = (gradient * Math.PI) / 180;
                 
+                // Physics:
+                // R_roll = W * cos(theta) * Crr
+                const rollingRes = casualtyWeight * Math.cos(rad) * groundCoeff;
+                // R_grad = W * sin(theta)
+                const gradientRes = casualtyWeight * Math.sin(rad);
+                const totalRes = rollingRes + gradientRes + Math.max(0, dmgVal) + Math.max(0, addVal);
+
                 let ma = 1;
-                let estimatedWinchPull, frictionLoss;
-                while (true) {
-                    if (ma > 20) { showMessage("Recovery not feasible. Required pull exceeds practical limits."); return; }
-                    frictionLoss = totalResistance * 0.05 * (ma - 1);
-                    estimatedWinchPull = (totalResistance + frictionLoss) / ma;
-                    if (estimatedWinchPull <= recoveryPull) break;
+                let frictionLoss = 0;
+                let estimatedPull = totalRes;
+                let isFeasible = true;
+
+                // MA Loop with Safety Break
+                while (ma <= 20) {
+                    const numSheaves = ma - 1;
+                    const frictionFactor = 0.10 * numSheaves; // 10% per sheave
+                    const loadWithFriction = totalRes * (1 + frictionFactor);
+                    estimatedPull = loadWithFriction / ma;
+                    frictionLoss = loadWithFriction - totalRes;
+
+                    if (estimatedPull <= recoveryPull) break;
                     ma++;
                 }
 
-                animateValue(document.getElementById('outRR'), 0, rollingRes, 500);
-                animateValue(document.getElementById('outGR'), 0, gradientRes, 500);
-                animateValue(document.getElementById('outDBP'), 0, totalResistance, 500);
-                animateValue(document.getElementById('outSF'), 0, frictionLoss, 500);
-                animateValue(document.getElementById('outEP'), 0, estimatedWinchPull, 800);
-                document.getElementById('outMA').textContent = ma;
-                outTLButton.textContent = `${ma} : 1`;
-                viewTackleBtn.classList.toggle('hidden', ma <= 1);
-                updateVisualization(getLiveConfig());
+                if (ma > 12) isFeasible = false;
+
+                return { rollingRes, gradientRes, totalRes, ma, frictionLoss, estimatedPull, isFeasible };
+            }, [casualtyWeight, groundCoeff, gradient, dmgVal, addVal, recoveryPull]);
+
+            // Handlers
+            const handleSvgMouseMove = useCallback((e) => {
+                if (!isDraggingSlope || !svgRef.current) return;
+                
+                const rect = svgRef.current.getBoundingClientRect();
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2 + 50; 
+                
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                const deltaY = centerY - mouseY;
+                const deltaX = mouseX - centerX;
+                let angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+                
+                if (angle > 60) angle = 60;
+                if (angle < -20) angle = -20;
+                
+                setGradient(Math.round(angle));
+            }, [isDraggingSlope]);
+
+            const handleDragStart = useCallback(() => setIsDraggingSlope(true), []);
+            const handleDragEnd = useCallback(() => setIsDraggingSlope(false), []);
+
+            const handleInputChange = (setter) => (e) => {
+                const val = e.target.value;
+                if (val === '' || /^\d*\.?\d*$/.test(val)) setter(val);
             };
-            
-            // --- NEW: Accurate Tackle Drawing Logic ---
-            const generateTackleSVG = (ma) => {
-                if (ma <= 1) return { html: '', path: 'M 200 -20 L -150 -25' };
 
-                let html = '';
-                let path = 'M 200 -20'; // Start at recovery vehicle
-                const anchorPos = { x: 0, y: -40 };
-                const casualtyAttachPoint = { x: -150, y: -25 };
+            const renderTackle = useMemo(() => {
+                const casualtyX = -120;
+                const recoveryX = 220;
+                const yLevel = -20;
                 
-                html += `<g transform="translate(${anchorPos.x}, ${anchorPos.y})">${vehicleSVGs.anchor}</g>`;
+                const lines = [];
+                const pulleys = [];
+                const visualMA = Math.min(results.ma, 12); 
 
-                let casualtyPulleys = Math.floor(ma / 2);
-                let anchorPulleys = Math.floor((ma - 1) / 2);
-                
-                let currentPoint = {x: 200, y: -20};
-                let lineGoesTo = 'casualty';
+                let currentX = recoveryX;
+                let currentY = yLevel;
+                let targetX = casualtyX; 
+                let targetY = yLevel;
 
-                for (let i = 0; i < ma - 1; i++) {
-                    if (lineGoesTo === 'casualty') {
-                        const pulleyNum = Math.floor(i / 2);
-                        const pulleyPos = { x: casualtyAttachPoint.x + 20 + pulleyNum * 25, y: casualtyAttachPoint.y };
-                        html += `<g transform="translate(${pulleyPos.x}, ${pulleyPos.y})">${vehicleSVGs.pulley}</g>`;
-                        path += ` L ${pulleyPos.x} ${pulleyPos.y}`;
-                        lineGoesTo = 'anchor';
+                for (let i = 0; i < visualMA; i++) {
+                    lines.push(
+                        <line 
+                            key={`line-${i}`}
+                            x1={currentX} y1={currentY} x2={targetX} y2={targetY} 
+                            stroke={results.isFeasible ? "#cbd5e1" : "#fca5a5"} 
+                            strokeWidth="2" strokeDasharray="5,5" opacity="0.9"
+                        >
+                           <animate attributeName="stroke-dashoffset" from="10" to="0" dur={`${2/visualMA}s`} repeatCount="indefinite" />
+                        </line>
+                    );
+
+                    if (i < visualMA - 1) {
+                        pulleys.push(
+                            <g key={`pulley-${i}`} transform={`translate(${targetX}, ${targetY})`}>
+                                <circle r="6" fill="#475569" stroke="#cbd5e1" strokeWidth="2" />
+                                <circle r="2" fill="#cbd5e1" />
+                            </g>
+                        );
                     } else {
-                        const pulleyNum = Math.floor((i-1) / 2);
-                        const pulleyPos = { x: anchorPos.x - 20 - pulleyNum * 25, y: anchorPos.y + 15 };
-                        html += `<g transform="translate(${pulleyPos.x}, ${pulleyPos.y})">${vehicleSVGs.pulley}</g>`;
-                        path += ` L ${pulleyPos.x} ${pulleyPos.y}`;
-                        lineGoesTo = 'casualty';
+                        pulleys.push(
+                            <circle key={`term-${i}`} cx={targetX} cy={targetY} r="4" 
+                                fill={results.isFeasible ? "#10b981" : "#ef4444"} stroke="white" strokeWidth="1" 
+                            />
+                        );
                     }
+
+                    const tempX = currentX;
+                    currentX = targetX;
+                    targetX = tempX === recoveryX ? casualtyX : recoveryX; 
+                    currentY = targetY; 
+                    targetY = yLevel - ((i + 1) * 4);
                 }
-                
-                // Final line attachment
-                if (ma % 2 === 0) { // Attaches to anchor
-                    path += ` L ${anchorPos.x + 20} ${anchorPos.y + 15}`;
-                } else { // Attaches to casualty
-                    path += ` L ${casualtyAttachPoint.x} ${casualtyAttachPoint.y}`;
-                }
 
-                return { html, path };
-            };
-            
-            const updateVisualization = (config) => {
-                svg.innerHTML = '';
-                const { grad = 0, casualtyType = 'truck', recoveryType = 'truck', groundColor = '#e5e7eb', tackleRatio = 1 } = config;
+                return <g>{lines}{pulleys}</g>;
+            }, [results.ma, results.isFeasible]);
 
-                const scene = document.createElementNS(svgNS, 'g');
-                const groundGroup = document.createElementNS(svgNS, 'g');
-                groundGroup.setAttribute('transform', `rotate(${-grad})`);
+            const casualtyType = CASUALTIES.find(c => c.id === casualtyId)?.type || 'truck';
+            const recoveryType = RECOVERY_VEHICLES.find(r => r.id === recoveryId)?.type || 'wrecker';
 
-                const ground = document.createElementNS(svgNS, 'path');
-                ground.setAttribute('d', 'M-1000,0 L1000,0');
-                ground.setAttribute('stroke', groundColor);
-                ground.setAttribute('stroke-width', '80');
-                ground.setAttribute('stroke-linecap', 'round');
-                groundGroup.appendChild(ground);
-                
-                const casualtyG = document.createElementNS(svgNS, 'g');
-                casualtyG.setAttribute('transform', 'translate(-150, -40)');
-                casualtyG.innerHTML = vehicleSVGs[casualtyType] || vehicleSVGs.truck;
-                groundGroup.appendChild(casualtyG);
+            return (
+                <div 
+                    className="min-h-screen bg-slate-900 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white overflow-hidden flex flex-col"
+                    onMouseUp={handleDragEnd}
+                    onMouseLeave={handleDragEnd}
+                >
+                    {/* Header */}
+                    <header className="no-print bg-slate-800 border-b border-slate-700 p-4 shadow-lg z-20 flex justify-between items-center">
+                        <div className="flex items-center space-x-3">
+                            <div className="bg-indigo-600 p-2 rounded-lg shadow-indigo-500/20 shadow-xl">
+                                <AnchorIcon className="w-6 h-6 text-white" />
+                            </div>
+                            <div>
+                                <h1 className="text-xl font-bold tracking-tight text-white">RECOVERY <span className="text-indigo-400">ANALYSIS</span></h1>
+                                <p className="text-xs text-slate-400 font-mono">TACTICAL COMPUTING SYSTEM</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center space-x-4 text-sm font-medium">
+                            <button onClick={() => setShowEquations(true)} className="p-2 text-slate-400 hover:text-white transition-colors" title="View Equations">
+                                <SigmaIcon className="w-5 h-5" />
+                            </button>
+                            <button onClick={() => window.print()} className="p-2 text-slate-400 hover:text-white transition-colors" title="Print Report">
+                                <PrinterIcon className="w-5 h-5" />
+                            </button>
+                            <div className={`hidden md:flex items-center space-x-2 px-3 py-1 rounded-full border ${results.isFeasible ? 'bg-emerald-950/30 border-emerald-800 text-emerald-400' : 'bg-red-950/30 border-red-800 text-red-400'}`}>
+                                <ActivityIcon className="w-4 h-4" />
+                                <span>SYSTEM: {results.isFeasible ? 'READY' : 'FAULT'}</span>
+                            </div>
+                        </div>
+                    </header>
 
-                const recoveryG = document.createElementNS(svgNS, 'g');
-                recoveryG.setAttribute('transform', 'translate(250, -45)');
-                recoveryG.innerHTML = vehicleSVGs[recoveryType] || vehicleSVGs.truck;
-                groundGroup.appendChild(recoveryG);
+                    {/* Main Content */}
+                    <main className="no-print flex-1 overflow-hidden flex flex-col lg:flex-row relative">
+                        {/* Left Panel: Inputs */}
+                        <aside className="w-full lg:w-96 bg-slate-800/50 backdrop-blur-sm border-r border-slate-700 overflow-y-auto p-6 z-10 shadow-2xl flex flex-col gap-6">
+                            
+                            <section>
+                                <div className="flex items-center gap-2 mb-4 text-indigo-300 font-semibold uppercase tracking-wider text-xs">
+                                    <TruckIcon className="w-4 h-4" /> Casualty Parameters
+                                </div>
+                                <div className="space-y-4">
+                                    <div className="space-y-1">
+                                        <label className="text-xs text-slate-400">Vehicle Type</label>
+                                        <select 
+                                            value={casualtyId} onChange={(e) => setCasualtyId(e.target.value)}
+                                            className="w-full bg-slate-900 border border-slate-600 rounded-md p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                                        >
+                                            {CASUALTIES.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                        </select>
+                                    </div>
+                                    {casualtyId === 'c_other' && (
+                                        <div className="space-y-1">
+                                            <label className="text-xs text-slate-400">Weight (Tons)</label>
+                                            <input type="text" inputMode="decimal" value={customCasualtyWeight} onChange={handleInputChange(setCustomCasualtyWeight)}
+                                                className="w-full bg-slate-900 border border-slate-600 rounded-md p-2 text-sm focus:border-indigo-500 outline-none" />
+                                        </div>
+                                    )}
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-1">
+                                            <label className="text-xs text-slate-400">Damage Res. (T)</label>
+                                            <input type="text" inputMode="decimal" value={damageRes} onChange={handleInputChange(setDamageRes)}
+                                                className="w-full bg-slate-900 border border-slate-600 rounded-md p-2 text-sm focus:border-indigo-500 outline-none" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-xs text-slate-400">Misc Res. (T)</label>
+                                            <input type="text" inputMode="decimal" value={addRes} onChange={handleInputChange(setAddRes)}
+                                                className="w-full bg-slate-900 border border-slate-600 rounded-md p-2 text-sm focus:border-indigo-500 outline-none" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
 
-                const tackleData = generateTackleSVG(tackleRatio);
-                const tackleGroup = document.createElementNS(svgNS, 'g');
-                tackleGroup.innerHTML = tackleData.html;
-                groundGroup.appendChild(tackleGroup);
+                            <section className="border-t border-slate-700 pt-6">
+                                <div className="flex items-center gap-2 mb-4 text-emerald-300 font-semibold uppercase tracking-wider text-xs">
+                                    <MoveVerticalIcon className="w-4 h-4" /> Environment
+                                </div>
+                                <div className="space-y-4">
+                                    <div className="space-y-1">
+                                        <label className="text-xs text-slate-400">Ground Surface</label>
+                                        <select value={groundCoeff} onChange={(e) => setGroundCoeff(parseFloat(e.target.value))}
+                                            className="w-full bg-slate-900 border border-slate-600 rounded-md p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                                            {SURFACES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <div className="flex justify-between">
+                                            <label className="text-xs text-slate-400">Gradient (Slope)</label>
+                                            <span className="text-xs font-mono text-emerald-400">{gradient}°</span>
+                                        </div>
+                                        <input type="range" min="-20" max="60" value={gradient} onChange={(e) => setGradient(parseInt(e.target.value))}
+                                            className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500" />
+                                    </div>
+                                </div>
+                            </section>
 
-                const winchLine = document.createElementNS(svgNS, 'path');
-                winchLine.setAttribute('d', tackleData.path);
-                winchLine.setAttribute('fill', 'none');
-                winchLine.setAttribute('stroke', '#4c566a');
-                winchLine.setAttribute('stroke-width', '2');
-                winchLine.classList.add('winch-line');
-                groundGroup.appendChild(winchLine);
+                            <section className="border-t border-slate-700 pt-6">
+                                <div className="flex items-center gap-2 mb-4 text-blue-300 font-semibold uppercase tracking-wider text-xs">
+                                    <SettingsIcon className="w-4 h-4" /> Recovery Asset
+                                </div>
+                                <div className="space-y-4">
+                                    <div className="space-y-1">
+                                        <label className="text-xs text-slate-400">Wrecker / Winch</label>
+                                        <select value={recoveryId} onChange={(e) => setRecoveryId(e.target.value)}
+                                            className="w-full bg-slate-900 border border-slate-600 rounded-md p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                                            {RECOVERY_VEHICLES.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                                        </select>
+                                    </div>
+                                    {recoveryId === 'r_other' && (
+                                        <div className="space-y-1">
+                                            <label className="text-xs text-slate-400">Max Pull (Tons)</label>
+                                            <input type="text" inputMode="decimal" value={customRecoveryPull} onChange={handleInputChange(setCustomRecoveryPull)}
+                                                className="w-full bg-slate-900 border border-slate-600 rounded-md p-2 text-sm focus:border-blue-500 outline-none" />
+                                        </div>
+                                    )}
+                                </div>
+                            </section>
+                        </aside>
 
-                scene.appendChild(groundGroup);
-                svg.appendChild(scene);
-                scene.setAttribute('transform', `translate(400, 350)`);
-            };
+                        {/* Center: Visualization */}
+                        <div className="flex-1 relative bg-slate-950 flex flex-col">
+                            <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
+                                <button onClick={() => setZoom(z => Math.min(z + 0.1, 2))} className="p-2 bg-slate-800 text-slate-200 rounded-full hover:bg-slate-700 shadow-lg border border-slate-700"><ZoomInIcon className="w-5 h-5"/></button>
+                                <button onClick={() => setZoom(z => Math.max(z - 0.1, 0.5))} className="p-2 bg-slate-800 text-slate-200 rounded-full hover:bg-slate-700 shadow-lg border border-slate-700"><ZoomOutIcon className="w-5 h-5"/></button>
+                                <button onClick={() => {setZoom(1); setGradient(0);}} className="p-2 bg-slate-800 text-slate-200 rounded-full hover:bg-slate-700 shadow-lg border border-slate-700"><RotateCcwIcon className="w-5 h-5"/></button>
+                            </div>
 
-            const showTackleDiagram = () => {
-                const ma = parseInt(document.getElementById('outMA').textContent);
-                if (isNaN(ma) || ma <= 1) {
-                    showModal('Tackle Layout', '<p>No mechanical advantage is required for this recovery (1:1 direct pull).</p>');
-                    return;
-                }
-                
-                let diagramSVG = `<svg viewBox="0 0 600 300" xmlns="${svgNS}">
-                    <style>.txt{font-family:Inter,sans-serif;font-size:16px;}.light{stroke:#9ca3af;}.heavy{stroke:#374151;stroke-width:2;fill:none;}</style>
-                    <g transform="translate(500, 200)">${vehicleSVGs.truck}</g><text x="470" y="240" class="txt">Recovery</text>
-                    <g transform="translate(100, 200)">${vehicleSVGs.truck}</g><text x="70" y="240" class="txt">Casualty</text>
-                `;
+                            <div className={`flex-1 overflow-hidden transition-cursor duration-200 ${isDraggingSlope ? 'cursor-grabbing' : 'cursor-default'}`} onMouseMove={handleSvgMouseMove}>
+                                <svg ref={svgRef} className="w-full h-full select-none" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet">
+                                    <defs>
+                                        <linearGradient id="skyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                            <stop offset="0%" style={{stopColor:'#0f172a', stopOpacity:1}} />
+                                            <stop offset="100%" style={{stopColor:'#1e293b', stopOpacity:1}} />
+                                        </linearGradient>
+                                        <pattern id="groundPattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                                             <line x1="0" y1="0" x2="20" y2="20" stroke={SURFACES.find(s=>s.value===groundCoeff)?.color || '#334155'} strokeWidth="1" opacity="0.3"/>
+                                        </pattern>
+                                        <marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#ef4444" /></marker>
+                                        <marker id="arrowhead-orange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#f59e0b" /></marker>
+                                        <marker id="arrowhead-blue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" /></marker>
+                                    </defs>
 
-                const casualtyPulleys = Math.floor(ma / 2);
-                const anchorPulleys = Math.floor((ma - 1) / 2);
-                const totalPulleys = casualtyPulleys + anchorPulleys;
-                
-                let path = 'M 450 180';
-                
-                if (totalPulleys > 0) {
-                     diagramSVG += `<g transform="translate(300, 100)">${vehicleSVGs.anchor}</g><text x="275" y="140" class="txt">Anchor</text>`;
-                }
-                
-                // Draw pulleys and path
-                for(let i = 1; i <= totalPulleys; i++) {
-                    if (i % 2 !== 0) { // Go to casualty pulley
-                        const pulleyX = 120 + ((i-1)/2) * 25;
-                        diagramSVG += `<g transform="translate(${pulleyX}, 180)">${vehicleSVGs.pulley}</g>`;
-                        path += ` L ${pulleyX} 180`;
-                    } else { // Go to anchor pulley
-                        const pulleyX = 320 - (i/2 - 1) * 25;
-                        diagramSVG += `<g transform="translate(${pulleyX}, 100)">${vehicleSVGs.pulley}</g>`;
-                        path += ` L ${pulleyX} 100`;
-                    }
-                }
-                
-                // Final attachment
-                if (ma % 2 === 0) { path += ` L 300 100`; } 
-                else { path += ` L 100 180`; }
-                
-                diagramSVG += `<path d="${path.replace(/L/g, ' C ')}" class="heavy winch-line" /></svg>`;
-                showModal(`Tackle Layout for ${ma} : 1`, diagramSVG);
-            }
+                                    <rect width="100%" height="100%" fill="url(#skyGradient)" />
+                                    <g transform={`translate(400, 300) scale(${zoom})`}>
+                                        <g transform={`rotate(${-gradient})`} style={{ transition: isDraggingSlope ? 'none' : 'transform 0.3s ease-out' }}>
+                                            <path d="M -1000 0 L 1000 0" stroke={SURFACES.find(s=>s.value===groundCoeff)?.color || '#64748b'} strokeWidth="40" strokeLinecap="round"/>
+                                            <rect x="-1000" y="-20" width="2000" height="40" fill="url(#groundPattern)" opacity="0.5" />
+                                            <g className="cursor-grab hover:opacity-100 opacity-60 transition-opacity" onMouseDown={handleDragStart}>
+                                                <circle cx="350" cy="0" r="15" fill="white" fillOpacity="0.1" stroke="white" strokeDasharray="2 2"/>
+                                                <text x="350" y="30" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">DRAG SLOPE</text>
+                                            </g>
 
-            // --- Pan & Zoom Logic ---
-            const setSVGViewBox = () => svg.setAttribute('viewBox', `${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}`);
-            const resetZoom = () => { viewBox = { x: 0, y: 0, w: 800, h: 450 }; setSVGViewBox(); };
+                                            <g transform="translate(-150, -25)">
+                                                <VehicleRenderer type={casualtyType} role="casualty" />
+                                                <g opacity="0.9">
+                                                    <g transform={`rotate(${gradient})`}>
+                                                        <line x1="0" y1="0" x2="0" y2={50 + (casualtyWeight * 1.5)} stroke="#ef4444" strokeWidth="4" markerEnd="url(#arrowhead-red)" />
+                                                        <text x="8" y={60 + (casualtyWeight * 1.5)} fill="#ef4444" fontSize="12" fontWeight="bold" style={{textShadow: '0px 0px 4px black'}}>W ({casualtyWeight}T)</text>
+                                                    </g>
+                                                    <line x1="0" y1="0" x2={-50 - (results.totalRes * 2)} y2="0" stroke="#f59e0b" strokeWidth="4" markerEnd="url(#arrowhead-orange)" />
+                                                    <text x={-60 - (results.totalRes * 2)} y="-5" fill="#f59e0b" fontSize="12" textAnchor="end" fontWeight="bold" style={{textShadow: '0px 0px 4px black'}}>R ({results.totalRes.toFixed(1)}T)</text>
+                                                    <line x1="20" y1="-10" x2={50 + (results.estimatedPull * 2)} y2="-10" stroke="#3b82f6" strokeWidth="4" markerEnd="url(#arrowhead-blue)" />
+                                                    <text x={60 + (results.estimatedPull * 2)} y="-15" fill="#3b82f6" fontSize="12" fontWeight="bold" style={{textShadow: '0px 0px 4px black'}}>P ({results.estimatedPull.toFixed(1)}T)</text>
+                                                </g>
+                                            </g>
 
-            svg.addEventListener('mousedown', (e) => { isPanning = true; startPoint = { x: e.clientX, y: e.clientY }; });
-            svg.addEventListener('mousemove', (e) => {
-                if (!isPanning) return;
-                let endPoint = { x: e.clientX, y: e.clientY };
-                let dx = (startPoint.x - endPoint.x) * (viewBox.w / svg.getBoundingClientRect().width);
-                let dy = (startPoint.y - endPoint.y) * (viewBox.h / svg.getBoundingClientRect().height);
-                viewBox.x += dx;
-                viewBox.y += dy;
-                setSVGViewBox();
-                startPoint = endPoint;
-            });
-            svg.addEventListener('mouseup', () => isPanning = false);
-            svg.addEventListener('mouseleave', () => isPanning = false);
-            svg.addEventListener('wheel', (e) => {
-                e.preventDefault();
-                const { left, top, width, height } = svg.getBoundingClientRect();
-                const mouseX = e.clientX - left;
-                const mouseY = e.clientY - top;
-                const svgX = viewBox.x + (mouseX / width) * viewBox.w;
-                const svgY = viewBox.y + (mouseY / height) * viewBox.h;
+                                            <g transform="translate(0, 0)">{renderTackle}</g>
 
-                const zoomFactor = e.deltaY > 0 ? 1.1 : 0.9;
-                viewBox.w *= zoomFactor;
-                viewBox.h *= zoomFactor;
-                viewBox.x = svgX - (mouseX / width) * viewBox.w;
-                viewBox.y = svgY - (mouseY / height) * viewBox.h;
-                setSVGViewBox();
-            });
-            zoomInBtn.addEventListener('click', () => { viewBox.w *= 0.8; viewBox.h *= 0.8; setSVGViewBox(); });
-            zoomOutBtn.addEventListener('click', () => { viewBox.w *= 1.2; viewBox.h *= 1.2; setSVGViewBox(); });
-            zoomResetBtn.addEventListener('click', resetZoom);
+                                            <g transform="translate(250, -28)">
+                                                <g transform="scale(-1, 1)">
+                                                    <VehicleRenderer type={recoveryType} role="recovery" />
+                                                </g>
+                                            </g>
+                                        </g>
+                                    </g>
+                                </svg>
+                            </div>
 
-            // --- Initial Setup and Event Listeners ---
-            const getLiveConfig = () => ({
-                grad: parseFloat(gradientInput.value) || 0,
-                casualtyType: casualtySelect.options[casualtySelect.selectedIndex].dataset.type,
-                recoveryType: recoveryVehSelect.options[recoveryVehSelect.selectedIndex].dataset.type,
-                groundColor: groundFactorSelect.options[groundFactorSelect.selectedIndex].dataset.color,
-                tackleRatio: parseInt(document.getElementById('outMA').textContent) || 1,
-            });
-            
-            [casualtySelect, recoveryVehSelect, groundFactorSelect, gradientInput].forEach(el => {
-                el.addEventListener('change', () => updateVisualization(getLiveConfig()));
-            });
+                            <div className="bg-slate-900 border-t border-slate-800 p-4 grid grid-cols-2 md:grid-cols-4 gap-4 z-10">
+                                <div className="flex flex-col group relative">
+                                    <span className="text-xs text-slate-500 uppercase cursor-help border-b border-dashed border-slate-700 w-max">Total Resistance</span>
+                                    <span className="text-xl font-bold text-white">{results.totalRes.toFixed(2)} T</span>
+                                    <div className="absolute bottom-full mb-2 hidden group-hover:block w-48 bg-slate-800 p-2 text-[10px] text-slate-300 rounded shadow-xl border border-slate-600">
+                                        Sum of Rolling, Gradient, Damage, and Misc resistances.
+                                    </div>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-xs text-slate-500 uppercase">Rolling Res.</span>
+                                    <span className="text-lg font-medium text-slate-300">{results.rollingRes.toFixed(2)} T</span>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-xs text-slate-500 uppercase">Gradient Res.</span>
+                                    <span className="text-lg font-medium text-slate-300">{results.gradientRes.toFixed(2)} T</span>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-xs text-slate-500 uppercase">Damage/Misc</span>
+                                    <span className="text-lg font-medium text-slate-300">{(dmgVal + addVal).toFixed(2)} T</span>
+                                </div>
+                            </div>
+                        </div>
 
-            const setupOtherInput = (selectEl, inputEl) => {
-                selectEl.addEventListener('change', (e) => {
-                    inputEl.classList.toggle('hidden', e.target.value !== 'other');
-                    if (e.target.value === 'other') inputEl.focus();
-                });
-            };
-            setupOtherInput(casualtySelect, otherCasualtyInput);
-            setupOtherInput(recoveryVehSelect, otherRecoveryInput);
-            
-            calculateBtn.addEventListener('click', performCalculation);
-            resetBtn.addEventListener('click', resetForm);
-            
-            aboutBtn.addEventListener('click', () => showModal('About this Software', `<p class="mb-2"><strong>Recovery Calculation Software</strong></p><p class="mb-2">Version: 7.0 (Responsive & Accurate Viz)</p><p class="mb-2">This interactive tool assists in calculating and visualizing the forces for vehicle recovery operations using standard physics formulas.</p><p>Original concept by RFM. Reworked for accuracy and usability.</p>`));
-            appliancesBtn.addEventListener('click', () => showModal('Recovery Appliances', `<h4 class="font-semibold text-gray-800 mb-2">Common Recovery Appliances</h4><ul class="list-disc list-inside space-y-1"><li>Snatch Blocks (Pulleys)</li><li>Tow Ropes and Cables</li><li>Shackles and Hooks</li><li>Winches</li><li>Ground Anchors / Spades</li><li>Lever Hoists (Come-alongs)</li></ul>`));
-            [closeModalBtn, okModalBtn].forEach(btn => btn.addEventListener('click', hideModal));
-            modal.addEventListener('click', (e) => { if (e.target === modal) hideModal(); });
-            [viewTackleBtn, outTLButton].forEach(btn => btn.addEventListener('click', showTackleDiagram));
-            
-            document.querySelectorAll('[data-tooltip]').forEach(el => {
-                el.addEventListener('mouseenter', e => {
-                    tooltip.textContent = e.currentTarget.dataset.tooltip;
-                    tooltip.style.display = 'block';
-                });
-                el.addEventListener('mouseleave', () => tooltip.style.display = 'none');
-                el.addEventListener('mousemove', e => {
-                    tooltip.style.left = `${e.pageX + 15}px`;
-                    tooltip.style.top = `${e.pageY + 15}px`;
-                });
-            });
+                        {/* Right Panel: Results */}
+                        <aside className="w-full lg:w-80 bg-slate-800 border-l border-slate-700 p-6 shadow-2xl z-20 flex flex-col">
+                            <h2 className="text-lg font-bold text-white mb-6 border-b border-slate-600 pb-2 flex items-center gap-2">
+                                <ActivityIcon className="w-5 h-5 text-indigo-400" /> Analysis
+                            </h2>
 
-            resetForm(); // Initialize the app state
-        });
+                            <div className="flex-1 space-y-6">
+                                <div className={`p-5 rounded-xl border transition-colors duration-300 ${results.isFeasible ? 'bg-slate-700/50 border-slate-600' : 'bg-red-900/20 border-red-500/50'}`}>
+                                    <div className="text-xs uppercase tracking-wider text-slate-400 mb-1">Required Tackle</div>
+                                    <div className="flex items-baseline gap-2">
+                                        <span className="text-4xl font-black text-white">{results.ma} : 1</span>
+                                        <span className="text-sm text-slate-400">Ratio</span>
+                                    </div>
+                                    {!results.isFeasible && (
+                                        <div className="mt-3 flex items-start gap-2 text-red-400 text-xs bg-red-950/50 p-2 rounded animate-pulse">
+                                            <AlertTriangleIcon className="w-4 h-4 shrink-0 mt-0.5" />
+                                            <span>Warning: Force exceeds safe operational limits (Max 12:1 simulated).</span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-center p-3 bg-slate-900 rounded-lg">
+                                        <span className="text-sm text-slate-400">Est. Winch Pull</span>
+                                        <span className={`font-mono font-bold ${results.isFeasible ? 'text-indigo-400' : 'text-red-400'}`}>{results.estimatedPull.toFixed(2)} T</span>
+                                    </div>
+                                    <div className="flex justify-between items-center p-3 bg-slate-900 rounded-lg">
+                                        <span className="text-sm text-slate-400">Winch Capacity</span>
+                                        <span className="font-mono text-slate-200">{recoveryPull} T</span>
+                                    </div>
+                                    <div className="flex justify-between items-center p-3 bg-slate-900 rounded-lg">
+                                        <span className="text-sm text-slate-400">Friction Loss</span>
+                                        <span className="font-mono text-orange-400">+{results.frictionLoss.toFixed(2)} T</span>
+                                    </div>
+                                </div>
+
+                                <div className="mt-8">
+                                    <h3 className="text-xs uppercase text-slate-500 font-semibold mb-3">Layout Guide</h3>
+                                    <div className="bg-slate-900 p-4 rounded-lg border border-slate-700 text-sm text-slate-300 leading-relaxed transition-all">
+                                        {results.ma === 1 ? (
+                                            <p>Direct Pull. Connect winch line directly to casualty tow points.</p>
+                                        ) : (
+                                            <ul className="space-y-2">
+                                                <li className="flex gap-2"><ChevronsRightIcon className="w-4 h-4 text-indigo-500 shrink-0" /><span>Deploy <strong>{Math.floor(results.ma/2)}</strong> pulley(s) at Casualty.</span></li>
+                                                <li className="flex gap-2"><ChevronsRightIcon className="w-4 h-4 text-indigo-500 shrink-0" /><span>Deploy <strong>{Math.floor((results.ma-1)/2)}</strong> pulley(s) at Anchor/Wrecker.</span></li>
+                                                <li className="flex gap-2"><AnchorIcon className="w-4 h-4 text-indigo-500 shrink-0" /><span>Terminator point: <strong>{results.ma % 2 === 0 ? 'Recovery Vehicle' : 'Casualty Vehicle'}</strong>.</span></li>
+                                            </ul>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </main>
+
+                    {/* Equations Modal */}
+                    {showEquations && (
+                        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowEquations(false)}>
+                            <div className="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl max-w-2xl w-full p-6 text-slate-100 relative" onClick={e => e.stopPropagation()}>
+                                <button className="absolute top-4 right-4 text-slate-400 hover:text-white" onClick={() => setShowEquations(false)}><XIcon className="w-5 h-5" /></button>
+                                <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-white"><SigmaIcon className="w-5 h-5 text-indigo-400" /> Governing Equations</h3>
+                                <div className="space-y-6 font-serif">
+                                    <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                                        <h4 className="text-sm font-semibold text-slate-400 mb-2 uppercase tracking-wide">Rolling Resistance</h4>
+                                        <MathEq left="R_roll" num={<span>W &middot; cos(θ) &middot; C<sub>rr</sub></span>} den={null} />
+                                        <p className="text-sm text-slate-300 leading-relaxed mt-2 text-justify">
+                                            This equation calculates the force required to overcome the friction of the wheels sinking into the ground. 
+                                            <strong> W</strong> represents the vehicle's total weight. The <strong>cos(θ)</strong> term reduces the normal force as the slope increases (less weight pushes "into" the ground on a steep hill). 
+                                            <strong> C<sub>rr</sub></strong> is the surface coefficient (e.g., mud has a higher coefficient than concrete).
+                                        </p>
+                                    </div>
+                                    <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                                        <h4 className="text-sm font-semibold text-slate-400 mb-2 uppercase tracking-wide">Gradient Resistance</h4>
+                                        <MathEq left="R_grad" num={<span>W &middot; sin(θ)</span>} den={null} />
+                                        <p className="text-sm text-slate-300 leading-relaxed mt-2 text-justify">
+                                            This calculates the component of gravity acting parallel to the slope. It represents the "weight" pulling the vehicle downhill. 
+                                            As the angle <strong>θ</strong> increases, the sine component increases, requiring more force to pull the vehicle up.
+                                        </p>
+                                    </div>
+                                    <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                                        <h4 className="text-sm font-semibold text-slate-400 mb-2 uppercase tracking-wide">Total Estimated Winch Pull</h4>
+                                        <MathEq left="P" num={<span>R<sub>total</sub> &middot; (1 + 0.1 &middot; (MA-1))</span>} den={<span>MA</span>} />
+                                        <p className="text-sm text-slate-300 leading-relaxed mt-2 text-justify">
+                                            This determines the actual tension required on the winch cable. 
+                                            <strong> R<sub>total</sub></strong> is the sum of rolling, gradient, and damage resistances.
+                                            The term <strong>0.1 &middot; (MA-1)</strong> adds 10% friction for every pulley (sheave) in the system. 
+                                            Finally, we divide by the <strong>MA</strong> (Mechanical Advantage) to find the single-line pull.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Print Report */}
+                    <div className="print-only bg-white text-black p-8 max-w-4xl mx-auto font-serif">
+                        <div className="border-b-2 border-black pb-4 mb-6 flex justify-between items-end">
+                            <div>
+                                <h1 className="text-3xl font-bold uppercase tracking-tight">Recovery Analysis Report</h1>
+                                <p className="text-sm text-gray-600 mt-1">Standard Calculation Output</p>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-sm font-bold">Date: {new Date().toLocaleDateString()}</p>
+                                <p className="text-xs text-gray-500">ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}</p>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-8 mb-8">
+                            <div>
+                                <h3 className="text-sm font-bold uppercase border-b border-gray-300 mb-3 pb-1">Operational Parameters</h3>
+                                <table className="w-full text-sm">
+                                    <tbody>
+                                        <tr className="border-b border-gray-100"><td className="py-1 text-gray-600">Casualty Vehicle</td><td className="py-1 font-semibold text-right">{CASUALTIES.find(c => c.id === casualtyId)?.name}</td></tr>
+                                        <tr className="border-b border-gray-100"><td className="py-1 text-gray-600">Casualty Weight</td><td className="py-1 font-semibold text-right">{casualtyWeight} Tons</td></tr>
+                                        <tr className="border-b border-gray-100"><td className="py-1 text-gray-600">Surface Type</td><td className="py-1 font-semibold text-right">{SURFACES.find(s => s.value === groundCoeff)?.label}</td></tr>
+                                        <tr className="border-b border-gray-100"><td className="py-1 text-gray-600">Gradient</td><td className="py-1 font-semibold text-right">{gradient}°</td></tr>
+                                        <tr className="border-b border-gray-100"><td className="py-1 text-gray-600">Damage Resistance</td><td className="py-1 font-semibold text-right">{damageRes} Tons</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div>
+                                <h3 className="text-sm font-bold uppercase border-b border-gray-300 mb-3 pb-1">Calculation Results</h3>
+                                <table className="w-full text-sm">
+                                    <tbody>
+                                        <tr className="border-b border-gray-100"><td className="py-1 text-gray-600">Rolling Resistance</td><td className="py-1 font-mono text-right">{results.rollingRes.toFixed(2)} T</td></tr>
+                                        <tr className="border-b border-gray-100"><td className="py-1 text-gray-600">Gradient Resistance</td><td className="py-1 font-mono text-right">{results.gradientRes.toFixed(2)} T</td></tr>
+                                        <tr className="border-b border-gray-100 bg-gray-50"><td className="py-1 font-bold">Total Resistance</td><td className="py-1 font-bold font-mono text-right">{results.totalRes.toFixed(2)} T</td></tr>
+                                        <tr className="border-b border-gray-100"><td className="py-1 text-gray-600">Required Ratio</td><td className="py-1 font-bold text-right">{results.ma} : 1</td></tr>
+                                        <tr className="border-b border-gray-100 bg-gray-100"><td className="py-1 font-bold">Estimated Winch Pull</td><td className="py-1 font-bold font-mono text-right">{results.estimatedPull.toFixed(2)} T</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div className="mb-8">
+                            <h3 className="text-sm font-bold uppercase border-b border-gray-300 mb-3 pb-1">Tackle Layout Configuration</h3>
+                            <div className="border border-gray-200 p-4 rounded text-sm bg-gray-50">
+                                <p className="mb-2"><strong>Required Mechanical Advantage: {results.ma}:1</strong></p>
+                                {results.ma === 1 ? (
+                                    <p>Direct pull configuration. No mechanical advantage required.</p>
+                                ) : (
+                                    <ul className="list-disc list-inside space-y-1 text-gray-700">
+                                        <li>Install <strong>{Math.floor(results.ma/2)}</strong> snatch block(s) at the casualty vehicle.</li>
+                                        <li>Install <strong>{Math.floor((results.ma-1)/2)}</strong> snatch block(s) at the anchor/recovery vehicle.</li>
+                                        <li>Terminate the winch line at the <strong>{results.ma % 2 === 0 ? 'Recovery Vehicle' : 'Casualty Vehicle'}</strong>.</li>
+                                    </ul>
+                                )}
+                            </div>
+                        </div>
+                        <div className="mb-8">
+                            <h3 className="text-sm font-bold uppercase border-b border-gray-300 mb-3 pb-1">Mathematical Validation</h3>
+                            <div className="grid grid-cols-2 gap-4 text-xs font-mono text-gray-600">
+                                <div className="bg-gray-50 p-2 border">R_roll = {casualtyWeight} * cos({gradient}) * {groundCoeff} ≈ {results.rollingRes.toFixed(2)}</div>
+                                <div className="bg-gray-50 p-2 border">R_grad = {casualtyWeight} * sin({gradient}) ≈ {results.gradientRes.toFixed(2)}</div>
+                                <div className="col-span-2 bg-gray-50 p-2 border">P_winch = ({results.totalRes.toFixed(2)} * (1 + 0.1*{(results.ma-1)})) / {results.ma} ≈ {results.estimatedPull.toFixed(2)}</div>
+                            </div>
+                        </div>
+                        <div className="text-xs text-gray-500 border-t pt-4 text-center">
+                            <p>Validate all rigging before operation.</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<RecoveryApp />);
     </script>
 </body>
 </html>
