@@ -125,10 +125,10 @@
                         <a href="#about" class="block nav-link text-black">About</a>
                         <a href="#projects" class="block nav-link">Projects</a>
                         <a href="#publications" class="block nav-link">Publications</a>
-                        <a href="#service" class="block nav-link">Service</a> <!-- Added Service Link -->
+                        <a href="#service" class="block nav-link">Service</a>
                         <a href="#hobbies" class="block nav-link">Hobbies</a>
+                        <a href="#github-repos" class="block nav-link">Repositories</a>
                         <a href="#research-projects" class="block nav-link">Research</a>
-                        <!-- <a href="#cv" class="block nav-link">CV</a> -->
                     </div>
                 </div>
             </div>
@@ -398,7 +398,6 @@
                                 <div class="citation-journal text-gray-600 mb-2"><em>Hobby project</em></div>
                                 <div>
                                     <a href="hobbies/visual-heat-load.html" class="btn-academic"><i class="fas fa-external-link-alt mr-1"></i> Open Project</a>
-                                    <a href="hobbies/visual-heat-load.html" class="btn-academic"><i class="fas fa-code mr-1"></i> View Source</a>
                                     <a href="hobbies/index.html" class="btn-academic"><i class="fas fa-folder-open mr-1"></i> Projects Index</a>
                                 </div>
                                 <p class="text-sm text-gray-600 mt-3">A small interactive tool I built to help estimate room cooling loads visually and quickly. Uses Three.js for a simple room model and heuristic BTU calculations.</p>
@@ -413,7 +412,6 @@
                                 <div class="citation-journal text-gray-600 mb-2"><em>Hobby project</em></div>
                                 <div>
                                     <a href="hobbies/recovery-calculation.html" class="btn-academic"><i class="fas fa-external-link-alt mr-1"></i> Open Project</a>
-                                    <a href="hobbies/recovery-calculation.html" class="btn-academic"><i class="fas fa-code mr-1"></i> View Source</a>
                                     <a href="hobbies/index.html" class="btn-academic"><i class="fas fa-folder-open mr-1"></i> Projects Index</a>
                                 </div>
                                 <p class="text-sm text-gray-600 mt-3">An interactive calculator for estimating vehicle recovery forces. Features selectable military vehicles, ground conditions, slope/damage inputs, and real-time mechanical advantage calculations with tackle system visualization.</p>
@@ -428,7 +426,6 @@
                                 <div class="citation-journal text-gray-600 mb-2"><em>Hobby project</em></div>
                                 <div>
                                     <a href="hobbies/ecg-simulator.html" class="btn-academic"><i class="fas fa-external-link-alt mr-1"></i> Open Project</a>
-                                    <a href="hobbies/ecg-simulator.html" class="btn-academic"><i class="fas fa-code mr-1"></i> View Source</a>
                                     <a href="hobbies/index.html" class="btn-academic"><i class="fas fa-folder-open mr-1"></i> Projects Index</a>
                                 </div>
                                 <p class="text-sm text-gray-600 mt-3">An educational ECG simulator supporting multiple cardiac rhythms (NSR, AFIB, VTACH, Bradycardia) with customizable color schemes for clinical presentation styles.</p>
@@ -443,10 +440,151 @@
                                 <div class="citation-journal text-gray-600 mb-2"><em>Hobby project</em></div>
                                 <div>
                                     <a href="hobbies/filename-copier.html" class="btn-academic"><i class="fas fa-external-link-alt mr-1"></i> Open Project</a>
-                                    <a href="hobbies/filename-copier.html" class="btn-academic"><i class="fas fa-code mr-1"></i> View Source</a>
                                     <a href="hobbies/index.html" class="btn-academic"><i class="fas fa-folder-open mr-1"></i> Projects Index</a>
                                 </div>
                                 <p class="text-sm text-gray-600 mt-3">A lightweight utility for extracting and listing file names from directories, useful for batch processing and file inventory workflows.</p>
+                            </div>
+                        </div>
+
+                        <!-- ═══════════════════════════════════════════════════════ -->
+                        <!-- PHYSICS SIMULATIONS                                    -->
+                        <!-- ═══════════════════════════════════════════════════════ -->
+
+                        <h3 class="text-xl font-semibold text-gray-800 mt-10 mb-2 pt-6 border-t">Physics Simulations</h3>
+                        <p class="text-sm text-gray-500 mb-6">Interactive 2D Newtonian mechanics sandbox built from scratch. Each simulation demonstrates a fundamental physics concept with real-time impulse-based collision response, Coulomb friction, and configurable parameters. Click <em>Open Simulation</em> to interact.</p>
+
+                        <!-- Sim 1: Free Fall -->
+                        <div class="flex flex-col sm:flex-row gap-4 items-start">
+                            <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2025</div>
+                            <div class="flex-1">
+                                <div class="citation-title text-lg leading-tight mb-1">🍎 Free Fall</div>
+                                <div class="citation-author text-gray-700 mb-1">Galilean acceleration under uniform gravity</div>
+                                <div class="citation-journal text-gray-600 mb-2"><em>Physics Simulation</em></div>
+                                <div>
+                                    <a href="hobbies/simulator/index.html?preset=freeFall&embed=1" target="_blank" class="btn-academic"><i class="fas fa-external-link-alt mr-1"></i> Open Simulation</a>
+                                    <a href="hobbies/simulator/index.html?preset=freeFall" target="_blank" class="btn-academic"><i class="fas fa-sliders-h mr-1"></i> Full Controls</a>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-3">Objects of different masses fall under uniform gravitational acceleration \( g = 9.81 \, \text{m/s}^2 \). In the absence of air resistance, all objects fall at the same rate regardless of mass — demonstrating Galileo's observation that \( y(t) = \tfrac{1}{2}gt^2 \). This simulation includes inelastic floor collisions with configurable coefficient of restitution \( e \).</p>
+                            </div>
+                        </div>
+
+                        <!-- Sim 2: Projectile Motion -->
+                        <div class="flex flex-col sm:flex-row gap-4 items-start">
+                            <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2025</div>
+                            <div class="flex-1">
+                                <div class="citation-title text-lg leading-tight mb-1">🎯 Projectile Motion</div>
+                                <div class="citation-author text-gray-700 mb-1">Parabolic trajectories at 30°, 45°, and 60°</div>
+                                <div class="citation-journal text-gray-600 mb-2"><em>Physics Simulation</em></div>
+                                <div>
+                                    <a href="hobbies/simulator/index.html?preset=projectile&embed=1" target="_blank" class="btn-academic"><i class="fas fa-external-link-alt mr-1"></i> Open Simulation</a>
+                                    <a href="hobbies/simulator/index.html?preset=projectile" target="_blank" class="btn-academic"><i class="fas fa-sliders-h mr-1"></i> Full Controls</a>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-3">Three projectiles are launched simultaneously at 30°, 45°, and 60° with identical initial speed. The trajectory follows \( \vec{r}(t) = \vec{v}_0 t + \tfrac{1}{2}\vec{g}t^2 \). The 45° launch angle maximizes horizontal range \( R = v_0^2 \sin(2\theta) / g \), while complementary angles (30° and 60°) produce equal range but different peak heights.</p>
+                            </div>
+                        </div>
+
+                        <!-- Sim 3: Simple Pendulum -->
+                        <div class="flex flex-col sm:flex-row gap-4 items-start">
+                            <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2025</div>
+                            <div class="flex-1">
+                                <div class="citation-title text-lg leading-tight mb-1">🕐 Simple Pendulum</div>
+                                <div class="citation-author text-gray-700 mb-1">Harmonic oscillation via spring-rod constraint</div>
+                                <div class="citation-journal text-gray-600 mb-2"><em>Physics Simulation</em></div>
+                                <div>
+                                    <a href="hobbies/simulator/index.html?preset=pendulum&embed=1" target="_blank" class="btn-academic"><i class="fas fa-external-link-alt mr-1"></i> Open Simulation</a>
+                                    <a href="hobbies/simulator/index.html?preset=pendulum" target="_blank" class="btn-academic"><i class="fas fa-sliders-h mr-1"></i> Full Controls</a>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-3">A bob attached to a fixed anchor via a stiff spring constraint oscillates under gravity. For small angles, the period is approximately \( T \approx 2\pi\sqrt{L/g} \) — independent of mass. The energy overlay shows continuous exchange between kinetic energy \( \tfrac{1}{2}mv^2 \) and gravitational potential energy \( mgh \).</p>
+                            </div>
+                        </div>
+
+                        <!-- Sim 4: Newton's Cradle -->
+                        <div class="flex flex-col sm:flex-row gap-4 items-start">
+                            <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2025</div>
+                            <div class="flex-1">
+                                <div class="citation-title text-lg leading-tight mb-1">⚖️ Newton's Cradle</div>
+                                <div class="citation-author text-gray-700 mb-1">Conservation of momentum and kinetic energy</div>
+                                <div class="citation-journal text-gray-600 mb-2"><em>Physics Simulation</em></div>
+                                <div>
+                                    <a href="hobbies/simulator/index.html?preset=cradle&embed=1" target="_blank" class="btn-academic"><i class="fas fa-external-link-alt mr-1"></i> Open Simulation</a>
+                                    <a href="hobbies/simulator/index.html?preset=cradle" target="_blank" class="btn-academic"><i class="fas fa-sliders-h mr-1"></i> Full Controls</a>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-3">Five identical pendulum bobs in a line demonstrate simultaneous conservation of momentum \( \sum m_i v_i = \text{const} \) and kinetic energy \( \sum \tfrac{1}{2}m_i v_i^2 = \text{const} \). When one ball strikes, only one ball on the opposite end swings out — the unique solution satisfying both conservation laws for elastic collisions with \( e = 1 \).</p>
+                            </div>
+                        </div>
+
+                        <!-- Sim 5: Billiards -->
+                        <div class="flex flex-col sm:flex-row gap-4 items-start">
+                            <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2025</div>
+                            <div class="flex-1">
+                                <div class="citation-title text-lg leading-tight mb-1">🎱 Billiards</div>
+                                <div class="citation-author text-gray-700 mb-1">Zero-gravity elastic collisions with friction</div>
+                                <div class="citation-journal text-gray-600 mb-2"><em>Physics Simulation</em></div>
+                                <div>
+                                    <a href="hobbies/simulator/index.html?preset=billiards&embed=1" target="_blank" class="btn-academic"><i class="fas fa-external-link-alt mr-1"></i> Open Simulation</a>
+                                    <a href="hobbies/simulator/index.html?preset=billiards" target="_blank" class="btn-academic"><i class="fas fa-sliders-h mr-1"></i> Full Controls</a>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-3">A cue ball strikes a triangle rack in zero gravity (\( g = 0 \)) with near-elastic restitution (\( e = 0.95 \)). The impulse-based collision response resolves each contact using the normal impulse \( j = -(1+e)\,v_{\text{rel}} \cdot \hat{n} \,/\, (m_A^{-1} + m_B^{-1}) \) with Coulomb friction clamping tangential impulses.</p>
+                            </div>
+                        </div>
+
+                        <!-- Sim 6: Stacking -->
+                        <div class="flex flex-col sm:flex-row gap-4 items-start">
+                            <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2025</div>
+                            <div class="flex-1">
+                                <div class="citation-title text-lg leading-tight mb-1">🧱 Stacking</div>
+                                <div class="citation-author text-gray-700 mb-1">SAT-based OBB collision with sequential impulses</div>
+                                <div class="citation-journal text-gray-600 mb-2"><em>Physics Simulation</em></div>
+                                <div>
+                                    <a href="hobbies/simulator/index.html?preset=stacking&embed=1" target="_blank" class="btn-academic"><i class="fas fa-external-link-alt mr-1"></i> Open Simulation</a>
+                                    <a href="hobbies/simulator/index.html?preset=stacking" target="_blank" class="btn-academic"><i class="fas fa-sliders-h mr-1"></i> Full Controls</a>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-3">A pyramid of 21 rectangular bodies is struck by a heavy projectile. Rect–rect collisions use the Separating Axis Theorem (SAT) on oriented bounding boxes (OBBs). Stability under gravity is maintained through sub-stepped integration with 3 iterative constraint passes per substep, resolving interpenetration with positional correction.</p>
+                            </div>
+                        </div>
+
+                        <!-- Sim 7: Gyroscope -->
+                        <div class="flex flex-col sm:flex-row gap-4 items-start">
+                            <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2025</div>
+                            <div class="flex-1">
+                                <div class="citation-title text-lg leading-tight mb-1">🛸 Gyroscope</div>
+                                <div class="citation-author text-gray-700 mb-1">Rotational inertia and angular momentum coupling</div>
+                                <div class="citation-journal text-gray-600 mb-2"><em>Physics Simulation</em></div>
+                                <div>
+                                    <a href="hobbies/simulator/index.html?preset=gyroscope&embed=1" target="_blank" class="btn-academic"><i class="fas fa-external-link-alt mr-1"></i> Open Simulation</a>
+                                    <a href="hobbies/simulator/index.html?preset=gyroscope" target="_blank" class="btn-academic"><i class="fas fa-sliders-h mr-1"></i> Full Controls</a>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-3">A rapidly spinning rectangular body (\( \omega_0 = 30 \, \text{rad/s} \)) resists perturbation from a falling weight. The moment of inertia \( I = \tfrac{1}{12}m(w^2 + h^2) \) stores angular momentum \( L = I\omega \), and off-center impulses produce torque \( \tau = \vec{r} \times \vec{F} \) that changes the angular velocity.</p>
+                            </div>
+                        </div>
+
+                        <!-- Sim 8: Double Pendulum -->
+                        <div class="flex flex-col sm:flex-row gap-4 items-start">
+                            <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2025</div>
+                            <div class="flex-1">
+                                <div class="citation-title text-lg leading-tight mb-1">🎢 Double Pendulum</div>
+                                <div class="citation-author text-gray-700 mb-1">Chaotic dynamics with revolute joints</div>
+                                <div class="citation-journal text-gray-600 mb-2"><em>Physics Simulation</em></div>
+                                <div>
+                                    <a href="hobbies/simulator/index.html?preset=doublePendulum&embed=1" target="_blank" class="btn-academic"><i class="fas fa-external-link-alt mr-1"></i> Open Simulation</a>
+                                    <a href="hobbies/simulator/index.html?preset=doublePendulum" target="_blank" class="btn-academic"><i class="fas fa-sliders-h mr-1"></i> Full Controls</a>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-3">Two rigid arms connected by revolute joints form a chaotic dynamical system. The Lagrangian \( \mathcal{L} = T - V \) yields coupled second-order ODEs that are highly sensitive to initial conditions — a hallmark of deterministic chaos. Tiny perturbations in \( \theta_1 \) or \( \theta_2 \) diverge exponentially, characterised by positive Lyapunov exponents.</p>
+                            </div>
+                        </div>
+
+                        <!-- Sim 9: Inverted Pendulum -->
+                        <div class="flex flex-col sm:flex-row gap-4 items-start">
+                            <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2025</div>
+                            <div class="flex-1">
+                                <div class="citation-title text-lg leading-tight mb-1">🤸‍♂️ Inverted Pendulum</div>
+                                <div class="citation-author text-gray-700 mb-1">Unstable equilibrium on a moving cart</div>
+                                <div class="citation-journal text-gray-600 mb-2"><em>Physics Simulation</em></div>
+                                <div>
+                                    <a href="hobbies/simulator/index.html?preset=invertedPendulum&embed=1" target="_blank" class="btn-academic"><i class="fas fa-external-link-alt mr-1"></i> Open Simulation</a>
+                                    <a href="hobbies/simulator/index.html?preset=invertedPendulum" target="_blank" class="btn-academic"><i class="fas fa-sliders-h mr-1"></i> Full Controls</a>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-3">A pole balanced atop a moving cart is an inherently unstable system — the classic control theory benchmark. The linearised equation of motion about the vertical is \( \ddot{\theta} = \frac{(m_p + m_c)g\theta - F}{L(m_p + \tfrac{4}{3}m_c)} \). Without active feedback control, the pole falls due to the unstable fixed point at \( \theta = 0 \). The initial cart velocity provides a transient perturbation.</p>
                             </div>
                         </div>
                     </div>
@@ -483,6 +621,84 @@
                                 <p class="text-sm text-gray-600 mt-3">A comprehensive interactive system for visualizing and analyzing automated lumbar spine segmentation results from multi-view MRI data, featuring real-time measurement tools and clinical reporting workflows.</p>
                             </div>
                         </div>
+                    </div>
+                </section>
+
+                <!-- GITHUB REPOSITORIES SECTION -->
+                <section id="github-repos" class="mb-16 clear-both">
+                    <h2 class="text-3xl font-bold border-b pb-2 mb-6">GitHub Repositories</h2>
+                    <div class="space-y-8">
+
+                        <!-- LSMA-PQR -->
+                        <div class="flex flex-col sm:flex-row gap-4 items-start">
+                            <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2025</div>
+                            <div class="flex-1">
+                                <div class="citation-title text-lg leading-tight mb-1">LSMA-PQR</div>
+                                <div class="citation-author text-gray-700 mb-1">Lumbar Spine Multi-view Annotations with Pfirrmann grading, Quantitative measurements and structured Radiological reports</div>
+                                <div class="citation-journal text-gray-600 mb-2"><em>Dataset &amp; Benchmark</em></div>
+                                <div>
+                                    <a href="https://github.com/farhatmasood/LSMA-PQR" target="_blank" class="btn-academic"><i class="fab fa-github mr-1"></i> Repository</a>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-3">A clinically validated lumbar spine MRI dataset comprising 515 patients with dual-plane, dual-sequence imaging (4,120 total images) and comprehensive multi-modal annotations. Provides pixel-level segmentation masks for seven anatomical structures in multiple interoperable formats (YOLO polygon, semantic) with verified cross-format spatial consistency (mean IoU = 0.994). Includes 1,545 Pfirrmann degeneration grades, intervertebral disc height measurements, and structured radiological reports derived from 515 free-text documents.</p>
+                            </div>
+                        </div>
+
+                        <!-- WELDE -->
+                        <div class="flex flex-col sm:flex-row gap-4 items-start">
+                            <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2025</div>
+                            <div class="flex-1">
+                                <div class="citation-title text-lg leading-tight mb-1">WELDE</div>
+                                <div class="citation-author text-gray-700 mb-1">Weighted Ensemble Loss with Diversity Enhancement for imbalanced medical image classification</div>
+                                <div class="citation-journal text-gray-600 mb-2"><em>Method &amp; Pipeline</em></div>
+                                <div>
+                                    <a href="https://github.com/farhatmasood/welde" target="_blank" class="btn-academic"><i class="fab fa-github mr-1"></i> Repository</a>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-3">Addresses long-tailed class imbalance in medical image classification by combining four complementary loss functions — Cross-Entropy, Focal Loss, Class-Balanced Loss, and LDAM — via per-head adapter projections, EMA-based normalisation, and learnable adaptive weighting with a relaxed sum-to-one penalty. Validated on spinal disorder classification and the DermaMNIST skin lesion benchmark.</p>
+                            </div>
+                        </div>
+
+                        <!-- YOLOspine -->
+                        <div class="flex flex-col sm:flex-row gap-4 items-start">
+                            <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2025</div>
+                            <div class="flex-1">
+                                <div class="citation-title text-lg leading-tight mb-1">YOLOspine</div>
+                                <div class="citation-author text-gray-700 mb-1">A clinically validated hierarchical two-stage attention-enhanced architecture for multi-label overlapping spinal disorder detection</div>
+                                <div class="citation-journal text-gray-600 mb-2"><em>Detection Framework</em></div>
+                                <div>
+                                    <a href="https://github.com/farhatmasood/YOLOspine" target="_blank" class="btn-academic"><i class="fab fa-github mr-1"></i> Repository</a>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-3">Automated YOLO-based pipeline for precise detection of six overlapping spinal disorders (DDD, IVD, SS, Spondylolisthesis, LDB, TDB) in MRI. Achieves 84.90% mAP₅₀₋₉₅ on internal dataset (1,038 images, 8,991 annotations) and 79.08% on external cross-validation (RSNA 2024 derivative). Inference at 0.48s per scan — 180× faster than expert clinicians. Clinically validated by 2 radiologists and 1 spinal surgeon across 350 images.</p>
+                            </div>
+                        </div>
+
+                        <!-- Vertebral-Body-Segmentation -->
+                        <div class="flex flex-col sm:flex-row gap-4 items-start">
+                            <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2022</div>
+                            <div class="flex-1">
+                                <div class="citation-title text-lg leading-tight mb-1">Vertebral-Body-Segmentation</div>
+                                <div class="citation-author text-gray-700 mb-1">Customized algorithm for vertebral body segmentation using conventional image processing techniques</div>
+                                <div class="citation-journal text-gray-600 mb-2"><em>Segmentation Algorithm</em></div>
+                                <div>
+                                    <a href="https://github.com/farhatmasood/Vertebral-Body-Segmentation" target="_blank" class="btn-academic"><i class="fab fa-github mr-1"></i> Repository</a>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-3">A customized algorithm for vertebral body segmentation using conventional image processing techniques. Implements morphological operations, edge detection, and region-based segmentation to delineate vertebral bodies from lumbar spine MRI images without relying on deep learning.</p>
+                            </div>
+                        </div>
+
+                        <!-- DOI_BMT -->
+                        <div class="flex flex-col sm:flex-row gap-4 items-start">
+                            <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2025</div>
+                            <div class="flex-1">
+                                <div class="citation-title text-lg leading-tight mb-1">DOI-BMT</div>
+                                <div class="citation-author text-gray-700 mb-1">DOI &amp; Bibliography Management Tool — verify, resolve, format, and manage academic bibliography entries</div>
+                                <div class="citation-journal text-gray-600 mb-2"><em>Research Tool</em></div>
+                                <div>
+                                    <a href="https://github.com/farhatmasood/DOI_BMT" target="_blank" class="btn-academic"><i class="fab fa-github mr-1"></i> Repository</a>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-3">A CLI tool that automates bibliography management. Features multi-format parsing (.bib and .tex), 3-layer DOI link verification (HTTP HEAD → GET → headless Selenium), DOI resolution via Crossref, Semantic Scholar, and Google Scholar, 4-check verification (author, title, venue, URL), 7 citation styles (APA, IEEE, MLA, Chicago, Vancouver, ACM, Harvard), and 6 sorting modes.</p>
+                            </div>
+                        </div>
+
                     </div>
                 </section>
 
@@ -581,10 +797,10 @@
                 <!-- FOOTER -->
                 <footer class="border-t pt-8 text-sm text-gray-500 flex justify-between items-center clear-both">
                     <div>
-                        &copy; 2025 Rao Farhat Masood.
+                        &copy; 2026 Rao Farhat Masood.
                     </div>
                     <div class="text-xs">
-                        Last updated: Dec 17, 2025
+                        Last updated: Mar 19, 2026
                     </div>
                 </footer>
 

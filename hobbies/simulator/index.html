@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Simulator — Newtonian Mechanics Sandbox</title>
+    <meta name="description" content="Interactive 2D physics simulation with real Newtonian mechanics, impulse-based collisions, and full parameter control.">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- ─── Canvas ─────────────────────────────────────── -->
+        <canvas id="sim-canvas"></canvas>
+
+        <!-- ─── Sidebar ────────────────────────────────────── -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-title">
+                <span class="icon">⚛️</span>
+                <div>
+                    Physics Simulator
+                    <div class="sidebar-subtitle">Newtonian Mechanics</div>
+                </div>
+            </div>
+
+            <!-- Playback Controls -->
+            <div class="section">
+                <div class="section-title">Playback</div>
+                <div class="btn-group">
+                    <button class="btn active" id="btn-play">
+                        <span class="btn-icon">▶</span> Play
+                    </button>
+                    <button class="btn" id="btn-pause">
+                        <span class="btn-icon">⏸</span> Pause
+                    </button>
+                    <button class="btn" id="btn-step">
+                        <span class="btn-icon">⏭</span> Step
+                    </button>
+                </div>
+                <div style="margin-top: 8px">
+                    <button class="btn" id="btn-clear" style="width:100%">
+                        <span class="btn-icon">🗑</span> Clear All
+                    </button>
+                </div>
+            </div>
+
+            <!-- World Parameters -->
+            <div class="section">
+                <div class="section-title">World Parameters</div>
+
+                <div class="control-row">
+                    <span class="control-label">Gravity (m/s²)</span>
+                    <span class="control-value" id="val-gravity">9.8</span>
+                </div>
+                <input type="range" id="slider-gravity" min="0" max="50" step="0.1" value="9.81">
+
+                <div class="control-row">
+                    <span class="control-label">Air Drag</span>
+                    <span class="control-value" id="val-drag">0.001</span>
+                </div>
+                <input type="range" id="slider-drag" min="0" max="0.05" step="0.001" value="0.001">
+
+                <div class="control-row">
+                    <span class="control-label">Time Scale</span>
+                    <span class="control-value" id="val-timescale">1.0×</span>
+                </div>
+                <input type="range" id="slider-timescale" min="0.1" max="3" step="0.1" value="1">
+            </div>
+
+            <!-- Spawn Settings -->
+            <div class="section">
+                <div class="section-title">Spawn Settings</div>
+
+                <div class="control-row">
+                    <span class="control-label">Shape</span>
+                </div>
+                <div class="btn-group" style="margin-bottom: 10px">
+                    <button class="shape-btn active" data-shape="circle">⬤ Circle</button>
+                    <button class="shape-btn" data-shape="rect">▬ Rectangle</button>
+                </div>
+
+                <div class="control-row">
+                    <span class="control-label">Size (px)</span>
+                    <span class="control-value" id="val-size">20</span>
+                </div>
+                <input type="range" id="slider-size" min="8" max="60" step="1" value="20">
+
+                <div class="control-row">
+                    <span class="control-label">Mass (kg)</span>
+                    <span class="control-value" id="val-mass">1.0</span>
+                </div>
+                <input type="range" id="slider-mass" min="0.1" max="20" step="0.1" value="1">
+
+                <div class="control-row">
+                    <span class="control-label">Restitution (e)</span>
+                    <span class="control-value" id="val-restitution">0.50</span>
+                </div>
+                <input type="range" id="slider-restitution" min="0" max="1" step="0.01" value="0.5">
+
+                <div class="control-row">
+                    <span class="control-label">Friction (μ)</span>
+                    <span class="control-value" id="val-friction">0.30</span>
+                </div>
+                <input type="range" id="slider-friction" min="0" max="1" step="0.01" value="0.3">
+            </div>
+
+            <!-- Engine Settings -->
+            <div class="section">
+                <div class="section-title">Engine Settings</div>
+                
+                <div class="control-row">
+                    <span class="control-label">Integration Solver</span>
+                </div>
+                <select id="select-solver" style="width: 100%; padding: 5px; margin-bottom: 10px; background: #222; color: white; border: 1px solid #444; border-radius: 4px; cursor: pointer;">
+                    <option value="euler">Semi-Implicit Euler</option>
+                    <option value="verlet">Verlet</option>
+                    <option value="rk4">Runge-Kutta 4 (RK4)</option>
+                </select>
+
+                <div class="control-row">
+                    <span class="control-label">Physics Substeps</span>
+                    <span class="control-value" id="val-substeps">8</span>
+                </div>
+                <input type="range" id="slider-substeps" min="1" max="32" step="1" value="8">
+
+                <div class="control-row">
+                    <span class="control-label">World Boundaries</span>
+                </div>
+                <select id="select-bounds" style="width: 100%; padding: 5px; background: #222; color: white; border: 1px solid #444; border-radius: 4px; cursor: pointer;">
+                    <option value="solid">Solid Walls</option>
+                    <option value="wrap">Screen Wrap</option>
+                    <option value="open">Infinite</option>
+                </select>
+            </div>
+
+            <!-- Display Toggles -->
+            <div class="section">
+                <div class="section-title">Display</div>
+                <div class="toggle-row">
+                    <span class="toggle-label">Velocity Vectors</span>
+                    <label class="toggle">
+                        <input type="checkbox" id="toggle-velocity">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-row">
+                    <span class="toggle-label">Motion Trails</span>
+                    <label class="toggle">
+                        <input type="checkbox" id="toggle-trails" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-row">
+                    <span class="toggle-label">Grid</span>
+                    <label class="toggle">
+                        <input type="checkbox" id="toggle-grid" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Preset Scenes -->
+            <div class="section">
+                <div class="section-title">Preset Scenes</div>
+                <div class="preset-grid">
+                    <button class="preset-btn" data-preset="freeFall">
+                        <span class="preset-icon">🍎</span> Free Fall
+                    </button>
+                    <button class="preset-btn" data-preset="projectile">
+                        <span class="preset-icon">🎯</span> Projectile
+                    </button>
+                    <button class="preset-btn" data-preset="pendulum">
+                        <span class="preset-icon">🕐</span> Pendulum
+                    </button>
+                    <button class="preset-btn" data-preset="cradle">
+                        <span class="preset-icon">⚖️</span> Cradle
+                    </button>
+                    <button class="preset-btn" data-preset="billiards">
+                        <span class="preset-icon">🎱</span> Billiards
+                    </button>
+                    <button class="preset-btn" data-preset="stacking">
+                        <span class="preset-icon">🧱</span> Stacking
+                    </button>
+                    <button class="preset-btn" data-preset="gyroscope">
+                        <span class="preset-icon">🛸</span> Gyroscope
+                    </button>
+                    <button class="preset-btn" data-preset="doublePendulum">
+                        <span class="preset-icon">🎢</span> Double Pend.
+                    </button>
+                    <button class="preset-btn" data-preset="invertedPendulum">
+                        <span class="preset-icon">🤸‍♂️</span> Inverted Pend.
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chaos Studies -->
+            <div class="section">
+                <div class="section-title">Chaos Studies (Double Pendulum)</div>
+                <div class="preset-grid">
+                    <button class="preset-btn chaos-btn" data-mode="chaosButterfly" style="grid-column: span 2;">
+                        <span class="preset-icon" style="color:#bb86fc">🦋</span> Butterfly Effect
+                    </button>
+                    <button class="preset-btn chaos-btn" data-mode="chaosPhaseSpace" style="grid-column: span 2;">
+                        <span class="preset-icon" style="color:#ff6b6b">🗺️</span> Phase Space Map
+                    </button>
+                    <button class="preset-btn chaos-btn" data-mode="chaosTimeToFlip" style="grid-column: span 2;">
+                        <span class="preset-icon" style="color:#f7dc6f">⏱️</span> Time-to-Flip Map
+                    </button>
+                </div>
+                
+                <div id="chaos-controls" style="display:none; margin-top: 15px;">
+                    <div class="control-row">
+                        <span class="control-label">Theta 1 (deg)</span>
+                        <span class="control-value" id="val-theta1">90</span>
+                    </div>
+                    <input type="range" id="slider-theta1" min="-180" max="180" step="1" value="90">
+
+                    <div class="control-row">
+                        <span class="control-label">Theta 2 (deg)</span>
+                        <span class="control-value" id="val-theta2">90</span>
+                    </div>
+                    <input type="range" id="slider-theta2" min="-180" max="180" step="1" value="90">
+                    
+                    <button class="btn active" id="btn-run-chaos" style="width:100%; margin-top:10px;">
+                        <span class="btn-icon">▶</span> Run Chaos Sim
+                    </button>
+                </div>
+                
+                <div id="chaos-progress-container" style="display:none; margin-top: 10px;">
+                    <div style="font-size: 11px; color: #ccc; margin-bottom: 4px;" id="chaos-progress-text">Calculating 4 Million Pendulums...</div>
+                    <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
+                        <div id="chaos-progress-bar" style="width: 0%; height: 100%; background: #4ecdc4; transition: width 0.1s;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Body Inspector -->
+            <div class="section">
+                <div class="section-title">Body Inspector</div>
+                <div id="body-info">
+                    <p class="info-hint">Right-click a body to inspect</p>
+                </div>
+                <div id="body-actions" style="display: none; margin-top: 10px; gap: 5px; flex-wrap: wrap;">
+                    <button class="btn" id="btn-body-freeze" style="flex: 1;"><span class="btn-icon">❄️</span> Freeze</button>
+                    <button class="btn" id="btn-body-delete" style="flex: 1; background: #ff444433;"><span class="btn-icon">🗑</span> Delete</button>
+                </div>
+            </div>
+
+            <!-- Help -->
+            <div class="help-text">
+                <strong>Controls:</strong><br>
+                <kbd>Click + Drag</kbd> Slingshot spawn<br>
+                <kbd>Right-click</kbd> Inspect body<br>
+                <kbd>Space</kbd> Play / Pause<br>
+                <kbd>S</kbd> Step forward<br>
+                <kbd>Del</kbd> Delete selected<br>
+                <kbd>C</kbd> Clear all
+            </div>
+        </aside>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,461 @@
+/* ─── Physics Simulator — Premium Dark Theme ──────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ─── Reset & Base ──────────────────────────────────────────── */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #0a0e1a;
+    color: #e0e0e0;
+    user-select: none;
+}
+
+/* ─── Layout ────────────────────────────────────────────────── */
+.app-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* ─── Canvas ────────────────────────────────────────────────── */
+canvas#sim-canvas {
+    flex: 1;
+    display: block;
+    cursor: crosshair;
+}
+
+/* ─── Sidebar ───────────────────────────────────────────────── */
+.sidebar {
+    width: 280px;
+    min-width: 280px;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: rgba(15, 20, 35, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-left: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 16px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 10;
+}
+
+/* Scrollbar */
+.sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.12);
+    border-radius: 4px;
+}
+
+/* ─── Logo / Title ──────────────────────────────────────────── */
+.sidebar-title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.sidebar-title .icon {
+    font-size: 20px;
+}
+
+.sidebar-subtitle {
+    font-size: 10px;
+    color: rgba(255,255,255,0.35);
+    font-weight: 400;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+/* ─── Section ───────────────────────────────────────────────── */
+.section {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 12px;
+}
+
+.section-title {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 10px;
+}
+
+/* ─── Control Row ───────────────────────────────────────────── */
+.control-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.control-row:last-child {
+    margin-bottom: 0;
+}
+
+.control-label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.65);
+    font-weight: 400;
+}
+
+.control-value {
+    font-size: 11px;
+    color: #4fc3f7;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    min-width: 50px;
+    text-align: right;
+}
+
+/* ─── Sliders ───────────────────────────────────────────────── */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    outline: none;
+    margin: 6px 0;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+input[type="range"]:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #4fc3f7;
+    box-shadow: 0 0 8px rgba(79, 195, 247, 0.4);
+    cursor: grab;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 12px rgba(79, 195, 247, 0.6);
+}
+
+input[type="range"]::-webkit-slider-thumb:active {
+    cursor: grabbing;
+    transform: scale(1.1);
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #4fc3f7;
+    border: none;
+    box-shadow: 0 0 8px rgba(79, 195, 247, 0.4);
+    cursor: grab;
+}
+
+/* ─── Buttons ───────────────────────────────────────────────── */
+.btn-group {
+    display: flex;
+    gap: 6px;
+}
+
+.btn {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.7);
+    font-size: 12px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.btn:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.18);
+    color: #fff;
+}
+
+.btn.active {
+    background: rgba(79, 195, 247, 0.15);
+    border-color: rgba(79, 195, 247, 0.4);
+    color: #4fc3f7;
+}
+
+.btn-icon {
+    font-size: 14px;
+}
+
+.danger-btn {
+    width: 100%;
+    padding: 7px 12px;
+    margin-top: 8px;
+    border: 1px solid rgba(255, 107, 107, 0.3);
+    border-radius: 8px;
+    background: rgba(255, 107, 107, 0.1);
+    color: #ff6b6b;
+    font-size: 11px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.danger-btn:hover {
+    background: rgba(255, 107, 107, 0.2);
+    border-color: rgba(255, 107, 107, 0.5);
+}
+
+.secondary-btn {
+    width: 100%;
+    padding: 7px 12px;
+    margin-top: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255,255,255,0.65);
+    font-size: 11px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.secondary-btn:hover {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+}
+
+/* ─── Shape Buttons ─────────────────────────────────────────── */
+.shape-btn {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.03);
+    color: rgba(255,255,255,0.55);
+    font-size: 11px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.shape-btn:hover {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+}
+
+.shape-btn.active {
+    background: rgba(79, 195, 247, 0.12);
+    border-color: rgba(79, 195, 247, 0.4);
+    color: #4fc3f7;
+}
+
+/* ─── Toggle Switch ─────────────────────────────────────────── */
+.toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.toggle-row:last-child {
+    margin-bottom: 0;
+}
+
+.toggle-label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+}
+
+.toggle {
+    position: relative;
+    width: 36px;
+    height: 20px;
+}
+
+.toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.1);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.25s;
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    left: 3px;
+    top: 3px;
+    background: rgba(255,255,255,0.5);
+    border-radius: 50%;
+    transition: all 0.25s;
+}
+
+.toggle input:checked + .toggle-slider {
+    background: rgba(79, 195, 247, 0.35);
+}
+
+.toggle input:checked + .toggle-slider::before {
+    transform: translateX(16px);
+    background: #4fc3f7;
+    box-shadow: 0 0 6px rgba(79, 195, 247, 0.5);
+}
+
+/* ─── Preset Buttons ────────────────────────────────────────── */
+.preset-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.preset-btn {
+    padding: 8px 6px;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.03);
+    color: rgba(255,255,255,0.6);
+    font-size: 11px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.preset-btn:hover {
+    background: rgba(79, 195, 247, 0.08);
+    border-color: rgba(79, 195, 247, 0.25);
+    color: #4fc3f7;
+    transform: translateY(-1px);
+}
+
+.preset-btn .preset-icon {
+    font-size: 16px;
+    display: block;
+    margin-bottom: 3px;
+}
+
+/* ─── Body Info Panel ───────────────────────────────────────── */
+#body-info {
+    font-size: 11px;
+}
+
+.info-hint {
+    color: rgba(255,255,255,0.3);
+    font-style: italic;
+    font-size: 11px;
+    text-align: center;
+    padding: 8px 0;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.info-row span:first-child {
+    color: rgba(255,255,255,0.4);
+    font-weight: 400;
+}
+
+.info-row span:last-child {
+    color: rgba(255,255,255,0.8);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ─── Help Text ─────────────────────────────────────────────── */
+.help-text {
+    font-size: 10px;
+    color: rgba(255,255,255,0.25);
+    line-height: 1.5;
+    padding-top: 4px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+}
+
+.help-text kbd {
+    display: inline-block;
+    padding: 1px 5px;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 4px;
+    background: rgba(255,255,255,0.06);
+    font-family: inherit;
+    font-size: 10px;
+    color: rgba(255,255,255,0.5);
+}
+
+/* ─── Embed Mode ────────────────────────────────────────────── */
+body.embed-mode .sidebar {
+    display: none !important;
+}
+
+body.embed-mode .app-container {
+    width: 100%;
+}
+
+/* ─── Animations ────────────────────────────────────────────── */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.section {
+    animation: fadeIn 0.3s ease-out both;
+}
+
+.section:nth-child(2) { animation-delay: 0.05s; }
+.section:nth-child(3) { animation-delay: 0.10s; }
+.section:nth-child(4) { animation-delay: 0.15s; }
+.section:nth-child(5) { animation-delay: 0.20s; }
+.section:nth-child(6) { animation-delay: 0.25s; }
+.section:nth-child(7) { animation-delay: 0.30s; }
+.section:nth-child(8) { animation-delay: 0.35s; }
