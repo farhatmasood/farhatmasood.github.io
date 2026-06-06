@@ -137,82 +137,124 @@
             <div class="md:col-span-8 lg:col-span-9">
 
                 <!-- ABOUT SECTION -->
-                <section id="about" class="mb-16">
-                    <h2 class="text-3xl font-bold border-b pb-2 mb-6">About</h2>
-                    <div class="serif-text text-lg leading-relaxed text-gray-800">
-                        <p class="mb-4">
-                            I am a Doctoral Researcher specializing in <strong class="font-semibold">Computer Vision</strong> and <strong class="font-semibold">Medical Image Analysis</strong>. My research focuses on the intersection of <strong class="font-semibold">Generative AI (LLMs)</strong> and <strong class="font-semibold">Radiological Workflows</strong>, specifically targeting the automation of lumbar spine MRI interpretation.
-                        </p>
-                        <p class="mb-4">
-                            My current work addresses the computational bottlenecks of deploying Large Multimodal Models (LMMs) in clinical settings. I am actively researching <strong class="font-semibold">Knowledge Distillation</strong> strategies to compress large foundation models (e.g., MedGemma, BioMedCLIP) into efficient, edge-deployable architectures without compromising clinical accuracy.
-                        </p>
+<section id="about" class="mb-16">
+    <h2 class="text-3xl font-bold border-b pb-2 mb-6">About</h2>
+    <div class="serif-text text-lg leading-relaxed text-gray-800">
+        <p class="mb-4">
+            I am a Doctoral Researcher specializing in <strong class="font-semibold">Computer Vision</strong> and <strong class="font-semibold">Medical Image Analysis</strong>. Grounded in a decade of clinical biomedical engineering experience, my research bridges the gap between <strong class="font-semibold">Vision-Language Foundation Models</strong> and <strong class="font-semibold">Radiological Workflows</strong>, specifically targeting the automation of lumbar spine MRI interpretation.
+        </p>
+        <p class="mb-4">
+            My current work addresses the computational bottlenecks of deploying Large Multimodal Models (LMMs) in clinical settings. I develop parameter-efficient, prompt-calibrated architectures—leveraging Low-Rank Adaptation (LoRA) and hierarchical attention mechanisms (HiTAD)—to compress massive visual encoders. Furthermore, I formulate novel optimization strategies, such as Weighted Ensemble Loss with Diversity Enhancement (WELDE), to resolve severe class imbalances in multi-label spinal disorder detection, ensuring edge-deployable solutions with high clinical fidelity.
+        </p>
+    </div>
+
+    <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div class="bg-gray-50 p-4 rounded border">
+            <h3 class="font-bold mb-2">Research Interests</h3>
+            <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
+                <li>Vision-Language Foundation Models</li>
+                <li>Parameter-Efficient Fine-Tuning (PEFT)</li>
+                <li>Imbalanced Pathology Classification</li>
+                <li>Hierarchical Attention Mechanisms</li>
+                <li>Clinical Deployability (TorchServe/ONNX)</li>
+            </ul>
+        </div>
+        <div class="bg-gray-50 p-4 rounded border">
+            <h3 class="font-bold mb-2">News</h3>
+            <ul class="text-sm text-gray-700 space-y-2">
+                <li><span class="font-mono text-xs text-gray-500 mr-2">May 2026</span> Released codebase and weights for <strong>PC-RadNet</strong>.</li>
+                <li><span class="font-mono text-xs text-gray-500 mr-2">May 2026</span> Paper on <strong>WELDE</strong> published in <em>Netw Model Anal Health Inform Bioinforma</em>.</li>
+                <li><span class="font-mono text-xs text-gray-500 mr-2">Apr 2026</span> <strong>HiTAD</strong> architecture submitted to <em>Journal of Healthcare Informatics Research</em>.</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- PROJECTS SECTION (Deep Dive) -->
+<section id="projects" class="mb-16">
+    <h2 class="text-3xl font-bold border-b pb-2 mb-8">Featured Research</h2>
+    
+    <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 transition-all hover:shadow-2xl">
+        <!-- Project Hero Banner -->
+        <div class="w-full h-56 bg-gradient-to-br from-gray-900 via-slate-800 to-black flex items-center justify-center text-white relative overflow-hidden">
+            <!-- Decorative background elements -->
+            <div class="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9IiNmZmYiLz48L3N2Zz4=')]"></div>
+            <div class="absolute -top-24 -right-24 w-64 h-64 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
+            <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-indigo-600 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
+
+            <div class="text-center px-6 z-10">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-white/10 rounded-2xl backdrop-blur-md mb-4 border border-white/20 shadow-xl">
+                    <i class="fas fa-microchip text-3xl text-blue-400"></i>
+                </div>
+                <p class="text-lg font-mono tracking-wider font-semibold text-gray-100 drop-shadow-lg">
+                    PC-RadNet &amp; HiTAD <span class="mx-3 text-blue-500">|</span> <span class="font-serif italic text-blue-200">&fnof;<sub>&phi;</sub>(<b>X</b>) &rarr; Structured Reports</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="p-8 md:p-10">
+            <h3 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 mb-3 tracking-tight">
+                From Pixels to Reports: Rethinking Clinical Diagnostics
+            </h3>
+            <p class="text-blue-600 font-medium text-lg italic mb-8">
+                Compressing massive foundation models into edge-deployable, multi-task architectures.
+            </p>
+            
+            <div class="prose max-w-none text-gray-700 leading-relaxed space-y-6">
+                <p class="text-xl font-semibold text-gray-800 border-l-4 border-blue-500 pl-5 bg-gray-50 py-3 rounded-r-lg shadow-sm">
+                    Can we distill the reasoning power of massive Vision-Language Models into a framework lean enough for consumer-grade clinical hardware? 
+                </p>
+                
+                <p class="text-lg">
+                    <strong>PC-RadNet</strong> proves we can. By applying Low-Rank Adaptation (LoRA) &mdash; formalized as <span class="font-serif italic bg-gray-100 px-2 py-0.5 rounded text-gray-800 border border-gray-200"><b>h</b> = <b>W</b><sub>0</sub><b>x</b> + (&alpha;/r)<b>BAx</b></span> &mdash; to a frozen DINOv2 visual encoder, the model conditions entirely on free-text clinical prompts, bypassing the need for costly dense spatial annotations. 
+                </p>
+                
+                <p class="text-lg">
+                    To resolve the persistent challenge of overlapping, highly imbalanced spinal pathologies, this architecture integrates the <strong>HiTAD</strong> framework. It penalizes correlated ensemble errors and applies a dynamically weighted focal loss via the <strong>WELDE</strong> objective:
+                </p>
+                
+                <div class="my-8 py-8 px-4 bg-gradient-to-r from-slate-50 to-gray-50 rounded-xl border border-gray-200 shadow-inner flex justify-center overflow-x-auto">
+                    <div class="text-xl text-gray-900 font-serif">
+                        $$ \mathcal{L}_{WELDE} = \sum_{m=1}^{M} \omega_m \mathcal{L}_{Focal}(y, \hat{y}_m) + \gamma \sum_{i \neq j} \mathcal{D}_{KL}(\mathcal{P}_{\theta_i} \parallel \mathcal{P}_{\theta_j}) $$
                     </div>
+                </div>
 
-                    <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div class="bg-gray-50 p-4 rounded border">
-                            <h3 class="font-bold mb-2">Research Interests</h3>
-                            <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
-                                <li>Multimodal Learning (Vision-Language)</li>
-                                <li>Lumbar Spine Quantization</li>
-                                <li>Self-Supervised Learning</li>
-                                <li>Knowledge Distillation</li>
-                                <li>Clinical Reproducibility (MONAI/Docker)</li>
-                            </ul>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded border">
-                            <h3 class="font-bold mb-2">News</h3>
-                            <ul class="text-sm text-gray-700 space-y-2">
-                                <li><span class="font-mono text-xs text-gray-500 mr-2">Dec 2025</span> Paper submitted at <strong>Information Fusion</strong>.</li>
-                                <li><span class="font-mono text-xs text-gray-500 mr-2">Sep 2025</span> Paper submitted at <strong>IEEE TMI</strong>.</li>
-                                <!-- <li><span class="font-mono text-xs text-gray-500 mr-2">Sep 2025</span> Workshop talk at <strong>MICCAI</strong>.</li>
-                                <li><span class="font-mono text-xs text-gray-500 mr-2">Aug 2025</span> Released <a href="#" class="text-blue-600 hover:underline">Spine-Distill-v1</a> code.</li> -->
-                            </ul>
-                        </div>
+                <!-- The "Punch" / CTA Box -->
+                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 border-l-4 border-blue-600 p-8 rounded-r-xl shadow-md relative overflow-hidden mt-10">
+                    <div class="absolute right-0 top-0 opacity-10">
+                        <i class="fas fa-bolt text-9xl text-blue-900 transform translate-x-4 -translate-y-4"></i>
                     </div>
-                </section>
+                    <h4 class="font-bold text-blue-900 mb-3 text-xl flex items-center relative z-10">
+                        <i class="fas fa-rocket text-blue-600 mr-3"></i> The Impact
+                    </h4>
+                    <p class="text-blue-800 mb-6 text-lg leading-relaxed relative z-10">
+                        A direct, reproducible pathway generating RadLex-compliant structured reports from raw MRI sequences. Executing in just <strong class="text-blue-900 bg-white/60 px-2 py-0.5 rounded shadow-sm">39 ms/image</strong> with a peak VRAM of <strong class="text-blue-900 bg-white/60 px-2 py-0.5 rounded shadow-sm">0.63 GB</strong>, this architecture shatters the computational bottlenecks of modern medical AI.
+                    </p>
+                    <a href="https://github.com/farhatmasood/pc-radnet" target="_blank" class="inline-flex items-center justify-center font-bold text-white bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 relative z-10 group">
+                        Explore the Open-Source Weights 
+                        <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                    </a>
+                </div>
 
-                <!-- PROJECTS SECTION (Deep Dive) -->
-                <section id="projects" class="mb-16">
-                    <h2 class="text-3xl font-bold border-b pb-2 mb-8">Featured Project</h2>
-                    
-                    <div class="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200">
-                        <!-- Project Image Placeholder -->
-                        <div class="w-full h-64 bg-gray-800 flex items-center justify-center text-white">
-                            <div class="text-center">
-                                <i class="fas fa-brain text-4xl mb-2"></i>
-                                <p class="text-sm font-mono">Teacher (MedGemma) -> Student (ResNet/ViT)</p>
-                            </div>
-                        </div>
-
-                        <div class="p-8">
-                            <h3 class="text-2xl font-bold mb-2">Knowledge Distillation from MedGemma</h3>
-                            <p class="text-gray-500 italic mb-6">Compressing Large Multimodal Models for rapid lumbar spine reporting.</p>
-                            
-                            <div class="prose max-w-none text-gray-800">
-                                <h4 class="font-bold text-lg mt-4 mb-2">Methodology</h4>
-                                <p class="mb-4">
-                                    We utilize a teacher model \( T \) (MedGemma-2b) to guide a lightweight student model \( S \) (Swin-UNETR Hybrid). The training objective minimizes the divergence between the teacher's report embeddings and the student's output, formulated as:
-                                </p>
-                                
-                                <div class="math-block bg-gray-50 p-4 rounded border mb-4 text-center text-lg">
-                                    $$ \mathcal{L}_{total} = \alpha \mathcal{L}_{CE} + (1-\alpha) \tau^2 \mathcal{L}_{KL}\left(\sigma\left(\frac{z_s}{\tau}\right), \sigma\left(\frac{z_t}{\tau}\right)\right) $$
-                                </div>
-
-                                <p class="mb-4">
-                                    Where \( \mathcal{L}_{CE} \) is the standard Cross-Entropy loss on ground-truth reports, \( \mathcal{L}_{KL} \) is the Kullback-Leibler divergence, and \( \tau \) is the temperature parameter.
-                                </p>
-
-                                <h4 class="font-bold text-lg mt-6 mb-2">Tech Stack</h4>
-                                <div class="flex flex-wrap gap-2 mb-4">
-                                    <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded">PyTorch</span>
-                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded">MONAI</span>
-                                    <span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-semibold rounded">Hugging Face</span>
-                                    <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-semibold rounded">Docker</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+                <!-- Premium Tech Stack Badges -->
+                <div class="flex flex-wrap gap-3 mt-8 pt-6 border-t border-gray-100">
+                    <span class="px-4 py-2 bg-white text-gray-700 text-sm font-bold rounded-lg border border-gray-200 shadow-sm flex items-center hover:bg-gray-50 transition-colors">
+                        <i class="fab fa-python text-blue-500 mr-2 text-lg"></i> PyTorch / MONAI
+                    </span>
+                    <span class="px-4 py-2 bg-white text-gray-700 text-sm font-bold rounded-lg border border-gray-200 shadow-sm flex items-center hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-brain text-purple-500 mr-2 text-lg"></i> DINOv2 + LoRA
+                    </span>
+                    <span class="px-4 py-2 bg-white text-gray-700 text-sm font-bold rounded-lg border border-gray-200 shadow-sm flex items-center hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-compress-arrows-alt text-green-500 mr-2 text-lg"></i> Knowledge Distillation
+                    </span>
+                    <span class="px-4 py-2 bg-white text-gray-700 text-sm font-bold rounded-lg border border-gray-200 shadow-sm flex items-center hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-microchip text-red-500 mr-2 text-lg"></i> ONNX Edge Inference
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
                 <!-- PUBLICATIONS SECTION -->
                 <section id="publications" class="mb-16">
@@ -221,7 +263,25 @@
                     <!-- Journal Articles -->
                     <h3 class="text-xl font-semibold text-gray-800 mb-6 mt-8">Journal Articles</h3>
                     <div class="space-y-8">
-                        
+                        <!-- Paper NEW -->
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2026</div>
+                            <div>
+                                <div class="citation-title text-lg leading-tight mb-1">
+                                    WELDE: a weighted ensemble loss with diversity enhancement for imbalanced object classification in medical imaging
+                                </div>
+                                <div class="citation-author text-gray-700 mb-1">
+                                    <strong>Rao Farhat Masood</strong>, Imtiaz Ahmad Taj
+                                </div>
+                                <div class="citation-journal text-gray-600 mb-2">
+                                    <em>Network Modeling Analysis in Health Informatics and Bioinformatics 15, 125</em>
+                                </div>
+                                <div>
+                                    <a href="https://doi.org/10.1007/s13721-026-00797-1" target="_blank" class="btn-academic"><i class="fas fa-external-link-alt mr-1"></i> View</a>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Paper 1 -->
                         <div class="flex flex-col sm:flex-row gap-4">
                             <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2024</div>
@@ -303,6 +363,26 @@
                     <h3 class="text-xl font-semibold text-gray-800 mb-6 mt-10">Datasets & Conference Proceedings</h3>
                     <div class="space-y-8">
 
+                        <!-- Dataset 2 (2025) -->
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2025</div>
+                            <div>
+                                <div class="citation-title text-lg leading-tight mb-1">
+                                    LSMA-PQR: Lumbar Spine Multi-view Annotations with Pfirrmann grading, Quantitative measurements and structured Radiological reports
+                                </div>
+                                <div class="citation-author text-gray-700 mb-1">
+                                    <strong>Rao Farhat Masood</strong>, Imtiaz Ahmad Taj, Muhammad Talha, Dr M Babar Khan
+                                </div>
+                                <div class="citation-journal text-gray-600 mb-2">
+                                    <em>Mendeley Data, V2</em>
+                                </div>
+                                <div>
+                                    <a href="https://doi.org/10.17632/p3r4xd2488.2" target="_blank" class="btn-academic"><i class="fas fa-database mr-1"></i> Dataset</a>
+                                    <a href="https://doi.org/10.17632/p3r4xd2488.2" target="_blank" class="btn-academic"><i class="fas fa-doi mr-1"></i> DOI</a>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Dataset 1 (2025) -->
                         <div class="flex flex-col sm:flex-row gap-4">
                             <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2025</div>
@@ -323,25 +403,7 @@
                             </div>
                         </div>
 
-                        <!-- Dataset 2 (2025) -->
-                        <div class="flex flex-col sm:flex-row gap-4">
-                            <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2025</div>
-                            <div>
-                                <div class="citation-title text-lg leading-tight mb-1">
-                                    LSMA-PQR: Lumbar Spine Multi-view Annotations with Pfirrmann grading, Quantitative measurements and structured Radiological reports
-                                </div>
-                                <div class="citation-author text-gray-700 mb-1">
-                                    <strong>Rao Farhat Masood</strong>, Imtiaz Ahmad Taj, Muhammad Talha, Dr M Babar Khan
-                                </div>
-                                <div class="citation-journal text-gray-600 mb-2">
-                                    <em>Mendeley Data, V1</em>
-                                </div>
-                                <div>
-                                    <a href="https://doi.org/10.17632/p3r4xd2488.1" target="_blank" class="btn-academic"><i class="fas fa-database mr-1"></i> Dataset</a>
-                                    <a href="https://doi.org/10.17632/p3r4xd2488.1" target="_blank" class="btn-academic"><i class="fas fa-doi mr-1"></i> DOI</a>
-                                </div>
-                            </div>
-                        </div>
+                        
 
                         <!-- Conf Paper 1 (2022) -->
                         <div class="flex flex-col sm:flex-row gap-4">
@@ -629,6 +691,33 @@
                     <h2 class="text-3xl font-bold border-b pb-2 mb-6">GitHub Repositories</h2>
                     <div class="space-y-8">
 
+
+                                        <div class="flex flex-col sm:flex-row gap-4 items-start">
+                    <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2026</div>
+                    <div class="flex-1">
+                        <div class="citation-title text-lg leading-tight mb-1">PC-RadNet</div>
+                        <div class="citation-author text-gray-700 mb-1">Prompt-Calibrated, Parameter-Efficient Foundation Model for Comprehensive Multi-Task Segmentation, Clinical Assessment and Structured Report Generation in Lumbar Spine MRI</div>
+                        <div class="citation-journal text-gray-600 mb-2"><em>Codebase &amp; Model Weights</em></div>
+                        <div>
+                            <a href="https://github.com/farhatmasood/pc-radnet" target="_blank" class="btn-academic"><i class="fab fa-github mr-1"></i> Repository</a>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-3">Unifies five interdependent radiological tasks—anatomical segmentation, Pfirrmann grading, intervertebral disc height quantification, multi-label pathology detection, and structured report generation—within a single parameter-efficient architecture. Built on a frozen DINOv2 ViT-B/14 visual encoder coupled with a four-stage ConvTranspose decoder, the model requires no spatial annotations at inference, conditioning solely on free-text clinical prompts. Executes the full pipeline in 39 ms per image with a minimal footprint of 0.63 GB peak VRAM on consumer-grade hardware, utilizing a Spine Domain Adapter and LoRA for highly efficient distillation.</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4 items-start mt-6">
+                    <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2026</div>
+                    <div class="flex-1">
+                        <div class="citation-title text-lg leading-tight mb-1">Review Paper</div>
+                        <div class="citation-author text-gray-700 mb-1">Vision-Language Foundation Models for Lumbar Spine Diagnostics: A Systematic Review of Architectures, Knowledge Distillation and Clinical Deployment Pathways</div>
+                        <div class="citation-journal text-gray-600 mb-2"><em>Systematic Review &amp; Meta-Analysis</em></div>
+                        <div>
+                            <a href="https://github.com/farhatmasood/ALSD_VLM_Review" target="_blank" class="btn-academic"><i class="fab fa-github mr-1"></i> Repository</a>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-3">A comprehensive synthesis of 165 peer-reviewed studies (2015–2026) evaluating the integration of Vision-Language Models (VLMs) and LLMs in spine diagnostics. Introduces a unified mathematical framework detailing self-attention, contrastive pre-training, and knowledge distillation objectives. Features a random-effects meta-analysis of 14 spine segmentation pipelines establishing a pooled vertebral Dice coefficient of 0.897. Concludes by identifying six critical research gaps and proposing a resource-stratified, three-tier deployment roadmap to guide the clinical translation of volumetric multi-sequence processing models.</p>
+                    </div>
+                </div>
+
                         <!-- LSMA-PQR -->
                         <div class="flex flex-col sm:flex-row gap-4 items-start">
                             <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2025</div>
@@ -657,15 +746,15 @@
                             </div>
                         </div>
 
-                        <!-- YOLOspine -->
+                        <!-- HiTAD Previously YOLOspine -->
                         <div class="flex flex-col sm:flex-row gap-4 items-start">
                             <div class="sm:w-32 flex-shrink-0 text-sm text-gray-500 pt-1">2025</div>
                             <div class="flex-1">
-                                <div class="citation-title text-lg leading-tight mb-1">YOLOspine</div>
+                                <div class="citation-title text-lg leading-tight mb-1">HiTAD</div>
                                 <div class="citation-author text-gray-700 mb-1">A clinically validated hierarchical two-stage attention-enhanced architecture for multi-label overlapping spinal disorder detection</div>
                                 <div class="citation-journal text-gray-600 mb-2"><em>Detection Framework</em></div>
                                 <div>
-                                    <a href="https://github.com/farhatmasood/YOLOspine" target="_blank" class="btn-academic"><i class="fab fa-github mr-1"></i> Repository</a>
+                                    <a href="https://github.com/farhatmasood/HiTAD" target="_blank" class="btn-academic"><i class="fab fa-github mr-1"></i> Repository</a>
                                 </div>
                                 <p class="text-sm text-gray-600 mt-3">Automated YOLO-based pipeline for precise detection of six overlapping spinal disorders (DDD, IVD, SS, Spondylolisthesis, LDB, TDB) in MRI. Achieves 84.90% mAP₅₀₋₉₅ on internal dataset (1,038 images, 8,991 annotations) and 79.08% on external cross-validation (RSNA 2024 derivative). Inference at 0.48s per scan — 180× faster than expert clinicians. Clinically validated by 2 radiologists and 1 spinal surgeon across 350 images.</p>
                             </div>
@@ -702,97 +791,108 @@
                     </div>
                 </section>
 
-                <!-- ACADEMIC SERVICE (REVIEWER METER) -->
-                <section id="service" class="mt-12 mb-16 clear-both">
-                    <h2 class="text-3xl font-bold border-b pb-2 mb-8">Academic Service</h2>
-                    
-                    <div class="flex flex-col gap-8 w-full">
-                        <!-- Summary Card -->
-                        <div class="bg-gray-900 text-white rounded-lg p-6 flex flex-col items-center justify-center text-center shadow-lg w-full">
-                            <div class="text-5xl font-bold mb-2">19</div>
-                            <div class="text-sm uppercase tracking-wide opacity-80 mb-4">Verified Peer Reviews</div>
-                            <div class="w-full bg-gray-700 h-1 rounded mb-4"></div>
-                            <div class="text-xs opacity-60">
-                                Springer Nature • Elsevier • RSNA
-                            </div>
+<!-- ACADEMIC SERVICE (REVIEWER METER) -->
+<section id="service" class="mt-12 mb-16 clear-both">
+    <h2 class="text-3xl font-bold border-b pb-2 mb-8">Academic Service</h2>
+    
+    <div class="flex flex-col gap-8 w-full">
+        <!-- Summary Card -->
+        <div class="bg-gray-900 text-white rounded-lg p-6 flex flex-col items-center justify-center text-center shadow-lg w-full">
+            <div class="text-5xl font-bold mb-2">48</div>
+            <div class="text-sm uppercase tracking-wide opacity-80 mb-4">Verified Peer Reviews</div>
+            <div class="w-full bg-gray-700 h-1 rounded mb-4"></div>
+            <div class="text-xs opacity-60">
+                Springer Nature • Elsevier • IEEE
+            </div>
+        </div>
+
+        <!-- Reviewer Meter -->
+        <div class="w-full bg-gray-50 border rounded-lg p-6 overflow-x-hidden">
+            <h3 class="font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-chart-bar mr-2 text-blue-600"></i> Review Activity by Journal
+            </h3>
+            
+            <div class="space-y-4">
+                <!-- J. Imaging Informatics -->
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="font-medium">J. Imaging Informatics in Medicine</span>
+                        <span class="text-gray-500">9 reviews</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div class="bg-blue-600 h-2.5 rounded-full meter-bar" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <!-- The Visual Computer -->
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="font-medium">The Visual Computer</span>
+                        <span class="text-gray-500">8 reviews</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div class="bg-blue-500 h-2.5 rounded-full meter-bar" style="width: 89%"></div>
+                    </div>
+                </div>
+
+                <!-- BMC Musculoskeletal Disorders -->
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="font-medium">BMC Musculoskeletal Disorders</span>
+                        <span class="text-gray-500">7 reviews</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div class="bg-blue-400 h-2.5 rounded-full meter-bar" style="width: 78%"></div>
+                    </div>
+                </div>
+
+                <!-- Data in Brief -->
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="font-medium">Data in Brief</span>
+                        <span class="text-gray-500">6 reviews</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div class="bg-blue-300 h-2.5 rounded-full meter-bar" style="width: 67%"></div>
+                    </div>
+                </div>
+
+                <!-- MIA (Prestigious - Highlighted) -->
+                <div class="pt-2">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="font-medium text-gray-900">Medical Image Analysis (MIA)</span>
+                        <span class="text-gray-500">2 reviews</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div class="bg-indigo-600 h-2.5 rounded-full meter-bar" style="width: 22%"></div>
+                    </div>
+                </div>
+
+                <!-- Others -->
+                <div class="grid grid-cols-2 gap-4 mt-2">
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-gray-600">BMC Medical Imaging</span>
+                            <span class="text-gray-400">4</span>
                         </div>
-
-                        <!-- Reviewer Meter -->
-                        <div class="w-full bg-gray-50 border rounded-lg p-6 overflow-x-hidden">
-                            <h3 class="font-bold text-gray-800 mb-4 flex items-center">
-                                <i class="fas fa-chart-bar mr-2 text-blue-600"></i> Review Activity by Journal
-                            </h3>
-                            
-                            <div class="space-y-4">
-                                <!-- Data in Brief -->
-                                <div>
-                                    <div class="flex justify-between text-sm mb-1">
-                                        <span class="font-medium">Data in Brief</span>
-                                        <span class="text-gray-500">6 reviews</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                        <div class="bg-blue-600 h-2.5 rounded-full meter-bar" style="width: 100%"></div>
-                                    </div>
-                                </div>
-
-                                <!-- The Visual Computer -->
-                                <div>
-                                    <div class="flex justify-between text-sm mb-1">
-                                        <span class="font-medium">The Visual Computer</span>
-                                        <span class="text-gray-500">5 reviews</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                        <div class="bg-blue-500 h-2.5 rounded-full meter-bar" style="width: 83%"></div>
-                                    </div>
-                                </div>
-
-                                <!-- J. Imaging Informatics -->
-                                <div>
-                                    <div class="flex justify-between text-sm mb-1">
-                                        <span class="font-medium">J. Imaging Informatics in Medicine</span>
-                                        <span class="text-gray-500">4 reviews</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                        <div class="bg-blue-400 h-2.5 rounded-full meter-bar" style="width: 66%"></div>
-                                    </div>
-                                </div>
-
-                                <!-- MIA (Prestigious - Highlighted) -->
-                                <div>
-                                    <div class="flex justify-between text-sm mb-1">
-                                        <span class="font-medium text-gray-900">Medical Image Analysis (MIA)</span>
-                                        <span class="text-gray-500">2 reviews</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                        <div class="bg-indigo-600 h-2.5 rounded-full meter-bar" style="width: 33%"></div>
-                                    </div>
-                                </div>
-
-                                <!-- Others -->
-                                <div class="grid grid-cols-2 gap-4 mt-2">
-                                    <div>
-                                        <div class="flex justify-between text-xs mb-1">
-                                            <span class="text-gray-600">Eng. Apps of AI</span>
-                                            <span class="text-gray-400">1</span>
-                                        </div>
-                                        <div class="w-full bg-gray-200 rounded-full h-1.5">
-                                            <div class="bg-gray-400 h-1.5 rounded-full meter-bar" style="width: 16%"></div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="flex justify-between text-xs mb-1">
-                                            <span class="text-gray-600">AI in Medicine</span>
-                                            <span class="text-gray-400">1</span>
-                                        </div>
-                                        <div class="w-full bg-gray-200 rounded-full h-1.5">
-                                            <div class="bg-gray-400 h-1.5 rounded-full meter-bar" style="width: 16%"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="w-full bg-gray-200 rounded-full h-1.5">
+                            <div class="bg-gray-400 h-1.5 rounded-full meter-bar" style="width: 44%"></div>
                         </div>
                     </div>
-                </section>
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-gray-600">J. Ortho. Surg. &amp; Res.</span>
+                            <span class="text-gray-400">4</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-1.5">
+                            <div class="bg-gray-400 h-1.5 rounded-full meter-bar" style="width: 44%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
                 <!-- FOOTER -->
                 <footer class="border-t pt-8 text-sm text-gray-500 flex justify-between items-center clear-both">
@@ -800,7 +900,7 @@
                         &copy; 2026 Rao Farhat Masood.
                     </div>
                     <div class="text-xs">
-                        Last updated: Mar 19, 2026
+                        Last updated: June, 2026
                     </div>
                 </footer>
 
