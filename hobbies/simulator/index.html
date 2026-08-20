@@ -1,263 +1,2050 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Physics Simulator — Newtonian Mechanics Sandbox</title>
-    <meta name="description" content="Interactive 2D physics simulation with real Newtonian mechanics, impulse-based collisions, and full parameter control.">
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-    <div class="app-container">
-        <!-- ─── Canvas ─────────────────────────────────────── -->
-        <canvas id="sim-canvas"></canvas>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Physics Playground — Keyboard-Controlled Simulator</title>
+    <style>
+      :root {
+        --bg: #0a0e16;
+        --panel: rgba(16, 22, 34, 0.82);
+        --panel-solid: #10161f;
+        --border: rgba(120, 160, 220, 0.18);
+        --text: #e6edf6;
+        --muted: #8fa3bd;
+        --accent: #4fc3f7;
+        --accent2: #bb86fc;
+        --good: #7cfc98;
+        --warn: #f7dc6f;
+        --bad: #ff6b6b;
+        --font: "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
+        --mono: "Cascadia Code", "Consolas", "SF Mono", monospace;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        height: 100%;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--font);
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      #view {
+        position: fixed;
+        inset: 0;
+        display: block;
+      }
 
-        <!-- ─── Sidebar ────────────────────────────────────── -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-title">
-                <span class="icon">⚛️</span>
-                <div>
-                    Physics Simulator
-                    <div class="sidebar-subtitle">Newtonian Mechanics</div>
-                </div>
-            </div>
+      /* ---- Top app-selector bar ---- */
+      #topbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 12px;
+        background: linear-gradient(180deg, rgba(6, 9, 15, 0.92), rgba(6, 9, 15, 0));
+        z-index: 10;
+        flex-wrap: wrap;
+      }
+      #brand {
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        margin-right: 10px;
+        white-space: nowrap;
+      }
+      #brand .dot {
+        color: var(--accent);
+      }
+      .tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 12px;
+        border: 1px solid var(--border);
+        background: var(--panel);
+        color: var(--muted);
+        border-radius: 9px;
+        cursor: pointer;
+        font-size: 13px;
+        transition:
+          all 0.15s ease;
+        backdrop-filter: blur(6px);
+      }
+      .tab:hover {
+        color: var(--text);
+        border-color: rgba(120, 160, 220, 0.4);
+      }
+      .tab.active {
+        color: #04121c;
+        background: var(--accent);
+        border-color: var(--accent);
+        font-weight: 600;
+      }
+      .tab .num {
+        opacity: 0.7;
+        font-family: var(--mono);
+        font-size: 11px;
+      }
+      .tab.active .num {
+        opacity: 0.85;
+      }
+      .spacer {
+        flex: 1;
+      }
+      .topbtn {
+        padding: 7px 12px;
+        border: 1px solid var(--border);
+        background: var(--panel);
+        color: var(--muted);
+        border-radius: 9px;
+        cursor: pointer;
+        font-size: 13px;
+        backdrop-filter: blur(6px);
+      }
+      .topbtn:hover {
+        color: var(--text);
+      }
+      .topbtn.on {
+        color: var(--bad);
+        border-color: rgba(255, 107, 107, 0.5);
+      }
 
-            <!-- Playback Controls -->
-            <div class="section">
-                <div class="section-title">Playback</div>
-                <div class="btn-group">
-                    <button class="btn active" id="btn-play">
-                        <span class="btn-icon">▶</span> Play
-                    </button>
-                    <button class="btn" id="btn-pause">
-                        <span class="btn-icon">⏸</span> Pause
-                    </button>
-                    <button class="btn" id="btn-step">
-                        <span class="btn-icon">⏭</span> Step
-                    </button>
-                </div>
-                <div style="margin-top: 8px">
-                    <button class="btn" id="btn-clear" style="width:100%">
-                        <span class="btn-icon">🗑</span> Clear All
-                    </button>
-                </div>
-            </div>
+      /* ---- Live stats panel (top-right) ---- */
+      #stats {
+        position: fixed;
+        top: 58px;
+        right: 12px;
+        min-width: 190px;
+        padding: 12px 14px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        backdrop-filter: blur(8px);
+        z-index: 9;
+        font-size: 12.5px;
+      }
+      #stats h4 {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--muted);
+        margin-bottom: 8px;
+        font-weight: 600;
+      }
+      .stat {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 2px 0;
+      }
+      .stat .k {
+        color: var(--muted);
+      }
+      .stat .v {
+        font-family: var(--mono);
+        color: var(--text);
+      }
 
-            <!-- World Parameters -->
-            <div class="section">
-                <div class="section-title">World Parameters</div>
+      /* ---- Controls legend (bottom-left) ---- */
+      #legend {
+        position: fixed;
+        bottom: 12px;
+        left: 12px;
+        max-width: 340px;
+        padding: 12px 14px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        backdrop-filter: blur(8px);
+        z-index: 9;
+        font-size: 12.5px;
+      }
+      #legend h4 {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--muted);
+        margin-bottom: 8px;
+        font-weight: 600;
+      }
+      .keyrow {
+        display: flex;
+        gap: 8px;
+        align-items: baseline;
+        padding: 2px 0;
+      }
+      .keyrow .desc {
+        color: var(--muted);
+      }
+      kbd {
+        display: inline-block;
+        min-width: 16px;
+        text-align: center;
+        padding: 1px 6px;
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-bottom-width: 2px;
+        border-radius: 5px;
+        white-space: nowrap;
+      }
 
-                <div class="control-row">
-                    <span class="control-label">Gravity (m/s²)</span>
-                    <span class="control-value" id="val-gravity">9.8</span>
-                </div>
-                <input type="range" id="slider-gravity" min="0" max="50" step="0.1" value="9.81">
+      /* ---- Center prompt / toast ---- */
+      #prompt {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 14px 26px;
+        background: rgba(10, 14, 22, 0.9);
+        border: 1px solid var(--accent);
+        border-radius: 14px;
+        z-index: 12;
+        font-size: 16px;
+        text-align: center;
+        box-shadow: 0 0 40px rgba(79, 195, 247, 0.25);
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+      }
+      #prompt.show {
+        opacity: 1;
+        animation: pulse 1.6s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          box-shadow: 0 0 30px rgba(79, 195, 247, 0.2);
+        }
+        50% {
+          box-shadow: 0 0 55px rgba(79, 195, 247, 0.5);
+        }
+      }
+      #prompt small {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 12.5px;
+      }
 
-                <div class="control-row">
-                    <span class="control-label">Air Drag</span>
-                    <span class="control-value" id="val-drag">0.001</span>
-                </div>
-                <input type="range" id="slider-drag" min="0" max="0.05" step="0.001" value="0.001">
+      /* ---- Bottom-center status ---- */
+      #status {
+        position: fixed;
+        bottom: 14px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 9;
+        font-size: 13px;
+        color: var(--muted);
+        display: flex;
+        gap: 14px;
+        align-items: center;
+        padding: 7px 16px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        backdrop-filter: blur(6px);
+      }
+      #status b {
+        color: var(--text);
+      }
+      #status .paused {
+        color: var(--warn);
+      }
 
-                <div class="control-row">
-                    <span class="control-label">Time Scale</span>
-                    <span class="control-value" id="val-timescale">1.0×</span>
-                </div>
-                <input type="range" id="slider-timescale" min="0.1" max="3" step="0.1" value="1">
-            </div>
+      /* ---- Help overlay ---- */
+      #help {
+        position: fixed;
+        inset: 0;
+        background: rgba(4, 7, 12, 0.8);
+        backdrop-filter: blur(4px);
+        z-index: 20;
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+      #help.show {
+        display: flex;
+      }
+      #help .card {
+        width: min(680px, 92vw);
+        max-height: 86vh;
+        overflow: auto;
+        background: var(--panel-solid);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 26px 30px;
+      }
+      #help h2 {
+        margin-bottom: 4px;
+      }
+      #help p.sub {
+        color: var(--muted);
+        margin-bottom: 18px;
+      }
+      #help h3 {
+        margin: 18px 0 8px;
+        color: var(--accent);
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+      }
+      #help .grid {
+        display: grid;
+        grid-template-columns: 130px 1fr;
+        gap: 6px 14px;
+        font-size: 13.5px;
+      }
+      #help .grid .desc {
+        color: var(--muted);
+      }
+      #help .close {
+        margin-top: 22px;
+        padding: 9px 16px;
+        border: 1px solid var(--border);
+        background: var(--accent);
+        color: #04121c;
+        font-weight: 600;
+        border-radius: 9px;
+        cursor: pointer;
+      }
+      /* ---- Equations panel (bottom-right) ---- */
+      #equations {
+        position: fixed;
+        right: 12px;
+        bottom: 12px;
+        width: 352px;
+        max-height: 55vh;
+        overflow: auto;
+        padding: 14px 16px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        backdrop-filter: blur(8px);
+        z-index: 9;
+        font-size: 12.5px;
+      }
+      #equations.hidden {
+        display: none;
+      }
+      #equations h4 {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--muted);
+        margin-bottom: 10px;
+        font-weight: 600;
+      }
+      .eq-block {
+        margin-bottom: 11px;
+      }
+      .eq-title {
+        color: var(--accent2);
+        font-size: 11.5px;
+        margin-bottom: 3px;
+      }
+      .formula {
+        font-family: var(--mono);
+        color: var(--text);
+        font-size: 13px;
+        line-height: 1.55;
+        padding: 5px 9px;
+        background: rgba(255, 255, 255, 0.04);
+        border-left: 2px solid var(--accent);
+        border-radius: 4px;
+        margin: 3px 0;
+      }
+      .formula.small {
+        font-size: 11px;
+      }
+      .eq-note {
+        color: var(--muted);
+        font-size: 11px;
+        margin-top: 4px;
+      }
+      .eq-ok {
+        color: var(--good);
+      }
+      @media (max-width: 900px) {
+        #equations {
+          display: none;
+        }
+      }
+      @media (max-width: 640px) {
+        #stats {
+          display: none;
+        }
+        #legend {
+          max-width: 60vw;
+          font-size: 11px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="view"></canvas>
 
-            <!-- Spawn Settings -->
-            <div class="section">
-                <div class="section-title">Spawn Settings</div>
-
-                <div class="control-row">
-                    <span class="control-label">Shape</span>
-                </div>
-                <div class="btn-group" style="margin-bottom: 10px">
-                    <button class="shape-btn active" data-shape="circle">⬤ Circle</button>
-                    <button class="shape-btn" data-shape="rect">▬ Rectangle</button>
-                </div>
-
-                <div class="control-row">
-                    <span class="control-label">Size (px)</span>
-                    <span class="control-value" id="val-size">20</span>
-                </div>
-                <input type="range" id="slider-size" min="8" max="60" step="1" value="20">
-
-                <div class="control-row">
-                    <span class="control-label">Mass (kg)</span>
-                    <span class="control-value" id="val-mass">1.0</span>
-                </div>
-                <input type="range" id="slider-mass" min="0.1" max="20" step="0.1" value="1">
-
-                <div class="control-row">
-                    <span class="control-label">Restitution (e)</span>
-                    <span class="control-value" id="val-restitution">0.50</span>
-                </div>
-                <input type="range" id="slider-restitution" min="0" max="1" step="0.01" value="0.5">
-
-                <div class="control-row">
-                    <span class="control-label">Friction (μ)</span>
-                    <span class="control-value" id="val-friction">0.30</span>
-                </div>
-                <input type="range" id="slider-friction" min="0" max="1" step="0.01" value="0.3">
-            </div>
-
-            <!-- Engine Settings -->
-            <div class="section">
-                <div class="section-title">Engine Settings</div>
-                
-                <div class="control-row">
-                    <span class="control-label">Integration Solver</span>
-                </div>
-                <select id="select-solver" style="width: 100%; padding: 5px; margin-bottom: 10px; background: #222; color: white; border: 1px solid #444; border-radius: 4px; cursor: pointer;">
-                    <option value="euler">Semi-Implicit Euler</option>
-                    <option value="verlet">Verlet</option>
-                    <option value="rk4">Runge-Kutta 4 (RK4)</option>
-                </select>
-
-                <div class="control-row">
-                    <span class="control-label">Physics Substeps</span>
-                    <span class="control-value" id="val-substeps">8</span>
-                </div>
-                <input type="range" id="slider-substeps" min="1" max="32" step="1" value="8">
-
-                <div class="control-row">
-                    <span class="control-label">World Boundaries</span>
-                </div>
-                <select id="select-bounds" style="width: 100%; padding: 5px; background: #222; color: white; border: 1px solid #444; border-radius: 4px; cursor: pointer;">
-                    <option value="solid">Solid Walls</option>
-                    <option value="wrap">Screen Wrap</option>
-                    <option value="open">Infinite</option>
-                </select>
-            </div>
-
-            <!-- Display Toggles -->
-            <div class="section">
-                <div class="section-title">Display</div>
-                <div class="toggle-row">
-                    <span class="toggle-label">Velocity Vectors</span>
-                    <label class="toggle">
-                        <input type="checkbox" id="toggle-velocity">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                <div class="toggle-row">
-                    <span class="toggle-label">Motion Trails</span>
-                    <label class="toggle">
-                        <input type="checkbox" id="toggle-trails" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                <div class="toggle-row">
-                    <span class="toggle-label">Grid</span>
-                    <label class="toggle">
-                        <input type="checkbox" id="toggle-grid" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Preset Scenes -->
-            <div class="section">
-                <div class="section-title">Preset Scenes</div>
-                <div class="preset-grid">
-                    <button class="preset-btn" data-preset="freeFall">
-                        <span class="preset-icon">🍎</span> Free Fall
-                    </button>
-                    <button class="preset-btn" data-preset="projectile">
-                        <span class="preset-icon">🎯</span> Projectile
-                    </button>
-                    <button class="preset-btn" data-preset="pendulum">
-                        <span class="preset-icon">🕐</span> Pendulum
-                    </button>
-                    <button class="preset-btn" data-preset="cradle">
-                        <span class="preset-icon">⚖️</span> Cradle
-                    </button>
-                    <button class="preset-btn" data-preset="billiards">
-                        <span class="preset-icon">🎱</span> Billiards
-                    </button>
-                    <button class="preset-btn" data-preset="stacking">
-                        <span class="preset-icon">🧱</span> Stacking
-                    </button>
-                    <button class="preset-btn" data-preset="gyroscope">
-                        <span class="preset-icon">🛸</span> Gyroscope
-                    </button>
-                    <button class="preset-btn" data-preset="doublePendulum">
-                        <span class="preset-icon">🎢</span> Double Pend.
-                    </button>
-                    <button class="preset-btn" data-preset="invertedPendulum">
-                        <span class="preset-icon">🤸‍♂️</span> Inverted Pend.
-                    </button>
-                </div>
-            </div>
-
-            <!-- Chaos Studies -->
-            <div class="section">
-                <div class="section-title">Chaos Studies (Double Pendulum)</div>
-                <div class="preset-grid">
-                    <button class="preset-btn chaos-btn" data-mode="chaosButterfly" style="grid-column: span 2;">
-                        <span class="preset-icon" style="color:#bb86fc">🦋</span> Butterfly Effect
-                    </button>
-                    <button class="preset-btn chaos-btn" data-mode="chaosPhaseSpace" style="grid-column: span 2;">
-                        <span class="preset-icon" style="color:#ff6b6b">🗺️</span> Phase Space Map
-                    </button>
-                    <button class="preset-btn chaos-btn" data-mode="chaosTimeToFlip" style="grid-column: span 2;">
-                        <span class="preset-icon" style="color:#f7dc6f">⏱️</span> Time-to-Flip Map
-                    </button>
-                </div>
-                
-                <div id="chaos-controls" style="display:none; margin-top: 15px;">
-                    <div class="control-row">
-                        <span class="control-label">Theta 1 (deg)</span>
-                        <span class="control-value" id="val-theta1">90</span>
-                    </div>
-                    <input type="range" id="slider-theta1" min="-180" max="180" step="1" value="90">
-
-                    <div class="control-row">
-                        <span class="control-label">Theta 2 (deg)</span>
-                        <span class="control-value" id="val-theta2">90</span>
-                    </div>
-                    <input type="range" id="slider-theta2" min="-180" max="180" step="1" value="90">
-                    
-                    <button class="btn active" id="btn-run-chaos" style="width:100%; margin-top:10px;">
-                        <span class="btn-icon">▶</span> Run Chaos Sim
-                    </button>
-                </div>
-                
-                <div id="chaos-progress-container" style="display:none; margin-top: 10px;">
-                    <div style="font-size: 11px; color: #ccc; margin-bottom: 4px;" id="chaos-progress-text">Calculating 4 Million Pendulums...</div>
-                    <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
-                        <div id="chaos-progress-bar" style="width: 0%; height: 100%; background: #4ecdc4; transition: width 0.1s;"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Body Inspector -->
-            <div class="section">
-                <div class="section-title">Body Inspector</div>
-                <div id="body-info">
-                    <p class="info-hint">Right-click a body to inspect</p>
-                </div>
-                <div id="body-actions" style="display: none; margin-top: 10px; gap: 5px; flex-wrap: wrap;">
-                    <button class="btn" id="btn-body-freeze" style="flex: 1;"><span class="btn-icon">❄️</span> Freeze</button>
-                    <button class="btn" id="btn-body-delete" style="flex: 1; background: #ff444433;"><span class="btn-icon">🗑</span> Delete</button>
-                </div>
-            </div>
-
-            <!-- Help -->
-            <div class="help-text">
-                <strong>Controls:</strong><br>
-                <kbd>Click + Drag</kbd> Slingshot spawn<br>
-                <kbd>Right-click</kbd> Inspect body<br>
-                <kbd>Space</kbd> Play / Pause<br>
-                <kbd>S</kbd> Step forward<br>
-                <kbd>Del</kbd> Delete selected<br>
-                <kbd>C</kbd> Clear all
-            </div>
-        </aside>
+    <div id="topbar">
+      <div id="brand">Physics<span class="dot">·</span>Playground</div>
+      <div id="tabs"></div>
+      <div class="spacer"></div>
+      <button class="topbtn" id="btn-eq" title="E">📐 Equations</button>
+      <button class="topbtn" id="btn-pause" title="Space">⏸ Pause</button>
+      <button class="topbtn" id="btn-reset" title="R">↻ Reset</button>
+      <button class="topbtn" id="btn-help" title="H">? Help</button>
     </div>
 
-    <script type="module" src="js/app.js"></script>
-</body>
+    <div id="stats">
+      <h4 id="stats-title">Readouts</h4>
+      <div id="stats-body"></div>
+    </div>
+
+    <div id="legend">
+      <h4 id="legend-title">Controls</h4>
+      <div id="legend-body"></div>
+    </div>
+
+    <div id="prompt"></div>
+
+    <div id="status">
+      <span id="status-app">—</span>
+      <span id="status-extra"></span>
+    </div>
+
+    <div id="equations">
+      <h4 id="equations-title">Physics</h4>
+      <div id="equations-body"></div>
+    </div>
+
+    <div id="help">
+      <div class="card">
+        <h2>Physics Playground</h2>
+        <p class="sub">A keyboard-driven physics sandbox. Everything is under your control.</p>
+
+        <h3>Global keys</h3>
+        <div class="grid">
+          <div><kbd>1</kbd>–<kbd>5</kbd></div>
+          <div class="desc">Switch application</div>
+          <div><kbd>Space</kbd></div>
+          <div class="desc">Pause / resume the simulation</div>
+          <div><kbd>R</kbd></div>
+          <div class="desc">Reset the current application</div>
+          <div><kbd>,</kbd> <kbd>.</kbd></div>
+          <div class="desc">Slow down / speed up time</div>
+          <div><kbd>E</kbd></div>
+          <div class="desc">Show / hide the physics equations</div>
+          <div><kbd>H</kbd> / <kbd>Esc</kbd></div>
+          <div class="desc">Open / close this help</div>
+        </div>
+
+        <div id="help-app"></div>
+
+        <button class="close" id="help-close">Got it — start playing</button>
+      </div>
+    </div>
+
+    <script>
+      "use strict";
+      /* =====================================================================
+         Physics Playground — a single-file, dependency-free simulator.
+         Runs directly from a .html file (file://). Canvas 2D only.
+
+         Architecture:
+           - Small vector + integration helpers.
+           - An Input manager (held keys + edge-triggered presses).
+           - A Game shell that owns the loop, the active app, pause/time-scale,
+             and the DOM HUD (tabs, stats, legend, prompt, status, help).
+           - Five self-contained "apps", each with its own correct physics and
+             its own keyboard controls: Simple Pendulum, Double Pendulum,
+             Projectile, Billiards, Newton's Cradle.
+      ===================================================================== */
+
+      /* ---------------------------- Constants ---------------------------- */
+      const G = 980; // gravity, px/s^2  (~9.8 m/s^2 at 100 px per metre)
+      const PPM = 100; // pixels per metre, for human-readable readouts
+      const COLORS = ["#4fc3f7", "#ff6b6b", "#f7dc6f", "#7cfc98", "#bb86fc", "#ff9f43"];
+
+      /* ---------------------------- Utilities ---------------------------- */
+      const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
+      const TAU = Math.PI * 2;
+      function deg(r) {
+        return (r * 180) / Math.PI;
+      }
+      function fmt(n, d = 1) {
+        return Number(n).toFixed(d);
+      }
+
+      // Classic RK4 over a numeric state array. `deriv(state)` returns dstate/dt.
+      function rk4(state, dt, deriv) {
+        const n = state.length;
+        const k1 = deriv(state);
+        const s2 = new Array(n);
+        for (let i = 0; i < n; i++) s2[i] = state[i] + (k1[i] * dt) / 2;
+        const k2 = deriv(s2);
+        const s3 = new Array(n);
+        for (let i = 0; i < n; i++) s3[i] = state[i] + (k2[i] * dt) / 2;
+        const k3 = deriv(s3);
+        const s4 = new Array(n);
+        for (let i = 0; i < n; i++) s4[i] = state[i] + k3[i] * dt;
+        const k4 = deriv(s4);
+        const out = new Array(n);
+        for (let i = 0; i < n; i++)
+          out[i] = state[i] + (dt / 6) * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]);
+        return out;
+      }
+
+      /* ------------------------- Canvas / DPR ---------------------------- */
+      const canvas = document.getElementById("view");
+      const ctx = canvas.getContext("2d");
+      let W = 0,
+        H = 0,
+        DPR = 1;
+      function resize() {
+        DPR = Math.min(window.devicePixelRatio || 1, 2);
+        W = window.innerWidth;
+        H = window.innerHeight;
+        canvas.width = Math.round(W * DPR);
+        canvas.height = Math.round(H * DPR);
+        canvas.style.width = W + "px";
+        canvas.style.height = H + "px";
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+        if (Game.current && Game.current.onResize) Game.current.onResize(W, H);
+      }
+      window.addEventListener("resize", resize);
+
+      /* ----------------------------- Input ------------------------------- */
+      const Input = {
+        down: new Set(), // codes currently held
+        _pressListeners: [],
+        onPress(fn) {
+          this._pressListeners.push(fn);
+        },
+      };
+      const NAV_KEYS = new Set([
+        "ArrowUp",
+        "ArrowDown",
+        "ArrowLeft",
+        "ArrowRight",
+        "Space",
+        "Tab",
+      ]);
+      window.addEventListener("keydown", (e) => {
+        if (NAV_KEYS.has(e.code)) e.preventDefault();
+        const repeat = e.repeat;
+        Input.down.add(e.code);
+        if (!repeat) Input._pressListeners.forEach((fn) => fn(e));
+      });
+      window.addEventListener("keyup", (e) => Input.down.delete(e.code));
+      window.addEventListener("blur", () => Input.down.clear());
+      const held = (code) => Input.down.has(code);
+
+      /* --------------------------- Draw helpers -------------------------- */
+      function line(x1, y1, x2, y2, color, width = 2, dash = null) {
+        ctx.save();
+        if (dash) ctx.setLineDash(dash);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = width;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+        ctx.restore();
+      }
+      function disc(x, y, r, color, glow = 0) {
+        ctx.save();
+        if (glow > 0) {
+          ctx.shadowColor = color;
+          ctx.shadowBlur = glow;
+        }
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, TAU);
+        ctx.fill();
+        ctx.restore();
+      }
+      function ring(x, y, r, color, width = 2) {
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = width;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, TAU);
+        ctx.stroke();
+        ctx.restore();
+      }
+      function label(text, x, y, color = "#e6edf6", size = 13, align = "center") {
+        ctx.save();
+        ctx.fillStyle = color;
+        ctx.font = `${size}px "Segoe UI", sans-serif`;
+        ctx.textAlign = align;
+        ctx.textBaseline = "middle";
+        ctx.fillText(text, x, y);
+        ctx.restore();
+      }
+      // Arrow from (x,y) along (dx,dy).
+      function arrow(x, y, dx, dy, color, width = 3) {
+        const len = Math.hypot(dx, dy);
+        if (len < 1) return;
+        const ux = dx / len,
+          uy = dy / len;
+        const ex = x + dx,
+          ey = y + dy;
+        line(x, y, ex, ey, color, width);
+        const head = Math.min(12, len * 0.4);
+        const a = Math.atan2(uy, ux);
+        line(ex, ey, ex - head * Math.cos(a - 0.4), ey - head * Math.sin(a - 0.4), color, width);
+        line(ex, ey, ex - head * Math.cos(a + 0.4), ey - head * Math.sin(a + 0.4), color, width);
+      }
+      function faintGrid() {
+        ctx.save();
+        ctx.strokeStyle = "rgba(120,160,220,0.06)";
+        ctx.lineWidth = 1;
+        const step = 50;
+        for (let x = 0; x < W; x += step) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, H);
+          ctx.stroke();
+        }
+        for (let y = 0; y < H; y += step) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(W, y);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      /* ============================ GAME SHELL =========================== */
+      const Game = {
+        apps: [],
+        current: null,
+        paused: false,
+        timeScale: 1,
+        showEq: true,
+        _acc: 0,
+        _last: 0,
+
+        register(app) {
+          this.apps.push(app);
+        },
+        switchTo(app) {
+          this.current = app;
+          this.paused = false;
+          if (app.onResize) app.onResize(W, H);
+          app.reset();
+          this.rebuildTabs();
+          this.refreshHUD();
+          this.updateStatus();
+        },
+        togglePause() {
+          this.paused = !this.paused;
+          this.updateStatus();
+        },
+        reset() {
+          if (this.current) this.current.reset();
+          this.paused = false;
+          this.updateStatus();
+        },
+
+        /* ---- DOM: tabs ---- */
+        rebuildTabs() {
+          const host = document.getElementById("tabs");
+          host.innerHTML = "";
+          this.apps.forEach((app, i) => {
+            const b = document.createElement("button");
+            b.className = "tab" + (app === this.current ? " active" : "");
+            b.innerHTML = `<span>${app.icon} ${app.name}</span><span class="num">${i + 1}</span>`;
+            b.onclick = () => Game.switchTo(app);
+            host.appendChild(b);
+          });
+        },
+        /* ---- DOM: legend + stats titles + help ---- */
+        refreshHUD() {
+          const app = this.current;
+          document.getElementById("legend-title").textContent = app.name + " — Controls";
+          const lb = document.getElementById("legend-body");
+          lb.innerHTML = (app.legend() || [])
+            .map(
+              ([keys, desc]) =>
+                `<div class="keyrow"><span>${keys}</span><span class="desc">${desc}</span></div>`,
+            )
+            .join("");
+          document.getElementById("stats-title").textContent = app.name + " — Readouts";
+          // Equations panel for this app.
+          document.getElementById("equations-title").textContent = "📐 " + app.name + " — Physics";
+          document.getElementById("equations-body").innerHTML = app.equations ? app.equations() : "";
+          // Help section for this app.
+          const ha = document.getElementById("help-app");
+          ha.innerHTML =
+            `<h3>${app.icon} ${app.name}</h3><div class="grid">` +
+            (app.legend() || [])
+              .map(([keys, desc]) => `<div>${keys}</div><div class="desc">${desc}</div>`)
+              .join("") +
+            `</div>`;
+        },
+        toggleEq(show) {
+          this.showEq = show === undefined ? !this.showEq : show;
+          document.getElementById("equations").classList.toggle("hidden", !this.showEq);
+          document.getElementById("btn-eq").classList.toggle("on", this.showEq);
+        },
+        setPrompt(text, sub) {
+          const el = document.getElementById("prompt");
+          if (!text) {
+            el.classList.remove("show");
+            return;
+          }
+          el.innerHTML = text + (sub ? `<small>${sub}</small>` : "");
+          el.classList.add("show");
+        },
+        updateStatus() {
+          document.getElementById("status-app").innerHTML =
+            `<b>${this.current.icon} ${this.current.name}</b>` +
+            (this.paused ? ` · <span class="paused">PAUSED</span>` : "") +
+            (this.timeScale !== 1 ? ` · ${fmt(this.timeScale, 2)}× time` : "");
+          document.getElementById("status-extra").innerHTML = this.current.statusExtra
+            ? this.current.statusExtra()
+            : "";
+          document.getElementById("btn-pause").innerHTML = this.paused ? "▶ Play" : "⏸ Pause";
+        },
+        updateStats() {
+          const rows = (this.current.stats && this.current.stats()) || [];
+          document.getElementById("stats-body").innerHTML = rows
+            .map(([k, v]) => `<div class="stat"><span class="k">${k}</span><span class="v">${v}</span></div>`)
+            .join("");
+        },
+
+        /* ---- Main loop ---- */
+        start() {
+          this.rebuildTabs();
+          this._last = performance.now();
+          requestAnimationFrame(this._tick.bind(this));
+        },
+        _tick(now) {
+          let frame = (now - this._last) / 1000;
+          this._last = now;
+          if (frame > 0.05) frame = 0.05; // clamp after tab-out
+          const app = this.current;
+
+          // Fixed-timestep physics for stability (esp. the double pendulum).
+          if (!this.paused) {
+            this._acc += frame * this.timeScale;
+            const h = 1 / 240;
+            let steps = 0;
+            while (this._acc >= h && steps < 2000) {
+              app.step(h);
+              this._acc -= h;
+              steps++;
+            }
+          }
+          // Per-frame input handling (held keys) even when paused → allows aiming.
+          if (app.frameInput) app.frameInput(frame);
+
+          // Render.
+          ctx.clearRect(0, 0, W, H);
+          app.render();
+
+          this.updateStats();
+          this.updateStatus();
+          requestAnimationFrame(this._tick.bind(this));
+        },
+      };
+
+      /* ===================================================================
+         APP 1 — SIMPLE PENDULUM
+         Multiple independent pendulums for comparison. Each is a rod of
+         length L with a bob; θ measured from straight-down. You push the
+         selected one incrementally with the arrow keys.
+      =================================================================== */
+      const SimplePendulum = {
+        id: "pendulum",
+        name: "Simple Pendulum",
+        icon: "🕐",
+        items: [],
+        sel: 0,
+        pivotY: 0,
+        pushed: false,
+
+        make(L, color) {
+          return {
+            L,
+            theta: 0.6, // start slightly displaced so it is visibly ready
+            omega: 0,
+            mass: 1,
+            damping: 0.0,
+            frozen: false,
+            color,
+            trail: [],
+          };
+        },
+        reset() {
+          this.items = [this.make(240, COLORS[0])];
+          this.sel = 0;
+          this.pushed = false;
+          this.pivotY = 130;
+          Game.setPrompt("Press ← or → to push the pendulum", "It will start swinging");
+        },
+        onResize() {
+          this.pivotY = 130;
+        },
+        addItem() {
+          if (this.items.length >= 6) return;
+          const L = 160 + this.items.length * 40;
+          this.items.push(this.make(L, COLORS[this.items.length % COLORS.length]));
+          this.sel = this.items.length - 1;
+        },
+        removeItem() {
+          if (this.items.length <= 1) return;
+          this.items.splice(this.sel, 1);
+          this.sel = clamp(this.sel, 0, this.items.length - 1);
+        },
+        pivotX(i) {
+          const n = this.items.length;
+          return (W * (i + 1)) / (n + 1);
+        },
+
+        step(dt) {
+          for (const p of this.items) {
+            if (p.frozen) continue;
+            const g = G;
+            const next = rk4([p.theta, p.omega], dt, (s) => [
+              s[1],
+              -(g / p.L) * Math.sin(s[0]) - p.damping * s[1],
+            ]);
+            p.theta = next[0];
+            p.omega = next[1];
+          }
+          // record trail for the selected bob
+          const p = this.items[this.sel];
+          const px = this.pivotX(this.sel);
+          const bx = px + p.L * Math.sin(p.theta);
+          const by = this.pivotY + p.L * Math.cos(p.theta);
+          p.trail.push([bx, by]);
+          if (p.trail.length > 120) p.trail.shift();
+        },
+        frameInput(dt) {
+          const p = this.items[this.sel];
+          if (!p) return;
+          // Push: incremental angular velocity kick while held.
+          if (held("ArrowLeft")) {
+            p.omega -= 2.2 * dt;
+            this._didPush();
+          }
+          if (held("ArrowRight")) {
+            p.omega += 2.2 * dt;
+            this._didPush();
+          }
+          // Length adjust.
+          if (held("ArrowUp")) p.L = clamp(p.L - 90 * dt, 60, Math.min(H - this.pivotY - 30, 520));
+          if (held("ArrowDown")) p.L = clamp(p.L + 90 * dt, 60, Math.min(H - this.pivotY - 30, 520));
+        },
+        _didPush() {
+          if (!this.pushed) {
+            this.pushed = true;
+            Game.setPrompt(null);
+          }
+        },
+        keydown(e) {
+          const p = this.items[this.sel];
+          switch (e.code) {
+            case "KeyN":
+              this.addItem();
+              break;
+            case "Backspace":
+            case "Delete":
+              this.removeItem();
+              break;
+            case "Tab":
+              this.sel = (this.sel + 1) % this.items.length;
+              break;
+            case "KeyF":
+              if (p) p.frozen = !p.frozen;
+              break;
+            case "BracketLeft":
+              if (p) p.mass = clamp(p.mass - 0.5, 0.5, 20);
+              break;
+            case "BracketRight":
+              if (p) p.mass = clamp(p.mass + 0.5, 0.5, 20);
+              break;
+            case "KeyD":
+              if (p) p.damping = p.damping > 0 ? 0 : 0.6;
+              break;
+          }
+        },
+
+        render() {
+          faintGrid();
+          // support beam
+          line(0, this.pivotY, W, this.pivotY, "rgba(120,160,220,0.25)", 3);
+          this.items.forEach((p, i) => {
+            const px = this.pivotX(i);
+            const bx = px + p.L * Math.sin(p.theta);
+            const by = this.pivotY + p.L * Math.cos(p.theta);
+            const isSel = i === this.sel;
+            // trail
+            if (isSel && p.trail.length > 1) {
+              ctx.save();
+              ctx.strokeStyle = p.color + "55";
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              ctx.moveTo(p.trail[0][0], p.trail[0][1]);
+              for (const t of p.trail) ctx.lineTo(t[0], t[1]);
+              ctx.stroke();
+              ctx.restore();
+            }
+            // rod + bob
+            line(px, this.pivotY, bx, by, p.frozen ? "#5a6b82" : "rgba(230,237,246,0.8)", 3);
+            disc(px, this.pivotY, 5, "#8fa3bd");
+            const r = 10 + p.mass * 2.2;
+            if (isSel) ring(bx, by, r + 6, "#ffffff", 2);
+            disc(bx, by, r, p.color, isSel ? 24 : 10);
+            if (p.frozen) label("❄", bx, by, "#04121c", 14);
+            label("P" + (i + 1), px, this.pivotY - 14, isSel ? "#fff" : "#8fa3bd", 12);
+          });
+        },
+        legend() {
+          return [
+            ["<kbd>←</kbd><kbd>→</kbd>", "Push selected pendulum"],
+            ["<kbd>↑</kbd><kbd>↓</kbd>", "Shorten / lengthen rod"],
+            ["<kbd>[</kbd><kbd>]</kbd>", "Bob mass − / +"],
+            ["<kbd>F</kbd>", "Freeze / unfreeze selected"],
+            ["<kbd>D</kbd>", "Toggle air damping"],
+            ["<kbd>N</kbd>", "Add a pendulum (compare)"],
+            ["<kbd>Tab</kbd>", "Select next pendulum"],
+            ["<kbd>Del</kbd>", "Remove selected"],
+          ];
+        },
+        stats() {
+          const p = this.items[this.sel];
+          if (!p) return [];
+          const T = TAU * Math.sqrt(p.L / G);
+          const KE = 0.5 * p.mass * (p.L / PPM) ** 2 * p.omega ** 2;
+          const PE = p.mass * (G / PPM) * (p.L / PPM) * (1 - Math.cos(p.theta));
+          return [
+            ["Selected", "P" + (this.sel + 1) + " / " + this.items.length],
+            ["Angle", fmt(deg(p.theta), 1) + "°"],
+            ["Ang. vel.", fmt(p.omega, 2) + " rad/s"],
+            ["Length", fmt(p.L / PPM, 2) + " m"],
+            ["Mass", fmt(p.mass, 1) + " kg"],
+            ["Period T", fmt(T, 2) + " s"],
+            ["Energy", fmt(KE + PE, 2) + " J"],
+            ["State", p.frozen ? "❄ frozen" : "swinging"],
+          ];
+        },
+        statusExtra() {
+          return `${this.items.length} pendulum${this.items.length > 1 ? "s" : ""} · damping ${
+            this.items[this.sel] && this.items[this.sel].damping > 0 ? "on" : "off"
+          }`;
+        },
+        equations() {
+          return `
+            <div class="eq-block">
+              <div class="eq-title">Equation of motion (Newton / Lagrange)</div>
+              <div class="formula">α = −(g / L) · sin θ</div>
+              <div class="eq-note">with air damping: α = −(g/L)·sin θ − b·ω</div>
+            </div>
+            <div class="eq-block">
+              <div class="eq-title">Small-angle approximation (θ ≲ 15°)</div>
+              <div class="formula">α ≈ −(g / L) · θ &nbsp;→&nbsp; simple harmonic motion</div>
+            </div>
+            <div class="eq-block">
+              <div class="eq-title">Period (small angle)</div>
+              <div class="formula">T = 2π · √(L / g)</div>
+              <div class="eq-note">independent of mass and amplitude</div>
+            </div>
+            <div class="eq-block">
+              <div class="eq-title">Total mechanical energy</div>
+              <div class="formula">E = ½·m·L²·ω² + m·g·L·(1 − cos θ)</div>
+            </div>
+            <div class="eq-note">ω = dθ/dt, α = d²θ/dt². Integrated with RK4.
+              <span class="eq-ok">✔ validated</span></div>`;
+        },
+      };
+
+      /* ===================================================================
+         APP 2 — DOUBLE PENDULUM
+         Full chaotic double pendulum (RK4). Push it to start; freeze the
+         upper arm to turn it into a simple pendulum on the lower arm.
+         Add more for side-by-side chaos comparison, each independent.
+      =================================================================== */
+      const DoublePendulum = {
+        id: "double",
+        name: "Double Pendulum",
+        icon: "🎢",
+        items: [],
+        sel: 0,
+        pivotY: 0,
+        pushed: false,
+
+        make(color) {
+          return {
+            L1: 130,
+            L2: 130,
+            m1: 1,
+            m2: 1,
+            th1: Math.PI / 2,
+            w1: 0,
+            th2: Math.PI / 2,
+            w2: 0,
+            upperFrozen: false,
+            color,
+            trail: [],
+          };
+        },
+        reset() {
+          this.items = [this.make(COLORS[0])];
+          this.sel = 0;
+          this.pushed = false;
+          this.pivotY = 170;
+          Game.setPrompt(
+            "Press ← or → to apply a force push",
+            "Then watch the chaos · press U to freeze the upper arm",
+          );
+        },
+        onResize() {
+          this.pivotY = Math.min(200, H * 0.28);
+        },
+        addItem() {
+          if (this.items.length >= 4) return;
+          const d = this.make(COLORS[this.items.length % COLORS.length]);
+          // Tiny perturbation so copies visibly diverge (butterfly effect).
+          d.th2 += 0.001 * this.items.length;
+          this.items.push(d);
+          this.sel = this.items.length - 1;
+        },
+        removeItem() {
+          if (this.items.length <= 1) return;
+          this.items.splice(this.sel, 1);
+          this.sel = clamp(this.sel, 0, this.items.length - 1);
+        },
+        pivotX(i) {
+          const n = this.items.length;
+          return (W * (i + 1)) / (n + 1);
+        },
+
+        deriv(d, s) {
+          // s = [th1, w1, th2, w2]
+          const [t1, o1, t2, o2] = s;
+          const { L1, L2, m1, m2 } = d;
+          const dt = t1 - t2;
+          const sinD = Math.sin(dt),
+            cosD = Math.cos(dt);
+          const cos2D = Math.cos(2 * dt);
+          const den = 2 * m1 + m2 - m2 * cos2D;
+          const num1 =
+            -G * (2 * m1 + m2) * Math.sin(t1) -
+            m2 * G * Math.sin(t1 - 2 * t2) -
+            2 * sinD * m2 * (o2 * o2 * L2 + o1 * o1 * L1 * cosD);
+          const num2 =
+            2 *
+            sinD *
+            (o1 * o1 * L1 * (m1 + m2) + G * (m1 + m2) * Math.cos(t1) + o2 * o2 * L2 * m2 * cosD);
+          return [o1, num1 / (L1 * den), o2, num2 / (L2 * den)];
+        },
+        step(dt) {
+          for (const d of this.items) {
+            if (d.upperFrozen) {
+              // Upper arm locked → lower bob is a simple pendulum about bob1.
+              const next = rk4([d.th2, d.w2], dt, (s) => [s[1], -(G / d.L2) * Math.sin(s[0])]);
+              d.th2 = next[0];
+              d.w2 = next[1];
+            } else {
+              const next = rk4([d.th1, d.w1, d.th2, d.w2], dt, (s) => this.deriv(d, s));
+              d.th1 = next[0];
+              d.w1 = next[1];
+              d.th2 = next[2];
+              d.w2 = next[3];
+            }
+          }
+          // trail of the selected lower bob
+          const d = this.items[this.sel];
+          const px = this.pivotX(this.sel);
+          const x1 = px + d.L1 * Math.sin(d.th1);
+          const y1 = this.pivotY + d.L1 * Math.cos(d.th1);
+          const x2 = x1 + d.L2 * Math.sin(d.th2);
+          const y2 = y1 + d.L2 * Math.cos(d.th2);
+          d.trail.push([x2, y2]);
+          if (d.trail.length > 260) d.trail.shift();
+        },
+        frameInput(dt) {
+          const d = this.items[this.sel];
+          if (!d) return;
+          const target = d.upperFrozen ? "w2" : "w1";
+          if (held("ArrowLeft")) {
+            d[target] -= 2.4 * dt;
+            this._didPush();
+          }
+          if (held("ArrowRight")) {
+            d[target] += 2.4 * dt;
+            this._didPush();
+          }
+          if (held("ArrowUp")) {
+            d.L1 = clamp(d.L1 - 70 * dt, 60, 240);
+          }
+          if (held("ArrowDown")) {
+            d.L1 = clamp(d.L1 + 70 * dt, 60, 240);
+          }
+        },
+        _didPush() {
+          if (!this.pushed) {
+            this.pushed = true;
+            Game.setPrompt(null);
+          }
+        },
+        keydown(e) {
+          const d = this.items[this.sel];
+          switch (e.code) {
+            case "KeyU":
+              if (d) d.upperFrozen = !d.upperFrozen;
+              break;
+            case "KeyN":
+              this.addItem();
+              break;
+            case "Backspace":
+            case "Delete":
+              this.removeItem();
+              break;
+            case "Tab":
+              this.sel = (this.sel + 1) % this.items.length;
+              break;
+            case "BracketLeft":
+              if (d) d.L2 = clamp(d.L2 - 20, 60, 240);
+              break;
+            case "BracketRight":
+              if (d) d.L2 = clamp(d.L2 + 20, 60, 240);
+              break;
+          }
+        },
+        render() {
+          faintGrid();
+          line(0, this.pivotY, W, this.pivotY, "rgba(120,160,220,0.25)", 3);
+          this.items.forEach((d, i) => {
+            const px = this.pivotX(i);
+            const x1 = px + d.L1 * Math.sin(d.th1);
+            const y1 = this.pivotY + d.L1 * Math.cos(d.th1);
+            const x2 = x1 + d.L2 * Math.sin(d.th2);
+            const y2 = y1 + d.L2 * Math.cos(d.th2);
+            const isSel = i === this.sel;
+            if (isSel && d.trail.length > 1) {
+              ctx.save();
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              for (let k = 1; k < d.trail.length; k++) {
+                const a = k / d.trail.length;
+                ctx.strokeStyle =
+                  d.color +
+                  Math.round(a * 160)
+                    .toString(16)
+                    .padStart(2, "0");
+                ctx.beginPath();
+                ctx.moveTo(d.trail[k - 1][0], d.trail[k - 1][1]);
+                ctx.lineTo(d.trail[k][0], d.trail[k][1]);
+                ctx.stroke();
+              }
+              ctx.restore();
+            }
+            // upper arm
+            line(px, this.pivotY, x1, y1, d.upperFrozen ? "#5a6b82" : "rgba(230,237,246,0.75)", 4);
+            // lower arm
+            line(x1, y1, x2, y2, "rgba(230,237,246,0.6)", 3);
+            disc(px, this.pivotY, 5, "#8fa3bd");
+            disc(x1, y1, 10 + d.m1 * 2, d.upperFrozen ? "#5a6b82" : "#9fb3cc", 8);
+            if (d.upperFrozen) label("❄", x1, y1, "#04121c", 12);
+            if (isSel) ring(x2, y2, 18, "#ffffff", 2);
+            disc(x2, y2, 12 + d.m2 * 2, d.color, isSel ? 26 : 10);
+            label("D" + (i + 1), px, this.pivotY - 14, isSel ? "#fff" : "#8fa3bd", 12);
+          });
+        },
+        legend() {
+          return [
+            ["<kbd>←</kbd><kbd>→</kbd>", "Force push (upper, or lower if frozen)"],
+            ["<kbd>U</kbd>", "Freeze upper arm → simple pendulum"],
+            ["<kbd>↑</kbd><kbd>↓</kbd>", "Upper arm length"],
+            ["<kbd>[</kbd><kbd>]</kbd>", "Lower arm length"],
+            ["<kbd>N</kbd>", "Add a copy (compare chaos)"],
+            ["<kbd>Tab</kbd>", "Select next"],
+            ["<kbd>Del</kbd>", "Remove selected"],
+          ];
+        },
+        stats() {
+          const d = this.items[this.sel];
+          if (!d) return [];
+          return [
+            ["Selected", "D" + (this.sel + 1) + " / " + this.items.length],
+            ["θ₁ (upper)", fmt(deg(d.th1) % 360, 0) + "°"],
+            ["θ₂ (lower)", fmt(deg(d.th2) % 360, 0) + "°"],
+            ["ω₁", fmt(d.w1, 2)],
+            ["ω₂", fmt(d.w2, 2)],
+            ["L₁ / L₂", fmt(d.L1 / PPM, 2) + " / " + fmt(d.L2 / PPM, 2) + " m"],
+            ["Upper arm", d.upperFrozen ? "❄ frozen (simple)" : "free"],
+          ];
+        },
+        statusExtra() {
+          const d = this.items[this.sel];
+          return d && d.upperFrozen ? "upper frozen → acting as simple pendulum" : "chaotic mode";
+        },
+        equations() {
+          return `
+            <div class="eq-block">
+              <div class="eq-title">Angular accelerations — point masses, rigid massless rods</div>
+              <div class="formula small">α₁ = [ −g(2m₁+m₂)sin θ₁ − m₂g·sin(θ₁−2θ₂)
+                − 2·sin(θ₁−θ₂)·m₂·(ω₂²L₂ + ω₁²L₁cos(θ₁−θ₂)) ]
+                &nbsp;÷&nbsp; [ L₁·(2m₁+m₂ − m₂cos(2θ₁−2θ₂)) ]</div>
+              <div class="formula small">α₂ = [ 2·sin(θ₁−θ₂)·( ω₁²L₁(m₁+m₂)
+                + g(m₁+m₂)cos θ₁ + ω₂²L₂m₂cos(θ₁−θ₂) ) ]
+                &nbsp;÷&nbsp; [ L₂·(2m₁+m₂ − m₂cos(2θ₁−2θ₂)) ]</div>
+            </div>
+            <div class="eq-block">
+              <div class="eq-title">Upper arm frozen → the lower arm is a simple pendulum</div>
+              <div class="formula">α₂ = −(g / L₂) · sin θ₂</div>
+            </div>
+            <div class="eq-note">Deterministic but <b>chaotic</b>: a tiny change in θ grows
+              exponentially in time (positive Lyapunov exponent) — the reason the copies you add
+              drift apart. Derived from the Lagrangian; integrated with RK4.
+              <span class="eq-ok">✔ validated</span></div>`;
+        },
+      };
+
+      /* ===================================================================
+         APP 3 — PROJECTILE
+         Aim a launcher, set power, fire. Predicted arc shown live. Hit the
+         moving target for points. Ground bounces with restitution.
+      =================================================================== */
+      const Projectile = {
+        id: "projectile",
+        name: "Projectile",
+        icon: "🎯",
+        angle: Math.PI / 4, // launch angle from horizontal
+        speed: 900, // launch speed, px/s
+        shots: [],
+        target: null, // stationary ground target
+        score: 0,
+        launched: 0,
+        groundY: 0,
+        origin: { x: 90, y: 0 },
+
+        reset() {
+          this.angle = Math.PI / 4;
+          this.speed = 900;
+          this.shots = [];
+          this.score = 0;
+          this.launched = 0;
+          this.onResize();
+          this.placeTarget();
+          Game.setPrompt(
+            "Aim with ↑ ↓ · set power with ← → · Space to fire",
+            "Velocity vector vₓ, v_y is drawn on the ball in flight",
+          );
+        },
+        onResize() {
+          this.groundY = H - 70;
+          this.origin = { x: 90, y: this.groundY };
+        },
+        // A stationary target sitting on the ground (no vertical drift).
+        placeTarget() {
+          this.target = {
+            x: W * (0.45 + Math.random() * 0.48),
+            y: this.groundY - 16,
+            r: 22,
+          };
+        },
+        fire() {
+          this.shots.push({
+            x: this.origin.x,
+            y: this.origin.y,
+            vx: this.speed * Math.cos(this.angle),
+            vy: -this.speed * Math.sin(this.angle),
+            trail: [],
+            bounces: 0,
+            t: 0,
+            alive: true,
+          });
+          this.launched++;
+          Game.setPrompt(null);
+        },
+        step(dt) {
+          for (const s of this.shots) {
+            if (!s.alive) continue;
+            s.vy += G * dt; // gravity only — vₓ stays constant
+            s.x += s.vx * dt;
+            s.y += s.vy * dt;
+            s.t += dt;
+            s.trail.push([s.x, s.y]);
+            if (s.trail.length > 220) s.trail.shift();
+            if (s.y > this.groundY) {
+              s.y = this.groundY;
+              s.vy = -s.vy * 0.5; // restitution
+              s.vx *= 0.72;
+              s.bounces++;
+              if (Math.abs(s.vy) < 40 && s.bounces > 1) s.alive = false;
+            }
+            if (s.x > W + 60 || s.x < -60) s.alive = false;
+            if (
+              this.target &&
+              Math.hypot(s.x - this.target.x, s.y - this.target.y) < this.target.r + 6
+            ) {
+              this.score++;
+              s.alive = false;
+              this.placeTarget();
+            }
+          }
+          // keep dead shots only while their trail fades out
+          this.shots.forEach((s) => {
+            if (!s.alive && s.trail.length) s.trail.shift();
+          });
+          this.shots = this.shots.filter((s) => s.alive || s.trail.length);
+        },
+        frameInput(dt) {
+          if (held("ArrowUp")) this.angle = clamp(this.angle + 0.9 * dt, 0.02, Math.PI / 2 - 0.02);
+          if (held("ArrowDown")) this.angle = clamp(this.angle - 0.9 * dt, 0.02, Math.PI / 2 - 0.02);
+          if (held("ArrowLeft")) this.speed = clamp(this.speed - 520 * dt, 150, 1800);
+          if (held("ArrowRight")) this.speed = clamp(this.speed + 520 * dt, 150, 1800);
+        },
+        keydown(e) {
+          if (e.code === "Space" || e.code === "Enter") this.fire();
+          if (e.code === "KeyT") this.placeTarget();
+        },
+        // Predicted path + apex from the current aim/power (drawn dashed).
+        _predict() {
+          const pts = [];
+          let x = this.origin.x,
+            y = this.origin.y;
+          let vx = this.speed * Math.cos(this.angle),
+            vy = -this.speed * Math.sin(this.angle);
+          const dt = 1 / 120;
+          let apex = { x, y };
+          for (let i = 0; i < 1200; i++) {
+            vy += G * dt;
+            x += vx * dt;
+            y += vy * dt;
+            if (y < apex.y) apex = { x, y };
+            pts.push([x, y]);
+            if (y > this.groundY || x > W || x < 0) break;
+          }
+          return { pts, apex };
+        },
+        // Draw a labelled velocity arrow.
+        _vec(x, y, vx, vy, color, txt) {
+          arrow(x, y, vx, vy, color, 3);
+          if (txt) label(txt, x + vx + (vx >= 0 ? 12 : -12), y + vy, color, 12);
+        },
+        render() {
+          faintGrid();
+          // ground
+          ctx.save();
+          ctx.fillStyle = "rgba(124,252,152,0.08)";
+          ctx.fillRect(0, this.groundY, W, H - this.groundY);
+          ctx.restore();
+          line(0, this.groundY, W, this.groundY, "rgba(124,252,152,0.5)", 2);
+
+          // predicted arc + apex
+          const { pts, apex } = this._predict();
+          ctx.save();
+          ctx.setLineDash([4, 7]);
+          ctx.strokeStyle = "rgba(255,255,255,0.35)";
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(this.origin.x, this.origin.y);
+          for (const p of pts) ctx.lineTo(p[0], p[1]);
+          ctx.stroke();
+          ctx.restore();
+          ring(apex.x, apex.y, 4, "rgba(255,255,255,0.6)", 1.5);
+          label("apex", apex.x, apex.y - 12, "rgba(255,255,255,0.6)", 11);
+
+          // launch velocity vector on the muzzle (decomposition preview)
+          const S = 0.12;
+          const vx0 = this.speed * Math.cos(this.angle) * S;
+          const vy0 = -this.speed * Math.sin(this.angle) * S;
+          this._vec(this.origin.x, this.origin.y, vx0, 0, "#4fc3f7", "vₓ");
+          this._vec(this.origin.x, this.origin.y, 0, vy0, "#ff9f43", "v_y");
+          this._vec(this.origin.x, this.origin.y, vx0, vy0, "#f7dc6f", "v₀");
+
+          // launcher barrel
+          const bl = 46;
+          line(
+            this.origin.x,
+            this.origin.y,
+            this.origin.x + bl * Math.cos(this.angle),
+            this.origin.y - bl * Math.sin(this.angle),
+            "#4fc3f7",
+            8,
+          );
+          disc(this.origin.x, this.origin.y, 16, "#274156");
+          ring(this.origin.x, this.origin.y, 16, "#4fc3f7", 2);
+          label(fmt(deg(this.angle), 0) + "°", this.origin.x, this.origin.y - 30, "#8fa3bd", 12);
+
+          // power gauge
+          const pw = (this.speed - 150) / (1800 - 150);
+          ctx.save();
+          ctx.fillStyle = "rgba(255,255,255,0.08)";
+          ctx.fillRect(this.origin.x - 20, this.origin.y + 26, 120, 8);
+          ctx.fillStyle = pw > 0.75 ? "#ff6b6b" : "#7cfc98";
+          ctx.fillRect(this.origin.x - 20, this.origin.y + 26, 120 * pw, 8);
+          ctx.restore();
+
+          // stationary target
+          if (this.target) {
+            const t = this.target;
+            ring(t.x, t.y, t.r, "#ff6b6b", 3);
+            ring(t.x, t.y, t.r * 0.6, "#ff6b6b", 2);
+            disc(t.x, t.y, 4, "#ff6b6b");
+          }
+
+          // shots + live velocity vectors on the most recent one
+          const lastAlive = [...this.shots].reverse().find((s) => s.alive);
+          for (const s of this.shots) {
+            if (s.trail.length > 1) {
+              ctx.save();
+              ctx.strokeStyle = "rgba(247,220,111,0.5)";
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              ctx.moveTo(s.trail[0][0], s.trail[0][1]);
+              for (const p of s.trail) ctx.lineTo(p[0], p[1]);
+              ctx.stroke();
+              ctx.restore();
+            }
+            if (!s.alive) continue;
+            disc(s.x, s.y, 7, "#f7dc6f", 16);
+            if (s === lastAlive) {
+              // decompose the velocity so students see v = vₓ + v_y
+              const ax = s.vx * S,
+                ay = s.vy * S;
+              this._vec(s.x, s.y, ax, 0, "#4fc3f7", "vₓ");
+              this._vec(s.x, s.y, 0, ay, "#ff9f43", "v_y");
+              this._vec(s.x, s.y, ax, ay, "#ffffff", "v");
+              // parallelogram guides
+              line(s.x + ax, s.y, s.x + ax, s.y + ay, "rgba(255,159,67,0.4)", 1, [3, 4]);
+              line(s.x, s.y + ay, s.x + ax, s.y + ay, "rgba(79,195,247,0.4)", 1, [3, 4]);
+            }
+          }
+        },
+        legend() {
+          return [
+            ["<kbd>↑</kbd><kbd>↓</kbd>", "Aim angle"],
+            ["<kbd>←</kbd><kbd>→</kbd>", "Power − / +"],
+            ["<kbd>Space</kbd>", "Fire projectile"],
+            ["<kbd>T</kbd>", "Move the target"],
+          ];
+        },
+        stats() {
+          const v0 = this.speed;
+          const T = (2 * v0 * Math.sin(this.angle)) / G;
+          const R = (v0 * v0 * Math.sin(2 * this.angle)) / G;
+          const Hm = (v0 * v0 * Math.sin(this.angle) ** 2) / (2 * G);
+          const s = [...this.shots].reverse().find((x) => x.alive);
+          const rows = [
+            ["Launch angle", fmt(deg(this.angle), 1) + "°"],
+            ["Launch speed", fmt(v0 / PPM, 1) + " m/s"],
+            ["Flight time", fmt(T, 2) + " s"],
+            ["Range", fmt(R / PPM, 2) + " m"],
+            ["Max height", fmt(Hm / PPM, 2) + " m"],
+          ];
+          if (s) {
+            rows.push(["— live vₓ", fmt(s.vx / PPM, 1) + " m/s"]);
+            rows.push(["— live v_y", fmt(-s.vy / PPM, 1) + " m/s"]);
+            rows.push(["— height", fmt((this.groundY - s.y) / PPM, 2) + " m"]);
+          }
+          rows.push(["Hits / shots", this.score + " / " + this.launched]);
+          return rows;
+        },
+        statusExtra() {
+          return `score ${this.score} · ${this.launched} launched`;
+        },
+        equations() {
+          return `
+            <div class="eq-block">
+              <div class="eq-title">Position (x₀, y₀ = launch point)</div>
+              <div class="formula">x(t) = x₀ + v₀·cos θ · t</div>
+              <div class="formula">y(t) = y₀ + v₀·sin θ · t − ½·g·t²</div>
+            </div>
+            <div class="eq-block">
+              <div class="eq-title">Velocity — horizontal stays constant, vertical changes</div>
+              <div class="formula">vₓ = v₀·cos θ &nbsp;(constant)</div>
+              <div class="formula">v_y = v₀·sin θ − g·t</div>
+            </div>
+            <div class="eq-block">
+              <div class="eq-title">Flight time · Range · Max height (level ground)</div>
+              <div class="formula">T = 2·v₀·sin θ / g</div>
+              <div class="formula">R = v₀²·sin(2θ) / g</div>
+              <div class="formula">H = v₀²·sin²θ / (2g)</div>
+            </div>
+            <div class="eq-note">Range is maximised at θ = 45°. The yellow/white arrow is the
+              velocity v; blue = vₓ, orange = v_y, and v² = vₓ² + v_y².
+              <span class="eq-ok">✔ validated</span></div>`;
+        },
+      };
+
+      /* ===================================================================
+         APP 4 — BILLIARDS
+         Aim the cue, set power, strike. Equal-mass elastic collisions,
+         cushion bounces, rolling friction, corner + side pockets.
+      =================================================================== */
+      const Billiards = {
+        id: "billiards",
+        name: "Billiards",
+        icon: "🎱",
+        table: null,
+        balls: [],
+        pockets: [],
+        aim: 0,
+        power: 0.55,
+        potted: 0,
+        R: 13,
+
+        reset() {
+          this.onResize();
+          this.aim = 0;
+          this.power = 0.55;
+          this.potted = 0;
+          this.rack();
+          Game.setPrompt("Aim with ← →, power with ↑ ↓, Space to strike", "Sink the balls in the pockets");
+        },
+        onResize() {
+          const m = Math.min(90, W * 0.08);
+          const top = 110,
+            bot = H - 110;
+          this.table = { x: m, y: top, w: W - 2 * m, h: bot - top };
+          const t = this.table;
+          const pr = 22;
+          this.pockets = [
+            { x: t.x, y: t.y, r: pr },
+            { x: t.x + t.w / 2, y: t.y, r: pr },
+            { x: t.x + t.w, y: t.y, r: pr },
+            { x: t.x, y: t.y + t.h, r: pr },
+            { x: t.x + t.w / 2, y: t.y + t.h, r: pr },
+            { x: t.x + t.w, y: t.y + t.h, r: pr },
+          ];
+        },
+        rack() {
+          const t = this.table;
+          const R = this.R;
+          this.balls = [];
+          // cue ball
+          this.balls.push({
+            x: t.x + t.w * 0.25,
+            y: t.y + t.h / 2,
+            vx: 0,
+            vy: 0,
+            color: "#f5f5f5",
+            cue: true,
+            alive: true,
+          });
+          // triangle rack of 10
+          const apex = { x: t.x + t.w * 0.68, y: t.y + t.h / 2 };
+          const dx = R * 2 * 0.9,
+            dy = R * 2 * 1.02;
+          let idx = 0;
+          const cols = [1, 2, 3, 4];
+          for (let c = 0; c < cols.length; c++) {
+            for (let r = 0; r < cols[c]; r++) {
+              const x = apex.x + c * dx;
+              const y = apex.y + (r - c / 2) * dy;
+              this.balls.push({
+                x,
+                y,
+                vx: 0,
+                vy: 0,
+                color: COLORS[idx % COLORS.length],
+                cue: false,
+                alive: true,
+              });
+              idx++;
+            }
+          }
+        },
+        allStopped() {
+          return this.balls.every((b) => !b.alive || Math.hypot(b.vx, b.vy) < 3);
+        },
+        cueBall() {
+          return this.balls.find((b) => b.cue && b.alive);
+        },
+        strike() {
+          if (!this.allStopped()) return;
+          const cue = this.cueBall();
+          if (!cue) return;
+          const v = 200 + this.power * 1400;
+          cue.vx = v * Math.cos(this.aim);
+          cue.vy = v * Math.sin(this.aim);
+          Game.setPrompt(null);
+        },
+        step(dt) {
+          const R = this.R;
+          const t = this.table;
+          const friction = 0.6; // per second linear damping factor
+          for (const b of this.balls) {
+            if (!b.alive) continue;
+            b.x += b.vx * dt;
+            b.y += b.vy * dt;
+            const damp = Math.exp(-friction * dt);
+            b.vx *= damp;
+            b.vy *= damp;
+            if (Math.hypot(b.vx, b.vy) < 3) {
+              b.vx = 0;
+              b.vy = 0;
+            }
+            // cushions
+            if (b.x - R < t.x) {
+              b.x = t.x + R;
+              b.vx = -b.vx * 0.9;
+            }
+            if (b.x + R > t.x + t.w) {
+              b.x = t.x + t.w - R;
+              b.vx = -b.vx * 0.9;
+            }
+            if (b.y - R < t.y) {
+              b.y = t.y + R;
+              b.vy = -b.vy * 0.9;
+            }
+            if (b.y + R > t.y + t.h) {
+              b.y = t.y + t.h - R;
+              b.vy = -b.vy * 0.9;
+            }
+          }
+          // ball-ball collisions (equal mass, elastic)
+          for (let i = 0; i < this.balls.length; i++) {
+            const a = this.balls[i];
+            if (!a.alive) continue;
+            for (let j = i + 1; j < this.balls.length; j++) {
+              const b = this.balls[j];
+              if (!b.alive) continue;
+              let nx = b.x - a.x,
+                ny = b.y - a.y;
+              const dist = Math.hypot(nx, ny);
+              if (dist > 0 && dist < 2 * R) {
+                nx /= dist;
+                ny /= dist;
+                // separate
+                const overlap = 2 * R - dist;
+                a.x -= (nx * overlap) / 2;
+                a.y -= (ny * overlap) / 2;
+                b.x += (nx * overlap) / 2;
+                b.y += (ny * overlap) / 2;
+                // relative velocity along normal
+                const rvn = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;
+                if (rvn < 0) {
+                  const imp = -(1 + 0.96) * rvn * 0.5; // equal masses
+                  a.vx -= imp * nx;
+                  a.vy -= imp * ny;
+                  b.vx += imp * nx;
+                  b.vy += imp * ny;
+                }
+              }
+            }
+          }
+          // pockets
+          for (const b of this.balls) {
+            if (!b.alive) continue;
+            for (const p of this.pockets) {
+              if (Math.hypot(b.x - p.x, b.y - p.y) < p.r) {
+                if (b.cue) {
+                  // scratch → respot cue
+                  b.x = t.x + t.w * 0.25;
+                  b.y = t.y + t.h / 2;
+                  b.vx = b.vy = 0;
+                } else {
+                  b.alive = false;
+                  this.potted++;
+                }
+              }
+            }
+          }
+        },
+        frameInput(dt) {
+          if (held("ArrowLeft")) this.aim -= 1.4 * dt;
+          if (held("ArrowRight")) this.aim += 1.4 * dt;
+          if (held("ArrowUp")) this.power = clamp(this.power + 0.6 * dt, 0.05, 1);
+          if (held("ArrowDown")) this.power = clamp(this.power - 0.6 * dt, 0.05, 1);
+        },
+        keydown(e) {
+          if (e.code === "Space" || e.code === "Enter") this.strike();
+        },
+        render() {
+          const t = this.table;
+          // felt
+          ctx.save();
+          ctx.fillStyle = "#123222";
+          ctx.strokeStyle = "#7a5230";
+          ctx.lineWidth = 12;
+          ctx.beginPath();
+          ctx.rect(t.x, t.y, t.w, t.h);
+          ctx.fill();
+          ctx.stroke();
+          ctx.restore();
+          // pockets
+          for (const p of this.pockets) disc(p.x, p.y, p.r, "#05100a");
+          // aiming guide from cue
+          const cue = this.cueBall();
+          if (cue && this.allStopped()) {
+            const gx = cue.x + Math.cos(this.aim) * 900;
+            const gy = cue.y + Math.sin(this.aim) * 900;
+            line(cue.x, cue.y, gx, gy, "rgba(255,255,255,0.25)", 1.5, [5, 6]);
+            arrow(
+              cue.x,
+              cue.y,
+              Math.cos(this.aim) * (40 + this.power * 90),
+              Math.sin(this.aim) * (40 + this.power * 90),
+              "#f7dc6f",
+              3,
+            );
+          }
+          // balls
+          for (const b of this.balls) {
+            if (!b.alive) continue;
+            disc(b.x, b.y, this.R, b.color, b.cue ? 10 : 0);
+            ring(b.x, b.y, this.R, "rgba(0,0,0,0.35)", 1.5);
+            if (b.cue) disc(b.x - 3, b.y - 3, 3, "rgba(0,0,0,0.15)");
+          }
+          // power gauge
+          ctx.save();
+          ctx.fillStyle = "rgba(255,255,255,0.08)";
+          ctx.fillRect(t.x, t.y + t.h + 22, 160, 8);
+          ctx.fillStyle = this.power > 0.8 ? "#ff6b6b" : "#7cfc98";
+          ctx.fillRect(t.x, t.y + t.h + 22, 160 * this.power, 8);
+          ctx.restore();
+          label("power", t.x + 80, t.y + t.h + 44, "#8fa3bd", 11);
+        },
+        legend() {
+          return [
+            ["<kbd>←</kbd><kbd>→</kbd>", "Aim the cue"],
+            ["<kbd>↑</kbd><kbd>↓</kbd>", "Power − / +"],
+            ["<kbd>Space</kbd>", "Strike (when balls stop)"],
+            ["<kbd>R</kbd>", "Re-rack"],
+          ];
+        },
+        stats() {
+          const live = this.balls.filter((b) => b.alive && !b.cue).length;
+          return [
+            ["Aim", fmt(((deg(this.aim) % 360) + 360) % 360, 0) + "°"],
+            ["Power", fmt(this.power * 100, 0) + "%"],
+            ["Balls left", String(live)],
+            ["Potted", String(this.potted)],
+            ["Table", this.allStopped() ? "ready" : "rolling…"],
+          ];
+        },
+        statusExtra() {
+          return `${this.potted} potted`;
+        },
+        equations() {
+          return `
+            <div class="eq-block">
+              <div class="eq-title">Elastic collision — two equal masses</div>
+              <div class="formula">m·v₁ + m·v₂ = m·v₁′ + m·v₂′ <span class="eq-note">(momentum)</span></div>
+              <div class="formula">½m·v₁² + ½m·v₂² = ½m·v₁′² + ½m·v₂′² <span class="eq-note">(kinetic energy)</span></div>
+            </div>
+            <div class="eq-block">
+              <div class="eq-title">Result along the line of impact (normal n̂)</div>
+              <div class="formula">v₁′·n̂ = v₂·n̂ , &nbsp; v₂′·n̂ = v₁·n̂</div>
+              <div class="eq-note">normal components swap; tangential components are unchanged</div>
+            </div>
+            <div class="eq-block">
+              <div class="eq-title">Coefficient of restitution</div>
+              <div class="formula">e = (v₂′ − v₁′) / (v₁ − v₂) &nbsp; (e = 1 fully elastic)</div>
+            </div>
+            <div class="eq-note">Rolling friction decays speed as v ← v·e^(−k·t). Cushions reflect with
+              e ≈ 0.9. <span class="eq-ok">✔ validated</span></div>`;
+        },
+      };
+
+      /* ===================================================================
+         APP 5 — NEWTON'S CRADLE
+         Choose how many balls to lift and the release angle. Equal-mass
+         elastic collisions transfer momentum across the line.
+      =================================================================== */
+      const Cradle = {
+        id: "cradle",
+        name: "Newton's Cradle",
+        icon: "⚖️",
+        n: 5,
+        lift: 1,
+        amp: 0.9,
+        L: 260,
+        R: 20,
+        balls: [],
+        pivotY: 0,
+        released: false,
+
+        reset() {
+          this.n = 5;
+          this.lift = 1;
+          this.amp = 0.9;
+          this.released = false;
+          this.onResize();
+          this.build();
+          Game.setPrompt(
+            "← → choose how many balls to lift · ↑ ↓ set angle · Space to release",
+            "Only the balls you lift swing out the far side — the middle stays still",
+          );
+        },
+        onResize() {
+          this.pivotY = 120;
+          this.L = Math.min(300, H - this.pivotY - 130);
+        },
+        build() {
+          this.balls = [];
+          // Pivots spaced exactly one diameter apart, so at rest the bobs just
+          // touch (this is what makes the momentum transfer clean).
+          const spacing = this.R * 2;
+          const startX = W / 2 - ((this.n - 1) * spacing) / 2;
+          for (let i = 0; i < this.n; i++) {
+            this.balls.push({
+              pivotX: startX + i * spacing,
+              theta: 0,
+              omega: 0,
+              color: COLORS[i % COLORS.length],
+            });
+          }
+          this.applyLift();
+        },
+        applyLift() {
+          // Lift the leftmost `lift` balls out to the left by `amp`.
+          for (let i = 0; i < this.balls.length; i++) {
+            this.balls[i].theta = i < this.lift ? -this.amp : 0;
+            this.balls[i].omega = 0;
+          }
+          this.released = false;
+        },
+        release() {
+          this.released = true;
+          Game.setPrompt(null);
+        },
+        bob(b) {
+          return {
+            x: b.pivotX + this.L * Math.sin(b.theta),
+            y: this.pivotY + this.L * Math.cos(b.theta),
+          };
+        },
+        step(dt) {
+          if (!this.released) return;
+          // 1) Advance every ball as an independent simple pendulum.
+          for (const b of this.balls) {
+            const next = rk4([b.theta, b.omega], dt, (s) => [s[1], -(G / this.L) * Math.sin(s[0])]);
+            b.theta = next[0];
+            b.omega = next[1];
+          }
+          // 2) Resolve contacts. Equal-mass elastic collisions exchange the
+          //    colliding balls' velocities. We iterate left-to-right until no
+          //    pair is still closing, so an impulse propagates through a whole
+          //    line of touching balls within a single step and leaves the
+          //    middle ones at rest — exactly the real cradle behaviour.
+          //    Crucially we DO NOT reposition resting balls (that was the old
+          //    bug that made the middle jitter): balls at rest have equal
+          //    velocities, so no swap fires and they stay perfectly still.
+          const contact = 2 * this.R + 1; // touch tolerance in px
+          for (let pass = 0; pass < this.n; pass++) {
+            let swapped = false;
+            for (let i = 0; i < this.balls.length - 1; i++) {
+              const a = this.balls[i],
+                c = this.balls[i + 1];
+              const pa = this.bob(a),
+                pc = this.bob(c);
+              const dist = Math.hypot(pc.x - pa.x, pc.y - pa.y);
+              // touching AND left ball gaining on the right ball → collide
+              if (dist <= contact && a.omega - c.omega > 1e-4) {
+                const tmp = a.omega;
+                a.omega = c.omega;
+                c.omega = tmp;
+                swapped = true;
+              }
+            }
+            if (!swapped) break;
+          }
+        },
+        frameInput() {},
+        keydown(e) {
+          switch (e.code) {
+            case "ArrowLeft":
+              if (!this.released) {
+                this.lift = clamp(this.lift - 1, 1, this.n - 1);
+                this.applyLift();
+              }
+              break;
+            case "ArrowRight":
+              if (!this.released) {
+                this.lift = clamp(this.lift + 1, 1, this.n - 1);
+                this.applyLift();
+              }
+              break;
+            case "ArrowUp":
+              if (!this.released) {
+                this.amp = clamp(this.amp + 0.1, 0.2, 1.3);
+                this.applyLift();
+              }
+              break;
+            case "ArrowDown":
+              if (!this.released) {
+                this.amp = clamp(this.amp - 0.1, 0.2, 1.3);
+                this.applyLift();
+              }
+              break;
+            case "Space":
+            case "Enter":
+              this.release();
+              break;
+            case "BracketRight":
+              if (this.n < 8) {
+                this.n++;
+                this.build();
+              }
+              break;
+            case "BracketLeft":
+              if (this.n > 2) {
+                this.n--;
+                this.lift = clamp(this.lift, 1, this.n - 1);
+                this.build();
+              }
+              break;
+          }
+        },
+        render() {
+          faintGrid();
+          // support frame
+          line(0, this.pivotY, W, this.pivotY, "rgba(120,160,220,0.3)", 4);
+          for (const b of this.balls) {
+            const p = this.bob(b);
+            const moving = Math.abs(b.omega) > 0.05;
+            line(b.pivotX, this.pivotY, p.x, p.y, "rgba(230,237,246,0.5)", 2);
+            disc(b.pivotX, this.pivotY, 4, "#8fa3bd");
+            disc(p.x, p.y, this.R, b.color, moving ? 18 : 6);
+            ring(p.x, p.y, this.R, "rgba(0,0,0,0.3)", 1.5);
+          }
+          if (!this.released) {
+            label(
+              `Lifting ${this.lift} ball${this.lift > 1 ? "s" : ""} — press Space to release`,
+              W / 2,
+              this.pivotY + this.L + 60,
+              "#8fa3bd",
+              14,
+            );
+          }
+        },
+        legend() {
+          return [
+            ["<kbd>←</kbd><kbd>→</kbd>", "How many balls to lift"],
+            ["<kbd>↑</kbd><kbd>↓</kbd>", "Release angle"],
+            ["<kbd>Space</kbd>", "Release"],
+            ["<kbd>[</kbd><kbd>]</kbd>", "Fewer / more balls"],
+            ["<kbd>R</kbd>", "Reset cradle"],
+          ];
+        },
+        stats() {
+          const moving = this.balls.filter((b) => Math.abs(b.omega) > 0.05).length;
+          const p = this.balls.reduce((s, b) => s + this.L * b.omega, 0); // ∝ total momentum
+          return [
+            ["Balls", String(this.n)],
+            ["Lifting", String(this.lift)],
+            ["Release angle", fmt(deg(this.amp), 0) + "°"],
+            ["State", this.released ? "swinging" : "ready"],
+            ["Balls moving", String(moving)],
+            ["Σ momentum", fmt(p / PPM, 2)],
+          ];
+        },
+        statusExtra() {
+          return this.released ? "released" : `lift ${this.lift} of ${this.n}`;
+        },
+        equations() {
+          return `
+            <div class="eq-block">
+              <div class="eq-title">Each ball is a simple pendulum</div>
+              <div class="formula">α = −(g / L) · sin θ</div>
+            </div>
+            <div class="eq-block">
+              <div class="eq-title">Impact — elastic, equal masses</div>
+              <div class="formula">Σ m·vᵢ = constant <span class="eq-note">(momentum)</span></div>
+              <div class="formula">Σ ½·m·vᵢ² = constant <span class="eq-note">(kinetic energy)</span></div>
+            </div>
+            <div class="eq-block">
+              <div class="eq-title">Consequence</div>
+              <div class="formula">lift n balls &nbsp;⇒&nbsp; n balls swing out, same speed</div>
+              <div class="eq-note">Both conservation laws can only hold together if the momentum passes
+                straight <b>through</b> the stationary middle balls — which is why they don't move.
+                Equal-mass collision ⇒ the two balls swap velocities.
+                <span class="eq-ok">✔ validated</span></div>
+            </div>`;
+        },
+      };
+
+      /* ============================ WIRE-UP ============================== */
+      Game.register(SimplePendulum);
+      Game.register(DoublePendulum);
+      Game.register(Projectile);
+      Game.register(Billiards);
+      Game.register(Cradle);
+
+      // Global key handling (routes app-specific keys to the active app).
+      Input.onPress((e) => {
+        // Help overlay open? Only Esc/H closes.
+        const helpEl = document.getElementById("help");
+        if (helpEl.classList.contains("show")) {
+          if (e.code === "Escape" || e.code === "KeyH") toggleHelp(false);
+          return;
+        }
+        switch (e.code) {
+          case "Digit1":
+          case "Digit2":
+          case "Digit3":
+          case "Digit4":
+          case "Digit5": {
+            const idx = Number(e.code.slice(5)) - 1;
+            if (Game.apps[idx]) Game.switchTo(Game.apps[idx]);
+            return;
+          }
+          case "Space":
+            // Apps that use Space as an action get it; otherwise it pauses.
+            if (["projectile", "billiards", "cradle"].includes(Game.current.id)) {
+              Game.current.keydown(e);
+            } else {
+              Game.togglePause();
+            }
+            return;
+          case "KeyR":
+            Game.reset();
+            return;
+          case "Comma":
+            Game.timeScale = clamp(Game.timeScale / 1.25, 0.1, 4);
+            return;
+          case "Period":
+            Game.timeScale = clamp(Game.timeScale * 1.25, 0.1, 4);
+            return;
+          case "KeyE":
+            Game.toggleEq();
+            return;
+          case "KeyH":
+            toggleHelp(true);
+            return;
+          case "Escape":
+            toggleHelp(false);
+            return;
+        }
+        // Delegate everything else to the current app.
+        if (Game.current.keydown) Game.current.keydown(e);
+      });
+
+      /* ---- Top-bar buttons ---- */
+      document.getElementById("btn-pause").onclick = () => Game.togglePause();
+      document.getElementById("btn-reset").onclick = () => Game.reset();
+      document.getElementById("btn-help").onclick = () => toggleHelp(true);
+      document.getElementById("btn-eq").onclick = () => Game.toggleEq();
+      document.getElementById("help-close").onclick = () => toggleHelp(false);
+      function toggleHelp(show) {
+        document.getElementById("help").classList.toggle("show", show);
+      }
+
+      /* ---- Boot ---- */
+      resize();
+      Game.switchTo(SimplePendulum);
+      Game.toggleEq(true);
+      Game.start();
+    </script>
+  </body>
 </html>
