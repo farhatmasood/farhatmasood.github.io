@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Learning based Vertebral Body Segmentation - Research Paper</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            line-height: 1.8;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 30px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 50px 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .publication-info {
+            font-size: 1.1em;
+            margin-top: 15px;
+            opacity: 0.95;
+        }
+
+        .authors {
+            margin: 30px 0;
+            font-size: 1.1em;
+        }
+
+        .author {
+            display: inline-block;
+            margin: 5px 15px;
+        }
+
+        .affiliation {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 5px;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .subsection-title {
+            color: #764ba2;
+            font-size: 1.4em;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        .abstract {
+            background: #f8f9ff;
+            padding: 30px;
+            border-left: 5px solid #667eea;
+            margin: 30px 0;
+            border-radius: 5px;
+        }
+
+        .keywords {
+            background: #fff3e0;
+            padding: 20px;
+            border-left: 5px solid #ff9800;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .keywords strong {
+            color: #e65100;
+        }
+
+        .highlight-box {
+            background: #e8f5e9;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 5px solid #4caf50;
+            border-radius: 5px;
+        }
+
+        .results-box {
+            background: #e3f2fd;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 5px solid #2196f3;
+            border-radius: 5px;
+        }
+
+        .warning-box {
+            background: #fff3e0;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 5px solid #ff9800;
+            border-radius: 5px;
+        }
+
+        ul, ol {
+            margin-left: 30px;
+            margin-top: 15px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 0.95em;
+        }
+
+        table thead {
+            background: #667eea;
+            color: white;
+        }
+
+        table th, table td {
+            padding: 15px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        table tbody tr:nth-child(even) {
+            background: #f8f9ff;
+        }
+
+        table tbody tr:hover {
+            background: #e8f5e9;
+        }
+
+        .metric {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin: 5px;
+            font-weight: bold;
+        }
+
+        .dataset-info {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .objective-list {
+            counter-reset: objective-counter;
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .objective-list li {
+            counter-increment: objective-counter;
+            padding-left: 60px;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .objective-list li::before {
+            content: counter(objective-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #667eea;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+        }
+
+        .contact-info {
+            margin-top: 15px;
+        }
+
+        .method-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .formula {
+            background: #f5f5f5;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+
+        a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .section-title {
+                font-size: 1.4em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Deep Learning based Vertebral Body Segmentation with Extraction of Spinal Measurements and Disorder Disease Classification</h1>
+
+            <div class="publication-info">
+                <strong>Biomedical Signal Processing and Control</strong> | Volume 71 (2022) 103230<br>
+                Published online: October 12, 2021<br>
+                DOI: <a href="https://doi.org/10.1016/j.bspc.2021.103230" style="color: white;">10.1016/j.bspc.2021.103230</a>
+            </div>
+
+            <div class="authors">
+                <div class="author"><strong>Rao Farhat Masood</strong><sup>a,*</sup></div>
+                <div class="author"><strong>Imtiaz Ahmad Taj</strong><sup>a</sup></div>
+                <div class="author"><strong>Muhammad Babar Khan</strong><sup>b</sup></div>
+                <div class="author"><strong>Muhammad Asad Qureshi</strong><sup>c</sup></div>
+                <div class="author"><strong>Taimur Hassan</strong><sup>d</sup></div>
+            </div>
+
+            <div class="affiliation">
+                <p><sup>a</sup> Department of Electrical Engineering, Capital University of Science and Technology (CUST), Islamabad, Pakistan</p>
+                <p><sup>b</sup> Department of Radiology, Combined Military Hospital, Rawalpindi, Pakistan</p>
+                <p><sup>c</sup> Department of Spinal Surgery, Combined Military Hospital, Rawalpindi, Pakistan</p>
+                <p><sup>d</sup> Center for Cyber-Physical Systems, Khalifa University of Science and Technology, Abu Dhabi, United Arab Emirates</p>
+                <p style="margin-top: 15px;"><sup>*</sup> Corresponding author: <a href="mailto:farhatmasood.fm@gmail.com" style="color: white;">farhatmasood.fm@gmail.com</a></p>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="keywords">
+                <strong>Keywords:</strong> Lumbar spine dataset • Spinal measurements • Automated disease classification
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">Abstract</h2>
+                <div class="abstract">
+                    <p>Assessment of medical images and diagnostic decision making of lumbar associated diseases by clinicians is invariably subjective, time consuming and challenging task. Presently, clinicians make use of either manual or semi-automated computer-aided tools to make relevant measurements for adding vote of confidence to their grading and evaluation. Lacking reliability and offering substantive dissimilarity once performed by different clinicians, these methods complicate the evaluation process.</p>
+
+                    <p style="margin-top: 15px;">In an effort to support the decision making process of clinicians, in this paper we present a lumbar assessment framework with autonomous extraction of spinal measurements. Furthermore, an effort is made to address the challenges faced by clinicians while assessing disorders including spondylolisthesis and assessment of lumbar lordosis (LL) by proposing novel disease classification methodologies.</p>
+
+                    <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 5px;">
+                        <strong>Key Results:</strong>
+                        <ul>
+                            <li><strong>Spondylolisthesis Classification:</strong> 89% accuracy using angular deviation metric</li>
+                            <li><strong>Lumbar Lordosis Assessment:</strong> 93% accuracy through area within enclosed lumbar curve region</li>
+                            <li><strong>Segmentation Performance:</strong> DSC of 0.97 and IoU of 0.86 using ResNet-UNet</li>
+                            <li><strong>Measurement Correlation:</strong> Statistically significant correlation coefficient R and encouraging MAE with clinicians' grading</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">Dataset Availability</h2>
+                <div class="dataset-info">
+                    <h3 style="margin-bottom: 15px;">📊 Public Dataset Released</h3>
+                    <p style="font-size: 1.1em;">The complete dataset with clinicians' markings and annotations is publicly available at:</p>
+                    <p style="font-size: 1.2em; margin-top: 10px;"><strong><a href="https://data.mendeley.com/datasets/k3b363f3vz/2" style="color: white; text-decoration: underline;">https://data.mendeley.com/datasets/k3b363f3vz/2</a></strong></p>
+                    <p style="margin-top: 15px;"><strong>Dataset Statistics:</strong> 514 annotated mid-sagittal lumbar spine MRI scans with comprehensive spinal measurements</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">1. Introduction</h2>
+                <p>Chronic backache in general and lower back pain in particular is considered one of the most commonly naturally occurring ailment by both the radiologists and spinal surgeon community. Lumbar spine or lower-back is the area which once affected gives rise to lower-back pain clinically termed as <strong>lumbago</strong>.</p>
+
+                <h3 class="subsection-title">Clinical Background</h3>
+                <p>In most cases, lumbago is associated with:</p>
+                <ul>
+                    <li><strong>Muscular or ligament strain</strong> - caused by improper weightlifting and sitting in improper posture for prolonged duration</li>
+                    <li><strong>Nerve compression</strong> - radiates pain in either or both legs, commonly referred as <em>sciatica</em></li>
+                    <li><strong>Vertebral fractures</strong> - causing intervertebral discs (IVD) to slip or herniate</li>
+                    <li><strong>Disc herniation</strong> - protruding discs exert pressure on nerves causing tingling pain and potential lower body paralysis</li>
+                </ul>
+
+                <h3 class="subsection-title">Current Clinical Practice</h3>
+                <p>Diagnosing lower back pain is challenging and laborious. At present, spinal surgeons and radiologists depend on completely manual or semi-automated methods (computer-assisted software) for diagnosis, which are:</p>
+                <ul>
+                    <li>Laborious and time-consuming</li>
+                    <li>Subjective in nature</li>
+                    <li>Prone to inter-observer variation</li>
+                    <li>Lacking reliability when performed by different clinicians</li>
+                </ul>
+
+                <h3 class="subsection-title">Research Motivation</h3>
+                <p>The desired outcome is to offer an <strong>autonomous spinal assessment toolkit</strong> to clinicians enabling them in mass screening the images and adding vote of confidence to their traditional assessment methodology.</p>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">2. Research Objectives</h2>
+                <ol class="objective-list">
+                    <li>
+                        <strong>Composite Dataset Creation</strong><br>
+                        Introduction of an annotated lumbar spine MRI dataset in sagittal plane with relevant spinal measurements, giving the research community a composite dataset for both qualitative and quantitative assessment. To the best of our knowledge, composite dataset encompassing annotated images and spinal measurements is not currently shared for research collaboration.
+                    </li>
+                    <li>
+                        <strong>Robust Segmentation Solution</strong><br>
+                        Offering an accurate, consistent and robust solution for performing semantic segmentation task. A customized conventional algorithm (VBSeg) is crafted and compared with deep learning models.
+                    </li>
+                    <li>
+                        <strong>Automated Spinal Measurements</strong><br>
+                        Acquisition of automated spinal measurements, covering both distance-based and angular measurements including:
+                        <ul style="margin-top: 10px;">
+                            <li>Lumbar Lordotic Angle (LLA)</li>
+                            <li>Lumbosacral Angle (LSA)</li>
+                            <li>Vertebral Body (VB) dimensions</li>
+                            <li>Lumbar height measurements</li>
+                            <li>Intervertebral body (IVB) distances</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Disease Classification</strong><br>
+                        Identification of presence of spinal disorders including spondylolisthesis and lumbar lordosis assessment through novel classification methodologies.
+                    </li>
+                </ol>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">3. Clinical Evaluation Perspective</h2>
+
+                <h3 class="subsection-title">3.1 Radiologists' Viewpoint</h3>
+                <div class="highlight-box">
+                    <ul>
+                        <li>The role of imaging is to localize and quantify the disease process and its effects on normal anatomy</li>
+                        <li>MRI images offer superior image quality compared to X-ray images</li>
+                        <li>Analysis focuses on presence of degenerative intervertebral disc diseases and related VB deformations</li>
+                        <li>Lumbar spine (L3-L4, L4-L5, L5-S1 levels) is the most susceptible region to degenerative changes</li>
+                        <li>Normal lumbar spine has anterior curvature ranging from <strong>20-80 degrees</strong></li>
+                        <li>Excessive lordotic curve: <em>"Sway Back"</em> or hyper-lordosis</li>
+                        <li>Reduced lordotic curve: <em>"Flat Back"</em> or hypo-lordosis</li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">3.2 Spinal Surgeons' Viewpoint</h3>
+                <div class="highlight-box">
+                    <ul>
+                        <li>Clinical examination correlates findings with imaging and radiologist reports</li>
+                        <li>Physical examination based on severity of abnormal spine pathology</li>
+                        <li>Detailed evaluation of spinal alignment and balance through manual analysis</li>
+                        <li>Measurements include: LLA, LSA, pelvic incidence angle (PIA), lumbar spine height (LSH), IVD sizes</li>
+                        <li>Surgical interventions grouped into:
+                            <ul>
+                                <li><strong>Fusion</strong> - more invasive, VBs fused together to limit movement</li>
+                                <li><strong>Decompression</strong> - less invasive, removal of compressed disc/bone parts</li>
+                            </ul>
+                        </li>
+                        <li>Conservative treatments with physical exercises may be recommended for less severe cases</li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">3.3 Spondylolisthesis Assessment</h3>
+                <p><strong>Definition:</strong> Spondylolisthesis is the misalignment of a vertebral body posteriorly or anteriorly due to bone stress fracture (spondylolysis).</p>
+
+                <div class="method-card">
+                    <h4>Current Clinical Method: Meyerding Classification</h4>
+                    <ul>
+                        <li>Grading from Grade I to Grade V at equal intervals of 25%</li>
+                        <li><strong>Limitations:</strong>
+                            <ul>
+                                <li>Qualitative assessment prone to variation based on clinician experience</li>
+                                <li>Dependent on VB end-plate structure</li>
+                                <li>Compromised by osteophyte formation causing assessment variation</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">3.4 Lumbar Lordosis (LL) Assessment</h3>
+                <p><strong>Significance:</strong> Despite being the most significant spine parameter, assessment of spinal curvature lacks quantitative evaluation and readings are prone to variation.</p>
+
+                <div class="method-card">
+                    <h4>Assessment Methods:</h4>
+                    <ul>
+                        <li><strong>Modified Cobb Method</strong> - Standard for evaluating lordotic curve
+                            <ul>
+                                <li>Angle between perpendicular lines from L1 and S1 superior end-plates</li>
+                                <li>Limitation: Relies on end-plate structure, prone to variation with osteophyte formation</li>
+                            </ul>
+                        </li>
+                        <li><strong>Ishihara Index</strong> - Ratio of sum of perpendicular distances to spinal length</li>
+                        <li><strong>Voutsinas and MacEwen (VM) Method</strong> - Maximum orthogonal distance from corner-points</li>
+                        <li><strong>TRALL Method</strong> - Tangential Radiologic Assessment of Lumbar Lordosis</li>
+                        <li><strong>Harrison Posterior Tangent Method (HPTM)</strong> - Angle between tangent lines of VBs</li>
+                        <li><strong>Centroid Method (Chen)</strong> - Most calculation intensive, hence more reliable</li>
+                        <li><strong>Area Under the Curve (AUC) Method (Yang)</strong> - Software-assisted measurement</li>
+                    </ul>
+                </div>
+
+                <div class="warning-box">
+                    <strong>Clinical Standards for Lumbar Lordosis:</strong>
+                    <ul>
+                        <li><strong>Normal Lordosis:</strong> 39° - 53°</li>
+                        <li><strong>Hyper-lordosis:</strong> > 53° (Sway Back)</li>
+                        <li><strong>Hypo-lordosis:</strong> < 39° (Flat Back)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">4. Dataset Development</h2>
+
+                <h3 class="subsection-title">4.1 Source Dataset</h3>
+                <p>The MRI database used is publicly available at <a href="https://data.mendeley.com/datasets/k57fr854j2/2">Mendeley Website</a>, providing ample variability with total of 515 scans of subjects with symptomatic back pains.</p>
+
+                <h3 class="subsection-title">4.2 Annotation Process</h3>
+                <div class="method-card">
+                    <h4>Tools and Software:</h4>
+                    <ul>
+                        <li><strong>MATLAB R2020a Image Labeler Application</strong> - Pixel-level annotation</li>
+                        <li><strong>RadiAnt DICOM Viewer by Medixant</strong> - 2D slice visualization</li>
+                    </ul>
+
+                    <h4>Annotation Statistics:</h4>
+                    <ul>
+                        <li><strong>Total Scans:</strong> 514 (1 dropped due to unsuitability)</li>
+                        <li><strong>Time per Image:</strong> 12-15 minutes (annotation) + 5-7 minutes (validation)</li>
+                        <li><strong>Labels:</strong> Six vertebral bodies - L1, L2, L3, L4, L5, S1</li>
+                    </ul>
+
+                    <h4>Annotation Workflow:</h4>
+                    <ol>
+                        <li><strong>Image Extraction:</strong> Mid-sagittal slices identified by expert radiologist</li>
+                        <li><strong>Pixel-wise Labeling:</strong> Using polygon/smart-polygon tool with brush tool fine-tuning</li>
+                        <li><strong>Validation:</strong> Expert spinal surgeons verify correctness and rectify errors</li>
+                    </ol>
+                </div>
+
+                <h3 class="subsection-title">4.3 Ground Truth Creation</h3>
+                <p>Bone presents the same contrast in both T1 and T2 images, therefore either T1 or T2 images are suitable for spinal measurements. Pixel spacing information is stored for conversion from pixels to millimeters.</p>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">5. Methodology</h2>
+
+                <h3 class="subsection-title">5.1 Vertebral Body Segmentation</h3>
+
+                <h4>A. Traditional Method: VBSeg Algorithm</h4>
+                <div class="method-card">
+                    <p><strong>Custom Algorithm Components:</strong></p>
+                    <ol>
+                        <li><strong>Pre-processing Stage:</strong>
+                            <ul>
+                                <li>Contrast adjustment</li>
+                                <li>Histogram equalization</li>
+                                <li>Detail sharpening using unsharp masking</li>
+                                <li>Adaptive binarization</li>
+                                <li>Image hole filling and area opening</li>
+                            </ul>
+                        </li>
+                        <li><strong>Main Framework:</strong>
+                            <ul>
+                                <li>Morphological image opening operations</li>
+                                <li>Anisotropic filtering for edge preservation</li>
+                                <li>Shape-based filtering using major/minor axis ratio, extent, and area</li>
+                            </ul>
+                        </li>
+                        <li><strong>Validation Stage:</strong>
+                            <ul>
+                                <li>Number of VBs checked (6 ± 1)</li>
+                                <li>Iterative threshold adjustment if needed</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+
+                <h4>B. Deep Learning Methods</h4>
+                <div class="method-card">
+                    <p><strong>Models Evaluated:</strong></p>
+                    <ul>
+                        <li><strong>UNet</strong> - Contraction and expansion paths with skip connections</li>
+                        <li><strong>ResNet</strong> - Residual networks with skip connections solving vanishing gradient</li>
+                        <li><strong>SegNet</strong> - Encoder-decoder with max-pooling indices, computationally efficient</li>
+                        <li><strong>PSPNet</strong> - Pyramid scene parsing network capturing global context</li>
+                        <li><strong>MobileNets</strong> - Depth-wise separable convolution, smaller model size</li>
+                    </ul>
+
+                    <p><strong>Encoder-Decoder Combinations Tested:</strong></p>
+                    <ul>
+                        <li>ResNet-UNet (Best Performance)</li>
+                        <li>ResNet-PSPNet</li>
+                        <li>ResNet-SegNet</li>
+                        <li>VGG-UNet</li>
+                        <li>VGG-PSPNet</li>
+                        <li>VGG-SegNet</li>
+                        <li>MobileNets-UNet</li>
+                        <li>MobileNets-SegNet</li>
+                    </ul>
+
+                    <h4>Training Configuration:</h4>
+                    <table>
+                        <tr>
+                            <td><strong>Framework:</strong></td>
+                            <td>TensorFlow Keras API, Python 3.7.9</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Hardware:</strong></td>
+                            <td>Intel® Xeon® Silver 4110 CPU, 64GB RAM, NVIDIA Quadro P4000 GPU</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Transfer Learning:</strong></td>
+                            <td>Fine-tuning method</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Optimizer:</strong></td>
+                            <td>Adadelta</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Loss Function:</strong></td>
+                            <td>Cross-entropy</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Batch Size:</strong></td>
+                            <td>2</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Epochs:</strong></td>
+                            <td>50</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Train/Test Split:</strong></td>
+                            <td>70:30 (360 training, 154 testing)</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <h3 class="subsection-title">5.2 Automated Spinal Measurements</h3>
+
+                <div class="method-card">
+                    <h4>Measurement Pipeline:</h4>
+                    <ol>
+                        <li><strong>VB Identification and Labeling</strong>
+                            <ul>
+                                <li>Region segmentation to isolate individual VBs</li>
+                                <li>Centroid extraction for each VB (L1-L5, S1)</li>
+                            </ul>
+                        </li>
+
+                        <li><strong>Corner Points Computation</strong>
+                            <ul>
+                                <li>Initial assignment using bounding box corners</li>
+                                <li>Correction using image skeletonization and nearest-neighbor calculation</li>
+                                <li>Four corner points: superior-left, superior-right, inferior-right, inferior-left</li>
+                            </ul>
+                        </li>
+
+                        <li><strong>Distance Measurements</strong>
+                            <ul>
+                                <li><strong>Lumbar Height (Method 1):</strong> L1 superior-anterior to S1 superior-anterior corner point</li>
+                                <li><strong>Lumbar Height (Method 2):</strong> L1 centroid to S1 centroid</li>
+                                <li><strong>IVB Distances:</strong> Distance between consecutive VBs at anterior and posterior sides</li>
+                                <li><strong>VB Dimensions:</strong> Distances between superior and inferior corner points within same VB</li>
+                                <li>All measured in millimeters using pixel spacing information</li>
+                            </ul>
+                        </li>
+
+                        <li><strong>Angular Measurements</strong>
+                            <ul>
+                                <li><strong>Lumbar Lordotic Angle (LLA):</strong> Angle between L1 superior-endplate and S1 superior-endplate</li>
+                                <li><strong>Lumbosacral Angle (LSA):</strong> Angle between L5 inferior-endplate and S1 superior-endplate</li>
+                            </ul>
+                        </li>
+
+                        <li><strong>Spinal Curve Estimation</strong>
+                            <ul>
+                                <li>Cubic spline interpolation on centroids</li>
+                                <li>Differentiates between symmetrical and asymmetrical curves</li>
+                                <li>Avoids overfitting using spline instead of polynomial piecewise interpolation</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+
+                <div class="formula">
+                    <strong>Euclidean Distance Formula:</strong><br>
+                    d = √[(x₂-x₁)² + (y₂-y₁)²]
+                </div>
+
+                <div class="formula">
+                    <strong>Angular Measurement:</strong><br>
+                    θ = tan⁻¹|[m₍L₁₎ - m₍S₁₎] / [1 + m₍L₁₎·m₍S₁₎]|<br>
+                    where m = (y₂-y₁)/(x₂-x₁) is the slope
+                </div>
+
+                <h3 class="subsection-title">5.3 Disease Classification Methodologies</h3>
+
+                <h4>A. Spondylolisthesis Classification</h4>
+                <div class="method-card">
+                    <h4>Novel Angular Deviation Metric:</h4>
+                    <p><strong>Advantages over Meyerding Classification:</strong></p>
+                    <ul>
+                        <li>Uses centroids instead of corner-points (more robust to end-plate deformation)</li>
+                        <li>Quantitative assessment (not qualitative/visual)</li>
+                        <li>Handles both anterior AND posterior displacement</li>
+                        <li>Independent of osteophyte formation</li>
+                    </ul>
+
+                    <h4>Method:</h4>
+                    <ol>
+                        <li>For each VB (L1 to S1), measure angle between:
+                            <ul>
+                                <li>Perpendicular line from current VB centroid</li>
+                                <li>Line segment from current to next VB centroid</li>
+                            </ul>
+                        </li>
+                        <li>If angular deviation exceeds standard deviation of mean angles → Classify as spondylolisthesis</li>
+                        <li>Direction determined by:
+                            <ul>
+                                <li>Deviation less than SD of mean → <strong>Posterior displacement</strong></li>
+                                <li>Deviation greater than SD of mean → <strong>Anterior displacement</strong></li>
+                            </ul>
+                        </li>
+                    </ol>
+
+                    <div class="formula">
+                        <strong>Classification Criterion:</strong><br>
+                        ωᵢ = (1/n) Σθᵢ ± σθ<br>
+                        where n=5 (number of VB segments), σθ = standard deviation
+                    </div>
+                </div>
+
+                <h4>B. Lumbar Lordosis Assessment</h4>
+                <div class="method-card">
+                    <h4>Proposed AUC Method (Augmented Chen + Yang):</h4>
+                    <p><strong>Advantages:</strong></p>
+                    <ul>
+                        <li>Uses centroids (Chen method) - more calculation intensive, more reliable</li>
+                        <li>Area-based computation (Yang method) - quantitative assessment</li>
+                        <li>Independent of corner-points and end-plate structure</li>
+                        <li>Robust to end-plate deformities</li>
+                    </ul>
+
+                    <h4>Method:</h4>
+                    <ol>
+                        <li>Plot spinal curve through centroids (L1 to S1)</li>
+                        <li>Connect superior VB centroid directly to inferior VB centroid</li>
+                        <li>Compute enclosed area (Aᵣ) - sum of all non-zero pixels within region</li>
+                        <li>Classification based on empirical correlation:
+                            <ul>
+                                <li><strong>Hypo-lordosis (Flat Back):</strong> Area smaller than normal range</li>
+                                <li><strong>Normal Lordosis:</strong> Area within established range φ</li>
+                                <li><strong>Hyper-lordosis (Sway Back):</strong> Area greater than normal range</li>
+                            </ul>
+                        </li>
+                    </ol>
+
+                    <div class="formula">
+                        <strong>Area Calculation:</strong><br>
+                        Aᵣ = Σ(pᵢ × Δp) for all i=1 to m<br>
+                        where pᵢ ≠ 0 (non-zero pixels), Δp = 1 pixel
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">6. Results and Performance</h2>
+
+                <h3 class="subsection-title">6.1 Evaluation Metrics</h3>
+                <div class="results-box">
+                    <h4>Segmentation Metrics:</h4>
+                    <div class="formula">
+                        <strong>Mean Pixel Accuracy (MPA):</strong><br>
+                        MPA = (TP + TN) / (TP + TN + FP + FN)
+                    </div>
+                    <div class="formula">
+                        <strong>Mean Pixel Precision (MPP):</strong><br>
+                        MPP = TP / (TP + FP)
+                    </div>
+                    <div class="formula">
+                        <strong>Intersection over Union (IoU):</strong><br>
+                        IoU = TP / (TP + FP + FN)
+                    </div>
+                    <div class="formula">
+                        <strong>Dice Similarity Coefficient (DSC):</strong><br>
+                        DSC = 2TP / (2TP + FP + FN)
+                    </div>
+
+                    <h4 style="margin-top: 20px;">Measurement Metrics:</h4>
+                    <div class="formula">
+                        <strong>Pearson Correlation Coefficient (R):</strong><br>
+                        R = Σ(mᵢ-m̄)(nᵢ-n̄) / √[Σ(mᵢ-m̄)² × Σ(nᵢ-n̄)²]<br>
+                        where mᵢ = automated measurement, nᵢ = manual measurement
+                    </div>
+                    <div class="formula">
+                        <strong>Mean Absolute Error (MAE):</strong><br>
+                        MAE = (1/N) Σ|xᵢ - x̂ᵢ|
+                    </div>
+                </div>
+
+                <h3 class="subsection-title">6.2 Segmentation Results</h3>
+
+                <h4>Quantitative Comparison:</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Method/Model</th>
+                            <th>MPA (%)</th>
+                            <th>MPP (%)</th>
+                            <th>IoU</th>
+                            <th>DSC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>VBSeg (Pre-Validation)</td>
+                            <td>96.34</td>
+                            <td>57.46</td>
+                            <td>0.49</td>
+                            <td>0.67</td>
+                        </tr>
+                        <tr>
+                            <td>VBSeg (Post-Validation)</td>
+                            <td>97.99</td>
+                            <td>66.57</td>
+                            <td>0.63</td>
+                            <td>0.79</td>
+                        </tr>
+                        <tr>
+                            <td>UNet</td>
+                            <td>98.36</td>
+                            <td>90.67</td>
+                            <td>0.74</td>
+                            <td>0.87</td>
+                        </tr>
+                        <tr>
+                            <td>PSPNet</td>
+                            <td>98.33</td>
+                            <td>88.95</td>
+                            <td>0.73</td>
+                            <td>0.80</td>
+                        </tr>
+                        <tr>
+                            <td>VGG-UNet</td>
+                            <td>99.02</td>
+                            <td>87.29</td>
+                            <td>0.82</td>
+                            <td>0.93</td>
+                        </tr>
+                        <tr>
+                            <td>VGG-PSPNet</td>
+                            <td>97.85</td>
+                            <td>91.85</td>
+                            <td>0.69</td>
+                            <td>0.69</td>
+                        </tr>
+                        <tr>
+                            <td>VGG-SegNet</td>
+                            <td>98.85</td>
+                            <td>95.41</td>
+                            <td>0.81</td>
+                            <td>0.95</td>
+                        </tr>
+                        <tr style="background: #e8f5e9; font-weight: bold;">
+                            <td>ResNet-UNet ⭐</td>
+                            <td>99.12</td>
+                            <td>98.31</td>
+                            <td>0.86</td>
+                            <td>0.97</td>
+                        </tr>
+                        <tr>
+                            <td>ResNet-PSPNet</td>
+                            <td>98.08</td>
+                            <td>95.66</td>
+                            <td>0.72</td>
+                            <td>0.76</td>
+                        </tr>
+                        <tr>
+                            <td>ResNet-SegNet</td>
+                            <td>98.59</td>
+                            <td>98.06</td>
+                            <td>0.78</td>
+                            <td>0.93</td>
+                        </tr>
+                        <tr>
+                            <td>MobileNets-UNet</td>
+                            <td>97.50</td>
+                            <td>81.33</td>
+                            <td>0.67</td>
+                            <td>0.63</td>
+                        </tr>
+                        <tr>
+                            <td>MobileNets-SegNet</td>
+                            <td>98.63</td>
+                            <td>88.71</td>
+                            <td>0.75</td>
+                            <td>0.87</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="results-box">
+                    <h4>🏆 Best Performance: ResNet-UNet</h4>
+                    <p><strong>ResNet-UNet achieved the best segmentation results with:</strong></p>
+                    <ul>
+                        <li><span class="metric">MPA: 99.12%</span></li>
+                        <li><span class="metric">MPP: 98.31%</span></li>
+                        <li><span class="metric">IoU: 0.86</span></li>
+                        <li><span class="metric">DSC: 0.97</span></li>
+                    </ul>
+                    <p style="margin-top: 15px;"><strong>Testing Performance:</strong> Mean IoU of 0.86 with standard deviation of 0.04 over 10 iterations</p>
+                    <p><strong>Training Time:</strong> Best training performance with consistent loss values. VGG-UNet had longest training (465s/epoch), MobileNets-SegNet fastest (42.2s/epoch)</p>
+                </div>
+
+                <h4>Comparison with State-of-the-Art:</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Study</th>
+                            <th>Method</th>
+                            <th>Modality</th>
+                            <th>MPA (%)</th>
+                            <th>IoU</th>
+                            <th>DSC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="font-weight: bold; background: #e8f5e9;">
+                            <td>This Study</td>
+                            <td>ResNet-UNet</td>
+                            <td>MRI</td>
+                            <td>99.12</td>
+                            <td>0.86</td>
+                            <td>0.97</td>
+                        </tr>
+                        <tr>
+                            <td>Suzani et al.</td>
+                            <td>6-FFN</td>
+                            <td>CT</td>
+                            <td>96.00</td>
+                            <td>-</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>Lu et al.</td>
+                            <td>UNet</td>
+                            <td>MRI</td>
+                            <td>94.00</td>
+                            <td>0.91</td>
+                            <td>0.93</td>
+                        </tr>
+                        <tr>
+                            <td>Janssens & Zheng</td>
+                            <td>FCN-UNet</td>
+                            <td>CT</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>0.95</td>
+                        </tr>
+                        <tr>
+                            <td>Lessmann et al.</td>
+                            <td>FCN</td>
+                            <td>MRI/CT</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>0.94/0.96</td>
+                        </tr>
+                        <tr>
+                            <td>Rak et al.</td>
+                            <td>UNet</td>
+                            <td>MRI</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>0.94</td>
+                        </tr>
+                        <tr>
+                            <td>Huang et al.</td>
+                            <td>UNet</td>
+                            <td>MRI</td>
+                            <td>-</td>
+                            <td>0.94</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>Tang et al.</td>
+                            <td>DDUNet</td>
+                            <td>CT</td>
+                            <td>90.10</td>
+                            <td>0.83</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 class="subsection-title">6.3 Spinal Measurements Results</h3>
+
+                <p><strong>Validation:</strong> 50 randomly selected images manually measured by spinal surgeons using RadiAnt DICOM Viewer</p>
+
+                <h4>Correlation and Error Analysis:</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Comparison</th>
+                            <th colspan="2">LLA</th>
+                            <th colspan="2">LSA</th>
+                            <th colspan="2">LHCP</th>
+                            <th colspan="2">LHC</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th>R</th>
+                            <th>MAE</th>
+                            <th>R</th>
+                            <th>MAE</th>
+                            <th>R</th>
+                            <th>MAE</th>
+                            <th>R</th>
+                            <th>MAE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #e8f5e9; font-weight: bold;">
+                            <td>GT-SS</td>
+                            <td>0.979</td>
+                            <td>1.45°</td>
+                            <td>0.951</td>
+                            <td>1.55°</td>
+                            <td>0.997</td>
+                            <td>0.82mm</td>
+                            <td>0.996</td>
+                            <td>0.89mm</td>
+                        </tr>
+                        <tr>
+                            <td>GT-DL</td>
+                            <td>0.84</td>
+                            <td>2.61°</td>
+                            <td>0.79</td>
+                            <td>2.01°</td>
+                            <td>0.981</td>
+                            <td>1.07mm</td>
+                            <td>0.992</td>
+                            <td>0.95mm</td>
+                        </tr>
+                        <tr>
+                            <td>SS-DL</td>
+                            <td>0.81</td>
+                            <td>3.63°</td>
+                            <td>0.83</td>
+                            <td>3.16°</td>
+                            <td>0.978</td>
+                            <td>1.2mm</td>
+                            <td>0.991</td>
+                            <td>0.92mm</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p style="margin-top: 15px;"><strong>Legend:</strong></p>
+                <ul>
+                    <li><strong>GT-SS:</strong> Ground Truth vs Spinal Surgeon</li>
+                    <li><strong>GT-DL:</strong> Ground Truth vs Deep Learning (ResNet-UNet)</li>
+                    <li><strong>SS-DL:</strong> Spinal Surgeon vs Deep Learning (ResNet-UNet)</li>
+                    <li><strong>LLA:</strong> Lumbar Lordotic Angle</li>
+                    <li><strong>LSA:</strong> Lumbosacral Angle</li>
+                    <li><strong>LHCP:</strong> Lumbar Height (Corner Points)</li>
+                    <li><strong>LHC:</strong> Lumbar Height (Centroids)</li>
+                </ul>
+
+                <h4>Comparison with Literature:</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Study</th>
+                            <th>LLA (R)</th>
+                            <th>LLA MAE</th>
+                            <th>Distance MAE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #e8f5e9; font-weight: bold;">
+                            <td>This Study (GT-SS)</td>
+                            <td>0.979</td>
+                            <td>1.45°</td>
+                            <td>0.82mm</td>
+                        </tr>
+                        <tr>
+                            <td>Masad et al.</td>
+                            <td>0.932</td>
+                            <td>-</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>Pang et al.</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>1.23mm</td>
+                        </tr>
+                        <tr>
+                            <td>Cho et al.</td>
+                            <td>-</td>
+                            <td>8.05°</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="results-box">
+                    <h4>📊 Key Findings:</h4>
+                    <ul>
+                        <li><strong>Improvement:</strong> 4.80% improvement in correlation coefficient R for LLA compared to state-of-the-art (Masad et al.: 0.932 vs This study: 0.979)</li>
+                        <li><strong>Statistical Significance:</strong> All measurements statistically significant (p < 0.05) with expert clinicians</li>
+                        <li><strong>Comprehensive Coverage:</strong> Unlike competitors, framework measures LLA, LSA, and multiple lumbar heights</li>
+                        <li><strong>High Accuracy:</strong> MAE of 1.45° for LLA significantly better than Cho et al. (8.05°)</li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">6.4 Disease Classification Results</h3>
+
+                <h4>A. Spondylolisthesis Classification</h4>
+                <div class="results-box">
+                    <h4>Performance Metrics:</h4>
+                    <ul>
+                        <li><strong>Dataset:</strong> 29 out of 514 patients diagnosed with spondylolisthesis (manual radiologist report)</li>
+                        <li><strong>Accuracy:</strong> <span class="metric">89%</span></li>
+                        <li><strong>Method:</strong> Improvised angular deviation metric</li>
+                        <li><strong>Capabilities:</strong>
+                            <ul>
+                                <li>✓ Correctly identifies spinal dislocation cases</li>
+                                <li>✓ Correctly categorizes normal cases</li>
+                                <li>✓ Handles both anterior and posterior displacement</li>
+                                <li>✓ Independent of end-plate structure</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <h4>B. Lumbar Lordosis Assessment</h4>
+                <div class="results-box">
+                    <h4>Performance Metrics:</h4>
+                    <ul>
+                        <li><strong>Accuracy:</strong> <span class="metric">93%</span></li>
+                        <li><strong>Classification:</strong> Correctly identifying:
+                            <ul>
+                                <li>✓ Normal lordosis cases</li>
+                                <li>✓ Flat-back (hypo-lordosis) cases</li>
+                                <li>✓ Sway-back (hyper-lordosis) cases</li>
+                            </ul>
+                        </li>
+                        <li><strong>Method:</strong> Area under curve computation using centroids</li>
+                        <li><strong>Advantages:</strong>
+                            <ul>
+                                <li>✓ Independent of corner-points</li>
+                                <li>✓ Robust to end-plate deformities</li>
+                                <li>✓ Quantitative assessment (not qualitative)</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">6.5 Key Evidence for Deep Learning Superiority</h3>
+                <div class="highlight-box">
+                    <h4>VBSeg vs Deep Learning Comparison:</h4>
+                    <p>Despite VBSeg being a thoroughly customized algorithm specifically designed for vertebral body segmentation, ResNet-UNet significantly outperforms it:</p>
+                    <ul>
+                        <li><strong>DSC Improvement:</strong> 0.79 (VBSeg) → 0.97 (ResNet-UNet) = 22.8% increase</li>
+                        <li><strong>IoU Improvement:</strong> 0.63 (VBSeg) → 0.86 (ResNet-UNet) = 36.5% increase</li>
+                        <li><strong>MPP Improvement:</strong> 66.57% (VBSeg) → 98.31% (ResNet-UNet) = 47.6% increase</li>
+                    </ul>
+                    <p><strong>Conclusion:</strong> Provides strong evidence advocating the superiority of deep learning architectures over conventional/traditional machine learning methods for medical image segmentation.</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">7. Major Contributions</h2>
+
+                <div class="highlight-box">
+                    <ol style="margin-left: 0; list-style-position: inside;">
+                        <li style="margin-bottom: 20px;">
+                            <strong>First Publicly Released Composite Dataset</strong><br>
+                            <ul style="margin-left: 20px; margin-top: 10px;">
+                                <li>514 annotated mid-sagittal lumbar spine MRI scans</li>
+                                <li>Ground truth labels for L1-L5 and S1 vertebral bodies</li>
+                                <li>Comprehensive spinal measurements from expert clinicians</li>
+                                <li>Enables both qualitative and quantitative assessment</li>
+                                <li>Available at: <a href="https://data.mendeley.com/datasets/k3b363f3vz/2">Mendeley Dataset</a></li>
+                            </ul>
+                        </li>
+
+                        <li style="margin-bottom: 20px;">
+                            <strong>Evidence for Deep Learning Superiority</strong><br>
+                            <ul style="margin-left: 20px; margin-top: 10px;">
+                                <li>Comprehensive comparison of traditional vs deep learning methods</li>
+                                <li>ResNet-UNet achieved DSC 0.97 and IoU 0.86</li>
+                                <li>Significantly outperformed custom VBSeg algorithm</li>
+                                <li>Evaluated 11 different model configurations</li>
+                            </ul>
+                        </li>
+
+                        <li style="margin-bottom: 20px;">
+                            <strong>Fully Automated Measurement Framework</strong><br>
+                            <ul style="margin-left: 20px; margin-top: 10px;">
+                                <li>Autonomous extraction of clinically significant measurements</li>
+                                <li>High correlation with clinician grading (R = 0.979 for LLA)</li>
+                                <li>Low mean absolute error (MAE = 1.45° for LLA)</li>
+                                <li>Covers distance and angular measurements</li>
+                                <li>Mass screening capability for clinical use</li>
+                            </ul>
+                        </li>
+
+                        <li style="margin-bottom: 20px;">
+                            <strong>Novel Disease Classification Methodologies</strong><br>
+                            <ul style="margin-left: 20px; margin-top: 10px;">
+                                <li>Spondylolisthesis: 89% accuracy using angular deviation metric</li>
+                                <li>Lumbar Lordosis: 93% accuracy using AUC method</li>
+                                <li>Both methods independent of end-plate structure</li>
+                                <li>Robust to osteophyte formation</li>
+                                <li>Quantitative rather than qualitative assessment</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">8. Clinical Relevance and Impact</h2>
+
+                <div class="warning-box">
+                    <h4>⚕️ Clinical Application Scope:</h4>
+                    <p><strong>Important Note:</strong> The intended purpose of the proposed autonomous lumbar spine toolkit is <strong>NOT</strong> to replace the role of clinicians but to introduce a vote of confidence and reliability to their performed manual diagnosis.</p>
+                </div>
+
+                <h3 class="subsection-title">Benefits for Clinicians:</h3>
+                <ul>
+                    <li><strong>Time Efficiency:</strong> Mass screening of normal cases reduces clinician workload</li>
+                    <li><strong>Consistency:</strong> Automated measurements eliminate inter-observer variation</li>
+                    <li><strong>Quantitative Support:</strong> Objective metrics for surgical decision-making</li>
+                    <li><strong>Precision Enhancement:</strong> Adds confidence to traditional assessment methodology</li>
+                    <li><strong>Pre-operative Planning:</strong> Reliable measurements for procedure selection</li>
+                    <li><strong>Post-operative Evaluation:</strong> Posture correction and spinal balance assessment</li>
+                </ul>
+
+                <h3 class="subsection-title">Clinical Decision Support:</h3>
+                <div class="highlight-box">
+                    <ul>
+                        <li>Helps determine presence/absence of surgical intervention site</li>
+                        <li>Assesses severity of spinal disorders</li>
+                        <li>Supports selection of appropriate surgical procedure (fusion vs decompression)</li>
+                        <li>Informs recommendation of conservative treatment options</li>
+                        <li>Establishes correlation for efficacy of surgical procedures</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">9. Conclusion</h2>
+
+                <p>This research presents a comprehensive autonomous lumbar spine assessment framework that addresses critical challenges in clinical diagnosis:</p>
+
+                <div class="results-box">
+                    <h4>Summary of Achievements:</h4>
+                    <ol>
+                        <li><strong>Dataset Contribution:</strong> First composite dataset with 514 annotated images and comprehensive spinal measurements</li>
+                        <li><strong>Segmentation Excellence:</strong> ResNet-UNet achieved DSC 0.97 and IoU 0.86, demonstrating deep learning superiority</li>
+                        <li><strong>Measurement Accuracy:</strong> High correlation (R=0.979) and low error (MAE=1.45°) with clinician grading</li>
+                        <li><strong>Disease Classification:</strong> Novel methodologies achieving 89% (spondylolisthesis) and 93% (lumbar lordosis) accuracy</li>
+                    </ol>
+                </div>
+
+                <h3 class="subsection-title">Future Directions</h3>
+                <ul>
+                    <li>Extension to cervical, thoracic, and pelvic regions for comprehensive spinal balance understanding</li>
+                    <li>Investigation of automated toolkit efficacy in helping surgeons choose less invasive methods</li>
+                    <li>Integration with clinical workflows for real-time decision support</li>
+                    <li>Multi-center validation studies</li>
+                    <li>Development of longitudinal analysis capabilities for post-operative monitoring</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">10. Acknowledgements</h2>
+                <p>The authors acknowledge:</p>
+                <ul>
+                    <li><strong>Sudirman et al.</strong> for permission to share and redistribute the original dataset after mid-sagittal views annotations</li>
+                    <li><strong>Families</strong> for support and encouragement during research</li>
+                    <li><strong>Volunteer Expert Clinicians</strong> including radiologists and spinal surgeons for their valuable time and expertise</li>
+                </ul>
+
+                <p style="margin-top: 20px;"><strong>Funding Information:</strong> This research was not funded by any organization.</p>
+
+                <p style="margin-top: 20px;"><strong>Declaration of Competing Interest:</strong> The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.</p>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">11. Paper Information</h2>
+                <table>
+                    <tr>
+                        <td><strong>Journal:</strong></td>
+                        <td>Biomedical Signal Processing and Control</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Volume:</strong></td>
+                        <td>71 (2022) 103230</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ISSN:</strong></td>
+                        <td>1746-8094</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Publisher:</strong></td>
+                        <td>Elsevier Ltd.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Available Online:</strong></td>
+                        <td>October 12, 2021</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Received:</strong></td>
+                        <td>March 30, 2021</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Revised:</strong></td>
+                        <td>August 31, 2021</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Accepted:</strong></td>
+                        <td>September 30, 2021</td>
+                    </tr>
+                    <tr>
+                        <td><strong>DOI:</strong></td>
+                        <td><a href="https://doi.org/10.1016/j.bspc.2021.103230">10.1016/j.bspc.2021.103230</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Dataset URL:</strong></td>
+                        <td><a href="https://data.mendeley.com/datasets/k3b363f3vz/2">https://data.mendeley.com/datasets/k3b363f3vz/2</a></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="footer">
+            <h3>© 2021 Elsevier Ltd. All rights reserved.</h3>
+            <div class="contact-info">
+                <p><strong>Corresponding Author:</strong> Rao Farhat Masood</p>
+                <p>Email: <a href="mailto:farhatmasood.fm@gmail.com" style="color: white;">farhatmasood.fm@gmail.com</a></p>
+                <p>Department of Electrical Engineering</p>
+                <p>Capital University of Science and Technology (CUST), Islamabad, Pakistan</p>
+            </div>
+            <p style="margin-top: 25px; font-size: 0.9em; opacity: 0.8;">
+                <!-- This HTML presentation was generated for research documentation purposes.<br> -->
+                Full paper available at: <a href="https://www.elsevier.com/locate/bspc" style="color: white;">www.elsevier.com/locate/bspc</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

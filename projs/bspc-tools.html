@@ -1,656 +1,245 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lumbar Spine Analysis Toolkit | Research Dashboard</title>
-    
-    <!-- React & Babel -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Lucide Icons (Vanilla) -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-
-    <!-- MathJax for rigorous equation rendering -->
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-        
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-        
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-        
-        /* Range Slider Styling (Light Mode) */
-        input[type=range] { -webkit-appearance: none; background: transparent; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #0284c7; cursor: pointer; margin-top: -6px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #e2e8f0; border-radius: 2px; }
-        
-        /* Grid Background for Canvas */
-        .grid-bg {
-            background-size: 20px 20px;
-            background-image:
-                linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spinal measurements — Masood et al., 2022</title>
+<style>
+  body { margin: 0; color: #1a1a1a; background: #fff; font: 16px/1.45 Georgia, "Times New Roman", serif; }
+  main { max-width: 68rem; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+  h1 { font-size: 1.35rem; font-weight: 600; line-height: 1.3; margin: 0 0 0.4rem; }
+  h2 { font-size: 1.05rem; font-weight: 600; margin: 0 0 0.5rem; }
+  p { margin: 0 0 0.55rem; }
+  .meta { color: #444; font-size: 0.92rem; }
+  .layout { display: grid; grid-template-columns: 760px 1fr; gap: 1.25rem; align-items: start; }
+  canvas { border: 1px solid #ccc; background: #f4f4f4; cursor: crosshair; display: block; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.92rem; margin: 0.3rem 0 0.8rem; }
+  th, td { text-align: left; padding: 0.28rem 0.35rem; border-bottom: 1px solid #ddd; vertical-align: top; }
+  th { font-weight: 600; }
+  label { display: block; font-size: 0.9rem; margin: 0.35rem 0; }
+  input[type="number"] { font: inherit; padding: 0.15rem 0.3rem; width: 7.5rem; }
+  button { font: inherit; padding: 0.25rem 0.55rem; margin: 0 0.35rem 0.35rem 0; }
+  .note { font-size: 0.88rem; color: #333; }
+  @media (max-width: 980px) { .layout { grid-template-columns: 1fr; } canvas { width: 100%; height: auto; } }
+</style>
 </head>
-<body class="overflow-hidden">
-    <div id="root"></div>
+<body>
+<main>
+  <h1>Spinal measurements and alignment classification</h1>
+  <p class="meta">Masood RF, Taj IA, Khan MB, Qureshi MA, Hassan T. <em>Biomedical Signal Processing and Control</em>. 2022;71:103230.
+  <a href="https://doi.org/10.1016/j.bspc.2021.103230">doi:10.1016/j.bspc.2021.103230</a></p>
+  <p class="note">Drag a corner. Distances follow Section 7. Spondylolisthesis follows Section 8.1: the angle between the vertical and the line to the next centroid, compared with the mean ± SD of the five segments. The 39°–53° class is the clinical bound cited in Section 8.2. Algorithm 4 classifies the enclosed centroid area, but the paper does not publish the area cutoffs.</p>
+  <div class="layout">
+    <div>
+      <canvas id="c" width="760" height="640"></canvas>
+      <p class="note">Open circles are corners. The filled mark is their centroid. The heavy segments are the L1 and S1 superior end-plates; the dark segments are the L5 inferior and S1 superior end-plates.</p>
+    </div>
+    <div>
+      <h2>Inputs</h2>
+      <label>Pixel spacing, mm/pixel <input id="spacing" type="number" min="0.01" step="0.01" value="0.70"></label>
+      <label>Normal area minimum, px² <input id="amin" type="number" step="1" placeholder="not published"></label>
+      <label>Normal area maximum, px² <input id="amax" type="number" step="1" placeholder="not published"></label>
+      <p>
+        <button type="button" id="reset">Restore example</button>
+        <button type="button" id="slip">Offset L4 anteriorly</button>
+        <label>Background <input id="file" type="file" accept="image/*"></label>
+      </p>
+      <h2>Angles and heights</h2>
+      <table><tbody id="mainRows"></tbody></table>
+      <h2>Spondylolisthesis</h2>
+      <p class="note" id="spondyloHead"></p>
+      <table>
+        <thead><tr><th>Segment</th><th>θ (°)</th><th>Section 8.1</th></tr></thead>
+        <tbody id="segRows"></tbody>
+      </table>
+      <h2>Distances (mm)</h2>
+      <table>
+        <thead><tr><th>Measure</th><th>Anterior</th><th>Posterior</th></tr></thead>
+        <tbody id="distRows"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+<script>
+(function () {
+  var NAMES = ["L1", "L2", "L3", "L4", "L5", "S1"];
+  var KEYS = ["sa", "sp", "ia", "ip"];
+  var canvas = document.getElementById("c");
+  var ctx = canvas.getContext("2d");
+  var bg = null;
+  var drag = null;
 
-    <script type="text/babel">
-        const { useState, useEffect, useRef, useMemo } = React;
+  function B(sa, sp, ia, ip) { return { sa: sa, sp: sp, ia: ia, ip: ip }; }
+  function example() {
+    return [
+      B([214, 62], [286, 64], [210, 102], [288, 106]),
+      B([206, 136], [280, 142], [200, 178], [282, 186]),
+      B([196, 214], [272, 224], [188, 258], [274, 270]),
+      B([184, 296], [262, 312], [174, 342], [264, 360]),
+      B([170, 382], [252, 404], [158, 428], [248, 454]),
+      B([150, 508], [242, 416], [142, 552], [236, 468])
+    ];
+  }
+  function slipped() {
+    var v = example();
+    KEYS.forEach(function (k) { v[3][k] = [v[3][k][0] - 42, v[3][k][1]]; });
+    return v;
+  }
+  var bodies = example();
 
-        // --- ICON SYSTEM FIX ---
-        const createIcon = (name) => {
-            const iconData = lucide.icons[name];
-            if (!iconData) return (props) => null;
+  function dist(a, b) { return Math.hypot(b[0] - a[0], b[1] - a[1]); }
+  function slope(a, b) {
+    var dx = b[0] - a[0];
+    return Math.abs(dx) < 1e-8 ? null : (b[1] - a[1]) / dx;
+  }
+  function angleBetween(m1, m2) {
+    if (m1 === null && m2 === null) return 0;
+    if (m1 === null || m2 === null) return Math.abs(Math.atan2(1, m1 === null ? m2 : m1) * 180 / Math.PI);
+    var den = 1 + m1 * m2;
+    if (Math.abs(den) < 1e-9) return 90;
+    return Math.abs(Math.atan((m2 - m1) / den) * 180 / Math.PI);
+  }
+  function centroid(v) {
+    return KEYS.reduce(function (s, k) { return [s[0] + v[k][0], s[1] + v[k][1]]; }, [0, 0]).map(function (x) { return x / 4; });
+  }
+  function shoelace(pts) {
+    var a = 0;
+    for (var i = 0; i < pts.length; i++) {
+      var j = (i + 1) % pts.length;
+      a += pts[i][0] * pts[j][1] - pts[j][0] * pts[i][1];
+    }
+    return Math.abs(a) / 2;
+  }
+  function fmt(n, d) { return isFinite(n) ? n.toFixed(d) : "—"; }
+  function row(a, b, c) { return "<tr><th>" + a + "</th><td>" + b + "</td><td>" + c + "</td></tr>"; }
 
-            return ({ size = 24, className, ...props }) => (
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width={size}
-                    height={size}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className={className}
-                    {...props}
-                >
-                    {iconData.map(([tag, attrs], index) => 
-                        React.createElement(tag, { ...attrs, key: index })
-                    )}
-                </svg>
-            );
-        };
+  function compute() {
+    var mm = parseFloat(document.getElementById("spacing").value);
+    if (!isFinite(mm) || mm <= 0) mm = 1;
+    var C = bodies.map(centroid);
+    var lla = angleBetween(slope(bodies[0].sa, bodies[0].sp), slope(bodies[5].sa, bodies[5].sp));
+    var lsa = angleBetween(slope(bodies[4].ia, bodies[4].ip), slope(bodies[5].sa, bodies[5].sp));
+    var thetas = [];
+    for (var i = 0; i < 5; i++) thetas.push(Math.atan2(C[i + 1][0] - C[i][0], C[i + 1][1] - C[i][1]) * 180 / Math.PI);
+    var mu = thetas.reduce(function (s, v) { return s + v; }, 0) / 5;
+    var sd = Math.sqrt(thetas.reduce(function (s, v) { return s + (v - mu) * (v - mu); }, 0) / 5);
+    var calls = thetas.map(function (t) {
+      if (sd < 1e-6) return "Within range";
+      if (t > mu + sd) return "Anterior";
+      if (t < mu - sd) return "Posterior";
+      return "Within range";
+    });
+    var area = shoelace(C);
+    var amin = parseFloat(document.getElementById("amin").value);
+    var amax = parseFloat(document.getElementById("amax").value);
+    var areaClass = "Not classified; area bounds were not published";
+    if (isFinite(amin) && isFinite(amax) && amax > amin) {
+      areaClass = area < amin ? "Below the entered range" : (area > amax ? "Above the entered range" : "Within the entered range");
+    }
+    return {
+      lla: lla, lsa: lsa, area: area, mu: mu, sd: sd, thetas: thetas, calls: calls,
+      lhC: dist(bodies[0].sa, bodies[5].sa) * mm,
+      lhM: dist(C[0], C[5]) * mm,
+      angleClass: lla < 39 ? "Below 39°" : (lla > 53 ? "Above 53°" : "Within 39°–53°"),
+      areaClass: areaClass,
+      walls: bodies.map(function (v, i) {
+        return { name: NAMES[i] + " height", ant: dist(v.sa, v.ia) * mm, post: dist(v.sp, v.ip) * mm };
+      }),
+      gaps: bodies.slice(0, 5).map(function (v, i) {
+        return { name: NAMES[i] + "–" + NAMES[i + 1] + " gap", ant: dist(v.ia, bodies[i + 1].sa) * mm, post: dist(v.ip, bodies[i + 1].sp) * mm };
+      })
+    };
+  }
 
-        const LayoutDashboard = createIcon('LayoutDashboard');
-        const Activity = createIcon('Activity');
-        const Ruler = createIcon('Ruler');
-        const Layers = createIcon('Layers');
-        const FileText = createIcon('FileText');
-        const ChevronRight = createIcon('ChevronRight');
-        const AlertTriangle = createIcon('AlertTriangle');
-        const CheckCircle = createIcon('CheckCircle');
-        const Info = createIcon('Info');
-        const Maximize2 = createIcon('Maximize2');
-        const Calculator = createIcon('Calculator');
-        const Brain = createIcon('Brain');
-        const ZoomInIcon = createIcon('ZoomIn');
-        const ZoomOutIcon = createIcon('ZoomOut');
-        const RotateCcwIcon = createIcon('RotateCcw');
+  function draw() {
+    var R = compute();
+    var C = bodies.map(centroid);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (bg) ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+    ctx.beginPath();
+    C.forEach(function (p, i) { i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); });
+    ctx.closePath();
+    ctx.fillStyle = "rgba(30,90,40,0.13)";
+    ctx.fill();
+    ctx.setLineDash([4, 3]);
+    ctx.strokeStyle = "#1d4e2a";
+    ctx.stroke();
+    ctx.setLineDash([]);
+    bodies.forEach(function (v, i) {
+      ctx.beginPath();
+      ctx.moveTo(v.sa[0], v.sa[1]); ctx.lineTo(v.sp[0], v.sp[1]);
+      ctx.lineTo(v.ip[0], v.ip[1]); ctx.lineTo(v.ia[0], v.ia[1]); ctx.closePath();
+      ctx.strokeStyle = "#222"; ctx.lineWidth = 1; ctx.stroke();
+      ctx.fillStyle = "#111"; ctx.font = "13px Georgia, serif";
+      ctx.fillText(NAMES[i], C[i][0] + 8, C[i][1] - 8);
+      ctx.beginPath(); ctx.arc(C[i][0], C[i][1], 3.5, 0, 6.3); ctx.fill();
+      KEYS.forEach(function (k) {
+        ctx.beginPath(); ctx.arc(v[k][0], v[k][1], 5, 0, 6.3);
+        ctx.fillStyle = "#fff"; ctx.fill(); ctx.stroke();
+      });
+    });
+    function seg(a, b, color, w) {
+      ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]);
+      ctx.strokeStyle = color; ctx.lineWidth = w; ctx.stroke();
+    }
+    seg(bodies[0].sa, bodies[0].sp, "#fff", 4);
+    seg(bodies[5].sa, bodies[5].sp, "#fff", 4);
+    seg(bodies[4].ia, bodies[4].ip, "#14301c", 3);
+    seg(bodies[5].sa, bodies[5].sp, "#14301c", 2);
+    document.getElementById("mainRows").innerHTML =
+      row("Lumbar lordotic angle", fmt(R.lla, 1) + "°", "L1 and S1 superior end-plates") +
+      row("Angle class", R.angleClass, "Bounds cited in Section 8.2, not Algorithm 4") +
+      row("Lumbosacral angle", fmt(R.lsa, 1) + "°", "L5 inferior to S1 superior end-plate") +
+      row("Height, superior-anterior corners", fmt(R.lhC, 1) + " mm", "L1 to S1") +
+      row("Height, centroids", fmt(R.lhM, 1) + " mm", "L1 to S1") +
+      row("Enclosed centroid area", fmt(R.area, 0) + " px²", "Centroid curve closed by the L1–S1 chord") +
+      row("Area class", R.areaClass, "Only if both bounds are entered");
+    document.getElementById("spondyloHead").textContent =
+      "Mean " + fmt(R.mu, 1) + "°, SD " + fmt(R.sd, 1) + "°. Positive θ means the lower centroid is to the right of the vertical. The paper assigns the high side of this distribution to anterior slip and the low side to posterior slip.";
+    document.getElementById("segRows").innerHTML = R.thetas.map(function (t, i) {
+      return "<tr><td>" + NAMES[i] + "–" + NAMES[i + 1] + "</td><td>" + fmt(t, 1) + "</td><td>" + R.calls[i] + "</td></tr>";
+    }).join("");
+    document.getElementById("distRows").innerHTML = R.walls.concat(R.gaps).map(function (w) {
+      return "<tr><td>" + w.name + "</td><td>" + fmt(w.ant, 1) + "</td><td>" + fmt(w.post, 1) + "</td></tr>";
+    }).join("");
+  }
 
-        const Icon = ({ name, size = 20, className }) => {
-            const Component = createIcon(name);
-            return <Component size={size} className={className} />;
-        };
-
-        // --- DATA CONSTANTS (From Paper) ---
-        const PAPER_METRICS = {
-            segmentation: {
-                iou: 0.86,
-                dsc: 0.97,
-                mpa: 99.12
-            },
-            accuracy: {
-                spondylolisthesis: 89,
-                lordosis: 93
-            }
-        };
-
-        // --- COMPONENTS ---
-
-        // 1. SIDEBAR (Light Mode)
-        const Sidebar = ({ activeTab, setActiveTab }) => {
-            const menu = [
-                { id: 'segmentation', label: 'Segmentation Tool', icon: 'Layers' },
-                { id: 'measurements', label: 'Spinal Measurements', icon: 'Ruler' },
-                { id: 'lordosis', label: 'Lordosis & Spondylo', icon: 'Activity' },
-                { id: 'calculator', label: 'LSA Calculator', icon: 'Calculator' },
-            ];
-
-            return (
-                <div className="w-64 bg-white border-r border-slate-200 flex flex-col h-screen shadow-sm z-20">
-                    <div className="p-6 border-b border-slate-100">
-                        <div className="flex items-center gap-2 text-slate-800 font-bold tracking-tight">
-                            <Brain size={24} className="text-blue-600" />
-                            <span>LUMBAR<span className="text-blue-600">SPINE</span> AI</span>
-                        </div>
-                    </div>
-                    
-                    <nav className="flex-1 p-4 space-y-2">
-                        {menu.map(item => (
-                            <button
-                                key={item.id}
-                                onClick={() => setActiveTab(item.id)}
-                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-sm font-medium ${
-                                    activeTab === item.id 
-                                    ? 'bg-blue-50 text-blue-700 border border-blue-100 shadow-sm' 
-                                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-                                }`}
-                            >
-                                <Icon name={item.icon} size={18} />
-                                {item.label}
-                            </button>
-                        ))}
-                    </nav>
-
-                    <div className="p-4 border-t border-slate-100">
-                        <div className="bg-slate-50 rounded p-3 text-xs text-slate-500 border border-slate-200">
-                            Based on Masood et al. (2022) <br/>
-                            BSPC Vol 71, 103230
-                        </div>
-                    </div>
-                </div>
-            );
-        };
-
-        // 2. SEGMENTATION TOOL (Comparison)
-        const SegmentationTool = () => {
-            const [sliderVal, setSliderVal] = useState(50);
-            
-            return (
-                <div className="p-10 h-full flex flex-col max-w-6xl mx-auto">
-                    <header className="mb-6 flex justify-between items-end">
-                        <div>
-                            <h2 className="text-2xl font-bold text-slate-900 mb-2">Segmentation Logic Comparator</h2>
-                            <p className="text-slate-500 text-sm">Comparing Conventional Morphological Processing (VBSeg) vs. ResNet-UNet Deep Learning.</p>
-                        </div>
-                        <div className="flex gap-4 text-xs font-mono">
-                            <div className="text-red-600 flex items-center gap-1">● Conventional (VBSeg)</div>
-                            <div className="text-emerald-600 flex items-center gap-1">● ResNet-UNet (Proposed)</div>
-                        </div>
-                    </header>
-
-                    <div className="flex-1 bg-slate-900 rounded-xl border border-slate-300 relative overflow-hidden group min-h-[500px] shadow-md">
-                        {/* Simulated Image Content */}
-                        <div className="absolute inset-0 flex items-center justify-center bg-black">
-                            {/* Base MRI Simulation */}
-                            <svg viewBox="0 0 400 600" className="h-full w-full opacity-60">
-                                <filter id="noise">
-                                    <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
-                                </filter>
-                                <rect width="100%" height="100%" filter="url(#noise)" opacity="0.3"/>
-                                {/* Spinal Column */}
-                                {[0, 1, 2, 3, 4].map(i => (
-                                    <rect key={i} x="160" y={100 + i*90} width="80" height="60" rx="5" fill="#e2e8f0" opacity="0.9" />
-                                ))}
-                                <path d="M160 550 C 200 580, 200 580, 240 550 L 220 600 L 180 600 Z" fill="#e2e8f0" opacity="0.9"/>
-                            </svg>
-                        </div>
-
-                        {/* Overlay: Conventional (Left) */}
-                        <div 
-                            className="absolute inset-0 bg-black/80 z-10 overflow-hidden border-r-2 border-white/80"
-                            style={{ width: `${sliderVal}%` }}
-                        >
-                            <div className="absolute inset-0 flex items-center justify-center w-full h-full">
-                                <div className="absolute top-4 left-4 bg-red-900/80 text-red-100 px-3 py-1 rounded text-xs font-bold border border-red-500/50 backdrop-blur-sm">
-                                    Conventional VBSeg
-                                </div>
-                                <svg viewBox="0 0 400 600" className="h-full w-full absolute top-0 left-0">
-                                    {/* VBSeg often misses edges or merges regions - simulate this */}
-                                    <rect x="165" y="105" width="70" height="50" rx="2" fill="none" stroke="#f87171" strokeWidth="2" />
-                                    <rect x="162" y="195" width="75" height="55" rx="2" fill="none" stroke="#f87171" strokeWidth="2" />
-                                    {/* Missed L3/Merged */}
-                                    <path d="M160 280 L240 280 L240 430 L160 430 Z" fill="none" stroke="#f87171" strokeWidth="2" strokeDasharray="4 4" />
-                                    <text x="250" y="360" fill="#f87171" fontSize="20" fontFamily="monospace">Region Merger Error</text>
-                                </svg>
-                            </div>
-                        </div>
-
-                        {/* Overlay: Deep Learning (Right) */}
-                        <div className="absolute inset-0 z-0">
-                            <div className="absolute top-4 right-4 bg-emerald-900/80 text-emerald-100 px-3 py-1 rounded text-xs font-bold border border-emerald-500/50 backdrop-blur-sm">
-                                ResNet-UNet (DSC 0.97)
-                            </div>
-                            <svg viewBox="0 0 400 600" className="h-full w-full absolute top-0 left-0">
-                                {/* DL Masks are precise */}
-                                {[0, 1, 2, 3, 4].map(i => (
-                                    <rect key={i} x="160" y={100 + i*90} width="80" height="60" rx="5" fill="#10b981" opacity="0.3" stroke="#10b981" strokeWidth="2" />
-                                ))}
-                                <path d="M160 550 C 200 580, 200 580, 240 550 L 220 600 L 180 600 Z" fill="#10b981" opacity="0.3" stroke="#10b981" strokeWidth="2"/>
-                            </svg>
-                        </div>
-
-                        {/* Slider Handle */}
-                        <input 
-                            type="range" min="0" max="100" value={sliderVal} 
-                            onChange={(e) => setSliderVal(e.target.value)}
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-30"
-                        />
-                        <div 
-                            className="absolute top-0 bottom-0 w-1 bg-white cursor-ew-resize z-20 pointer-events-none shadow-[0_0_15px_rgba(0,0,0,0.5)]"
-                            style={{ left: `${sliderVal}%` }}
-                        >
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg border border-slate-200">
-                                <div className="flex gap-0.5">
-                                    <div className="w-0.5 h-3 bg-slate-400"></div>
-                                    <div className="w-0.5 h-3 bg-slate-400"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="mt-6 grid grid-cols-3 gap-4 text-center">
-                        <div className="bg-white p-3 rounded border border-slate-200 shadow-sm">
-                            <div className="text-slate-500 text-xs uppercase tracking-wide">Preprocessing</div>
-                            <div className="text-slate-900 font-mono text-sm mt-1">CLAHE + Unsharp Mask</div>
-                        </div>
-                        <div className="bg-white p-3 rounded border border-slate-200 shadow-sm">
-                            <div className="text-slate-500 text-xs uppercase tracking-wide">Loss Function</div>
-                            <div className="text-slate-900 font-mono text-sm mt-1">Cross-Entropy</div>
-                        </div>
-                        <div className="bg-white p-3 rounded border border-slate-200 shadow-sm">
-                            <div className="text-slate-500 text-xs uppercase tracking-wide">Optimizer</div>
-                            <div className="text-slate-900 font-mono text-sm mt-1">Adadelta (Batch=2)</div>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
-
-        // 4. INTERACTIVE SPINAL MEASUREMENTS TOOL
-        const MeasurementsTool = () => {
-            // Initial Centroid Positions (L1 to S1)
-            const initialCentroids = [
-                { x: 180, y: 100, label: 'L1' },
-                { x: 195, y: 180, label: 'L2' },
-                { x: 215, y: 260, label: 'L3' },
-                { x: 210, y: 340, label: 'L4' },
-                { x: 185, y: 420, label: 'L5' },
-                { x: 150, y: 490, label: 'S1' },
-            ];
-
-            const [centroids, setCentroids] = useState(initialCentroids);
-            const [dragging, setDragging] = useState(null);
-            const svgRef = useRef(null);
-
-            // Calculations based on Paper
-            const metrics = useMemo(() => {
-                // LLA (Simplified angle between L1 and S1 slope approximation)
-                const l1 = centroids[0];
-                const s1 = centroids[5];
-                const dy = s1.y - l1.y;
-                const dx = s1.x - l1.x;
-                const lla = Math.abs(Math.atan2(dx, dy) * (180 / Math.PI) * 2).toFixed(1); 
-
-                // LSA (L5 vs S1)
-                const l5 = centroids[4];
-                const lsa = Math.abs((Math.atan2(l5.x - s1.x, l5.y - s1.y) * 180/Math.PI)).toFixed(1);
-
-                // Lumbar Height (Centroid Method)
-                const lh = Math.sqrt(Math.pow(s1.x - l1.x, 2) + Math.pow(s1.y - l1.y, 2)).toFixed(1);
-
-                return { lla, lsa, lh };
-            }, [centroids]);
-
-            const handleMouseDown = (index) => (e) => {
-                setDragging(index);
-            };
-
-            const handleMouseMove = (e) => {
-                if (dragging === null) return;
-                const svgRect = svgRef.current.getBoundingClientRect();
-                const x = e.clientX - svgRect.left;
-                const y = e.clientY - svgRect.top;
-                
-                const newCentroids = [...centroids];
-                newCentroids[dragging] = { ...newCentroids[dragging], x, y };
-                setCentroids(newCentroids);
-            };
-
-            const handleMouseUp = () => setDragging(null);
-
-            return (
-                <div className="flex flex-col md:flex-row h-full p-10 gap-8 max-w-7xl mx-auto" onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
-                    
-                    {/* Left: Interactive Canvas (Dark Mode for Image) */}
-                    <div className="flex-1 bg-slate-900 rounded-xl border border-slate-300 shadow-md relative overflow-hidden min-h-[600px]">
-                        <div className="absolute top-4 left-4 z-10 pointer-events-none">
-                            <h3 className="text-white font-bold bg-black/50 px-3 py-1.5 rounded backdrop-blur-sm border border-white/10">Interactive Centroid Model</h3>
-                            <p className="text-xs text-slate-300 mt-1 pl-1">Drag the centroids to simulate deformity.</p>
-                        </div>
-                        
-                        <div className="absolute top-4 right-4 z-10">
-                            <div className="flex flex-col gap-2">
-                                <button className="p-2 bg-slate-800 text-slate-200 rounded hover:bg-slate-700 border border-slate-600"><ZoomInIcon size={16} /></button>
-                                <button className="p-2 bg-slate-800 text-slate-200 rounded hover:bg-slate-700 border border-slate-600"><ZoomOutIcon size={16} /></button>
-                                <button className="p-2 bg-slate-800 text-slate-200 rounded hover:bg-slate-700 border border-slate-600"><RotateCcwIcon size={16} /></button>
-                            </div>
-                        </div>
-
-                        <svg 
-                            ref={svgRef}
-                            className="w-full h-full cursor-crosshair grid-bg"
-                            onMouseMove={handleMouseMove}
-                        >
-                            {/* Curve Interpolation */}
-                            <path 
-                                d={`M ${centroids.map(c => `${c.x},${c.y}`).join(' L ')}`}
-                                fill="none" 
-                                stroke="#3b82f6" 
-                                strokeWidth="2" 
-                                strokeDasharray="5 5"
-                                opacity="0.6"
-                            />
-                            
-                            {/* Connecting Line for AUC Area Closure */}
-                            <line 
-                                x1={centroids[0].x} y1={centroids[0].y}
-                                x2={centroids[5].x} y2={centroids[5].y}
-                                stroke="#10b981" strokeWidth="1" strokeDasharray="2 2"
-                            />
-
-                            {/* Vertebrae Visualization */}
-                            {centroids.map((c, i) => (
-                                <g key={i} onMouseDown={handleMouseDown(i)} className="cursor-grab hover:opacity-80">
-                                    {/* Bone Shape Approximation */}
-                                    <rect 
-                                        x={c.x - 30} y={c.y - 20} 
-                                        width="60" height="40" 
-                                        rx="4" 
-                                        fill={i === 5 ? "#94a3b8" : "#cbd5e1"} 
-                                        opacity="0.3"
-                                        stroke="white"
-                                        strokeWidth="1"
-                                    />
-                                    {/* Centroid Point */}
-                                    <circle cx={c.x} cy={c.y} r="6" fill="#38bdf8" stroke="white" strokeWidth="2" />
-                                    <text x={c.x + 35} y={c.y + 5} fill="white" fontSize="12" className="font-mono font-bold drop-shadow-md">{c.label}</text>
-                                </g>
-                            ))}
-                        </svg>
-                    </div>
-
-                    {/* Right: Real-time Analysis Panel (Light Mode) */}
-                    <div className="w-full md:w-80 flex flex-col gap-6">
-                        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                            <h4 className="text-xs uppercase tracking-wide text-slate-500 mb-4 border-b border-slate-100 pb-2 font-bold">Quantitative Metrics</h4>
-                            
-                            <div className="space-y-6">
-                                <div>
-                                    <div className="flex justify-between items-center mb-1">
-                                        <span className="text-sm font-medium text-slate-700">Lumbar Lordosis (LLA)</span>
-                                        <span className="text-xl font-bold text-blue-600">{metrics.lla}°</span>
-                                    </div>
-                                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                                        <div className="h-full bg-blue-500 transition-all duration-300" style={{width: `${Math.min(metrics.lla, 100)}%`}}></div>
-                                    </div>
-                                    <p className="text-[10px] text-slate-400 mt-1">Ref Range: 39° - 53°</p>
-                                </div>
-
-                                <div>
-                                    <div className="flex justify-between items-center mb-1">
-                                        <span className="text-sm font-medium text-slate-700">Lumbosacral (LSA)</span>
-                                        <span className="text-xl font-bold text-purple-600">{metrics.lsa}°</span>
-                                    </div>
-                                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                                        <div className="h-full bg-purple-500 transition-all duration-300" style={{width: `${Math.min(metrics.lsa * 2, 100)}%`}}></div>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <div className="flex justify-between items-center mb-1">
-                                        <span className="text-sm font-medium text-slate-700">Lumbar Height</span>
-                                        <span className="text-xl font-bold text-emerald-600">{metrics.lh} <span className="text-xs text-slate-400 font-normal">px</span></span>
-                                    </div>
-                                    <p className="text-[10px] text-slate-400">Method: Euclidean Dist (L1-S1)</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex-1">
-                            <h4 className="text-xs uppercase tracking-wide text-slate-500 mb-4 border-b border-slate-100 pb-2 font-bold">Analysis Equations</h4>
-                            <div className="space-y-4">
-                                <div className="bg-slate-50 p-3 rounded text-center border border-slate-100">
-                                    <span className="text-xs text-slate-500 block mb-1">Lumbar Height</span>
-                                    <code className="text-emerald-700 text-xs">d = √[(x₂-x₁)² + (y₂-y₁)²]</code>
-                                </div>
-                                <div className="bg-slate-50 p-3 rounded text-center border border-slate-100">
-                                    <span className="text-xs text-slate-500 block mb-1">Cobb Angle (Approx)</span>
-                                    <code className="text-blue-700 text-xs">θ = |m₁ - m₂|</code>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
-
-        // 5. DISEASE CLASSIFICATION TOOL
-        const ClassificationTool = () => {
-            const [angles, setAngles] = useState({ L1: 10, L2: 12, L3: 45, L4: 15, L5: 14 }); // L3 outlier simulates spondylo
-            const [area, setArea] = useState(4500); // AUC simulation
-
-            const spondyloResult = useMemo(() => {
-                const vals = Object.values(angles);
-                const mean = vals.reduce((a,b) => a+b, 0) / vals.length;
-                const std = Math.sqrt(vals.map(x => Math.pow(x - mean, 2)).reduce((a,b) => a+b) / vals.length);
-                const threshold = mean + std;
-                const thresholdMin = mean - std;
-
-                const outliers = [];
-                Object.entries(angles).forEach(([k, v]) => {
-                    if (v > threshold) outliers.push({ vb: k, type: 'Anterior', val: v });
-                    else if (v < thresholdMin) outliers.push({ vb: k, type: 'Posterior', val: v });
-                });
-
-                return { mean: mean.toFixed(1), std: std.toFixed(1), outliers };
-            }, [angles]);
-
-            const lordosisResult = useMemo(() => {
-                const NORMAL_RANGE_MIN = 4000;
-                const NORMAL_RANGE_MAX = 5500;
-                
-                if (area > NORMAL_RANGE_MAX) return { label: 'Hyper-Lordosis (Sway Back)', color: 'text-orange-600' };
-                if (area < NORMAL_RANGE_MIN) return { label: 'Hypo-Lordosis (Flat Back)', color: 'text-blue-600' };
-                return { label: 'Normal Lordosis', color: 'text-emerald-600' };
-            }, [area]);
-
-            return (
-                <div className="p-10 max-w-6xl mx-auto space-y-8 animate-fade-in">
-                    <header>
-                        <h2 className="text-2xl font-bold text-slate-900 mb-2">Automated Disease Classification</h2>
-                        <p className="text-slate-600 text-sm">Implementation of Algorithm 3 (Spondylolisthesis) and Algorithm 4 (Lordosis AUC) from the paper.</p>
-                    </header>
-
-                    {/* SPONDYLOLISTHESIS SECTION */}
-                    <div className="bg-white rounded-xl border border-slate-200 p-8 shadow-sm">
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2"><AlertTriangle size={20} className="text-yellow-500"/> Spondylolisthesis Detector</h3>
-                            <div className="text-xs bg-slate-100 px-3 py-1 rounded text-slate-600 font-medium">Method: Angular Deviation</div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div className="space-y-6">
-                                <p className="text-xs text-slate-500 mb-4">Adjust angular deviation for each vertebral level to test the algorithm:</p>
-                                {Object.entries(angles).map(([key, val]) => (
-                                    <div key={key} className="flex items-center gap-4">
-                                        <span className="w-8 text-sm font-bold text-slate-700">{key}</span>
-                                        <input 
-                                            type="range" min="0" max="60" value={val}
-                                            onChange={(e) => setAngles({...angles, [key]: parseInt(e.target.value)})}
-                                            className="flex-1"
-                                        />
-                                        <span className="w-8 text-xs font-mono text-slate-500">{val}°</span>
-                                    </div>
-                                ))}
-                            </div>
-
-                            <div className="bg-slate-50 rounded-lg p-6 border border-slate-200 flex flex-col justify-center">
-                                <div className="flex justify-between text-xs text-slate-600 mb-2 font-mono font-medium">
-                                    <span>θ_mean: {spondyloResult.mean}</span>
-                                    <span>σ_theta: {spondyloResult.std}</span>
-                                </div>
-                                <div className="border-t border-slate-200 my-3"></div>
-                                
-                                {spondyloResult.outliers.length === 0 ? (
-                                    <div className="flex items-center gap-2 text-emerald-600 font-bold mt-2">
-                                        <CheckCircle size={24} /> No Dislocation Detected
-                                    </div>
-                                ) : (
-                                    <div className="space-y-2 mt-2">
-                                        {spondyloResult.outliers.map((o, i) => (
-                                            <div key={i} className="flex items-center gap-2 text-red-600 font-bold bg-red-50 p-2 rounded border border-red-200">
-                                                <AlertTriangle size={20} />
-                                                <span>{o.type} Spondylolisthesis at {o.vb}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                                <p className="text-[10px] text-slate-400 mt-4 italic">
-                                    Logic: If θ_i {'>'} (θ_mean + σ), mark as Anterior.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* LORDOSIS SECTION */}
-                    <div className="bg-white rounded-xl border border-slate-200 p-8 shadow-sm">
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2"><Activity size={20} className="text-blue-500"/> Lordosis Assessment (AUC)</h3>
-                            <div className="text-xs bg-slate-100 px-3 py-1 rounded text-slate-600 font-medium">Method: Area Under Curve</div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                            <div>
-                                <label className="text-xs text-slate-500 block mb-2">Enclosed Area Region (A_r):</label>
-                                <input 
-                                    type="range" min="2000" max="8000" step="100" value={area}
-                                    onChange={(e) => setArea(parseInt(e.target.value))}
-                                    className="w-full mb-2"
-                                />
-                                <div className="flex justify-between text-[10px] text-slate-400 font-mono">
-                                    <span>Flat Back (Hypo)</span>
-                                    <span>Normal</span>
-                                    <span>Sway Back (Hyper)</span>
-                                </div>
-                            </div>
-
-                            <div className="bg-slate-50 rounded-lg p-6 border border-slate-200 text-center">
-                                <span className="text-slate-400 text-xs uppercase tracking-widest font-bold">Classification</span>
-                                <div className={`text-2xl font-bold mt-2 ${lordosisResult.color}`}>
-                                    {lordosisResult.label}
-                                </div>
-                                <div className="mt-4 font-mono text-xs text-slate-500">
-                                    Calculated Area: {area} units
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
-
-        // 6. LSA CALCULATOR
-        const CalculatorTool = () => {
-            const [m_l5, setML5] = useState(1.2);
-            const [m_s1, setMS1] = useState(0.5);
-            
-            const lsa = useMemo(() => {
-                const thetaL5 = Math.atan(m_l5);
-                const thetaS1 = Math.atan(m_s1);
-                const diff = Math.abs(thetaL5 - thetaS1);
-                return (diff * (180 / Math.PI)).toFixed(2);
-            }, [m_l5, m_s1]);
-
-            return (
-                <div className="p-10 max-w-5xl mx-auto animate-fade-in h-full flex flex-col justify-center">
-                    <div className="bg-white rounded-xl border border-slate-200 p-10 shadow-lg">
-                        <header className="mb-8 border-b border-slate-100 pb-4">
-                            <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
-                                <Icon name="Calculator" className="text-purple-600" /> 
-                                Lumbosacral Angle (LSA) Calculator
-                            </h2>
-                            <p className="text-slate-500 text-sm mt-1">Based on Eq. 5: θ = | tan⁻¹(m_L5) - tan⁻¹(m_S1) |</p>
-                        </header>
-
-                        <div className="grid grid-cols-2 gap-12">
-                            <div className="space-y-6">
-                                <div>
-                                    <label className="block text-sm text-slate-600 mb-2 font-medium">Slope of L5 Inferior Endplate (m_L5)</label>
-                                    <input 
-                                        type="number" step="0.1" value={m_l5}
-                                        onChange={(e) => setML5(parseFloat(e.target.value))}
-                                        className="w-full bg-slate-50 border border-slate-200 rounded p-3 text-slate-900 focus:border-purple-500 outline-none font-mono"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm text-slate-600 mb-2 font-medium">Slope of S1 Superior Endplate (m_S1)</label>
-                                    <input 
-                                        type="number" step="0.1" value={m_s1}
-                                        onChange={(e) => setMS1(parseFloat(e.target.value))}
-                                        className="w-full bg-slate-50 border border-slate-200 rounded p-3 text-slate-900 focus:border-purple-500 outline-none font-mono"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col justify-center items-center bg-slate-50 rounded-xl border border-slate-200 p-6 relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-blue-500"></div>
-                                <span className="text-slate-400 text-xs uppercase tracking-widest mb-2 font-bold">Calculated LSA</span>
-                                <span className="text-5xl font-bold text-slate-900 tracking-tight">{lsa}°</span>
-                                
-                                {/* Visual Representation of Slopes */}
-                                <div className="mt-6 w-32 h-32 border border-slate-200 rounded-full relative bg-white shadow-inner">
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        {/* L5 Line */}
-                                        <div 
-                                            className="absolute w-24 h-1 bg-blue-500 rounded" 
-                                            style={{ transform: `rotate(${-Math.atan(m_l5) * 180 / Math.PI}deg)` }}
-                                        ></div>
-                                        {/* S1 Line */}
-                                        <div 
-                                            className="absolute w-24 h-1 bg-emerald-500 rounded" 
-                                            style={{ transform: `rotate(${-Math.atan(m_s1) * 180 / Math.PI}deg)` }}
-                                        ></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
-
-        // --- MAIN LAYOUT ---
-        const App = () => {
-            const [activeTab, setActiveTab] = useState('segmentation');
-
-            return (
-                <div className="flex h-screen bg-slate-50 text-slate-900 font-sans">
-                    <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-                    
-                    <main className="flex-1 overflow-auto bg-[#f8fafc] relative">
-                        {/* Background Grid Pattern */}
-                        <div className="absolute inset-0 grid-bg opacity-40 pointer-events-none"></div>
-                        
-                        <div className="relative z-10 h-full">
-                            {activeTab === 'segmentation' && <SegmentationTool />}
-                            {activeTab === 'measurements' && <MeasurementsTool />}
-                            {activeTab === 'lordosis' && <ClassificationTool />}
-                            {activeTab === 'calculator' && <CalculatorTool />}
-                        </div>
-                    </main>
-                </div>
-            );
-        };
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+  function hit(x, y) {
+    var best = null, bestD = 12;
+    bodies.forEach(function (v, bi) {
+      KEYS.forEach(function (k) {
+        var d = dist(v[k], [x, y]);
+        if (d < bestD) { bestD = d; best = [bi, k]; }
+      });
+    });
+    return best;
+  }
+  function pos(ev) {
+    var r = canvas.getBoundingClientRect();
+    return [(ev.clientX - r.left) * canvas.width / r.width, (ev.clientY - r.top) * canvas.height / r.height];
+  }
+  canvas.addEventListener("pointerdown", function (ev) {
+    var p = pos(ev); drag = hit(p[0], p[1]);
+    if (drag) canvas.setPointerCapture(ev.pointerId);
+  });
+  canvas.addEventListener("pointermove", function (ev) {
+    if (!drag) return;
+    bodies[drag[0]][drag[1]] = pos(ev);
+    draw();
+  });
+  canvas.addEventListener("pointerup", function () { drag = null; });
+  ["spacing", "amin", "amax"].forEach(function (id) { document.getElementById(id).addEventListener("input", draw); });
+  document.getElementById("reset").addEventListener("click", function () { bodies = example(); draw(); });
+  document.getElementById("slip").addEventListener("click", function () { bodies = slipped(); draw(); });
+  document.getElementById("file").addEventListener("change", function (ev) {
+    var f = ev.target.files && ev.target.files[0];
+    if (!f) return;
+    var img = new Image();
+    img.onload = function () { bg = img; draw(); };
+    img.src = URL.createObjectURL(f);
+  });
+  draw();
+})();
+</script>
 </body>
 </html>
