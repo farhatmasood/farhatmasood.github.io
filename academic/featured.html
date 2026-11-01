@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rao Farhat Masood — Portfolio</title>
+
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- MathJax for LaTeX Rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Academic Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;1,8..60,400&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+    <!-- Mobile top bar -->
+    <nav class="md:hidden p-4 border-b bg-white flex justify-between items-center sticky top-0 z-50 shadow-sm">
+        <span class="font-bold text-lg">Rao Farhat Masood</span>
+        <button id="mobile-menu-btn" class="text-xl text-gray-700"><i class="fas fa-bars"></i></button>
+    </nav>
+
+    <!-- Mobile dropdown menu -->
+    <div id="mobile-menu" class="md:hidden hidden bg-white border-b shadow-sm sticky top-[57px] z-40">
+        <div class="px-5 py-3">
+            <div class="mode-toggle mb-3">
+                <a class="mode-btn mode-active" data-mode="academic" href="../index.html">Academic</a>
+                <a class="mode-btn" data-mode="professional" href="../professional/profile.html">Professional</a>
+            </div>
+            <div class="nav-group" data-mode="academic">
+                <div class="space-y-1 text-sm uppercase tracking-wider font-semibold">
+                    <a class="tab-link" href="../index.html">About</a>
+                    <a class="tab-link tab-active" href="featured.html">Featured</a>
+                    <a class="tab-link" href="publications.html">Publications</a>
+                    <a class="tab-link" href="repositories.html">Repositories</a>
+                    <a class="tab-link" href="research.html">Research</a>
+                    <a class="tab-link" href="hobbies.html">Hobbies</a>
+                    <a class="tab-link" href="service.html">Service</a>
+                </div>
+            </div>
+            <div class="nav-group hidden" data-mode="professional">
+                <div class="space-y-1 text-sm uppercase tracking-wider font-semibold">
+                    <a class="tab-link" href="../professional/profile.html">Profile</a>
+                    <a class="tab-link" href="../professional/career-path.html">Career Path</a>
+                    <a class="tab-link" href="../professional/experience.html">Experience</a>
+                    <a class="tab-link" href="../professional/competencies.html">Competencies</a>
+                    <a class="tab-link" href="../professional/education.html">Education &amp; Skills</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-12">
+
+            <!-- SIDEBAR (Profile) -->
+            <div class="md:col-span-4 lg:col-span-3">
+                <div class="sidebar text-center md:text-right">
+                    <!-- Profile Image Placeholder -->
+                    <div class="w-40 h-40 mx-auto md:ml-auto md:mr-0 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden mb-5 shadow-sm ring-1 ring-slate-200 flex items-center justify-center">
+                        <i class="fas fa-user text-6xl text-slate-400"></i>
+                    </div>
+
+                    <h1 class="text-2xl font-bold mb-1 tracking-tight">Rao Farhat Masood</h1>
+                    <p id="role-line" class="text-xs text-slate-500 mb-5 leading-relaxed">PhD · Computer Vision &amp; Medical Imaging</p>
+
+                    <div class="flex justify-center md:justify-end gap-4 text-xl text-slate-600 mb-6">
+                        <a href="https://github.com/farhatmasood" title="GitHub" class="hover:text-black transition"><i class="fab fa-github"></i></a>
+                        <a href="https://www.linkedin.com/in/rao-farhat-masood-829966118/" title="LinkedIn" class="hover:text-blue-600 transition"><i class="fab fa-linkedin"></i></a>
+                        <a href="https://scholar.google.com/citations?user=G_uCi0UAAAAJ&hl=en" title="Google Scholar" class="hover:text-blue-800 transition"><i class="fas fa-graduation-cap"></i></a>
+                        <a href="https://orcid.org/0000-0001-9054-9192" title="ORCiD" class="hover:text-green-600 transition"><i class="fab fa-orcid"></i></a>
+                    </div>
+
+                    <!-- Mode toggle -->
+                    <div class="hidden md:flex justify-end mb-6">
+                        <div class="mode-toggle">
+                            <a class="mode-btn mode-active" data-mode="academic" href="../index.html">Academic</a>
+                            <a class="mode-btn" data-mode="professional" href="../professional/profile.html">Professional</a>
+                        </div>
+                    </div>
+
+                    <!-- Desktop Tab Nav -->
+                    <nav class="hidden md:block text-sm uppercase tracking-wider font-semibold">
+                        <div class="nav-group flex flex-col items-end" data-mode="academic">
+                            <a class="tab-link" href="../index.html">About</a>
+                            <a class="tab-link tab-active" href="featured.html">Featured</a>
+                            <a class="tab-link" href="publications.html">Publications</a>
+                            <a class="tab-link" href="repositories.html">Repositories</a>
+                            <a class="tab-link" href="research.html">Research</a>
+                            <a class="tab-link" href="hobbies.html">Hobbies</a>
+                            <a class="tab-link" href="service.html">Service</a>
+                        </div>
+                        <div class="nav-group hidden flex-col items-end" data-mode="professional">
+                            <a class="tab-link" href="../professional/profile.html">Profile</a>
+                            <a class="tab-link" href="../professional/career-path.html">Career Path</a>
+                            <a class="tab-link" href="../professional/experience.html">Experience</a>
+                            <a class="tab-link" href="../professional/competencies.html">Competencies</a>
+                            <a class="tab-link" href="../professional/education.html">Education &amp; Skills</a>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- MAIN CONTENT -->
+            <div class="md:col-span-8 lg:col-span-9 min-h-[60vh]">
+
+                <!-- FEATURED RESEARCH SECTION -->
+                <section id="projects" class="tab-section" data-mode="academic">
+                    <h2 class="section-title">Featured Research</h2>
+
+                    <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 transition-all hover:shadow-2xl">
+                        <!-- Project Hero Banner -->
+                        <div class="w-full h-56 bg-gradient-to-br from-gray-900 via-slate-800 to-black flex items-center justify-center text-white relative overflow-hidden">
+                            <div class="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9IiNmZmYiLz48L3N2Zz4=')]"></div>
+                            <div class="absolute -top-24 -right-24 w-64 h-64 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
+                            <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-indigo-600 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
+
+                            <div class="text-center px-6 z-10">
+                                <div class="inline-flex items-center justify-center w-16 h-16 bg-white/10 rounded-2xl backdrop-blur-md mb-4 border border-white/20 shadow-xl">
+                                    <i class="fas fa-microchip text-3xl text-blue-400"></i>
+                                </div>
+                                <p class="text-lg font-mono tracking-wider font-semibold text-gray-100 drop-shadow-lg">
+                                    PC-RadNet &amp; HiTAD <span class="mx-3 text-blue-500">|</span> <span class="font-serif italic text-blue-200">&fnof;<sub>&phi;</sub>(<b>X</b>) &rarr; Structured Reports</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="p-8 md:p-10">
+                            <h3 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 mb-3 tracking-tight">
+                                From Pixels to Reports: Rethinking Clinical Diagnostics
+                            </h3>
+                            <p class="text-blue-600 font-medium text-lg italic mb-8">
+                                Compressing massive foundation models into edge-deployable, multi-task architectures.
+                            </p>
+
+                            <div class="prose max-w-none text-gray-700 leading-relaxed space-y-6">
+                                <p class="text-xl font-semibold text-gray-800 border-l-4 border-blue-500 pl-5 bg-gray-50 py-3 rounded-r-lg shadow-sm">
+                                    Can we distill the reasoning power of massive Vision-Language Models into a framework lean enough for consumer-grade clinical hardware?
+                                </p>
+
+                                <p class="text-lg">
+                                    <strong>PC-RadNet</strong> proves we can. By applying Low-Rank Adaptation (LoRA) &mdash; formalized as <span class="font-serif italic bg-gray-100 px-2 py-0.5 rounded text-gray-800 border border-gray-200"><b>h</b> = <b>W</b><sub>0</sub><b>x</b> + (&alpha;/r)<b>BAx</b></span> &mdash; to a frozen DINOv2 visual encoder, the model conditions entirely on free-text clinical prompts, bypassing the need for costly dense spatial annotations.
+                                </p>
+
+                                <p class="text-lg">
+                                    To resolve the persistent challenge of overlapping, highly imbalanced spinal pathologies, this architecture integrates the <strong>HiTAD</strong> framework. It penalizes correlated ensemble errors and applies a dynamically weighted focal loss via the <strong>WELDE</strong> objective:
+                                </p>
+
+                                <div class="my-8 py-8 px-4 bg-gradient-to-r from-slate-50 to-gray-50 rounded-xl border border-gray-200 shadow-inner flex justify-center overflow-x-auto">
+                                    <div class="text-xl text-gray-900 font-serif">
+                                        $$ \mathcal{L}_{WELDE} = \sum_{m=1}^{M} \omega_m \mathcal{L}_{Focal}(y, \hat{y}_m) + \gamma \sum_{i \neq j} \mathcal{D}_{KL}(\mathcal{P}_{\theta_i} \parallel \mathcal{P}_{\theta_j}) $$
+                                    </div>
+                                </div>
+
+                                <!-- The "Punch" / CTA Box -->
+                                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 border-l-4 border-blue-600 p-8 rounded-r-xl shadow-md relative overflow-hidden mt-10">
+                                    <div class="absolute right-0 top-0 opacity-10">
+                                        <i class="fas fa-bolt text-9xl text-blue-900 transform translate-x-4 -translate-y-4"></i>
+                                    </div>
+                                    <h4 class="font-bold text-blue-900 mb-3 text-xl flex items-center relative z-10">
+                                        <i class="fas fa-rocket text-blue-600 mr-3"></i> The Impact
+                                    </h4>
+                                    <p class="text-blue-800 mb-6 text-lg leading-relaxed relative z-10">
+                                        A direct, reproducible pathway generating RadLex-compliant structured reports from raw MRI sequences. Executing in just <strong class="text-blue-900 bg-white/60 px-2 py-0.5 rounded shadow-sm">39 ms/image</strong> with a peak VRAM of <strong class="text-blue-900 bg-white/60 px-2 py-0.5 rounded shadow-sm">0.63 GB</strong>, this architecture shatters the computational bottlenecks of modern medical AI.
+                                    </p>
+                                    <a href="https://github.com/farhatmasood/pc-radnet" target="_blank" class="inline-flex items-center justify-center font-bold text-white bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 relative z-10 group">
+                                        Explore the Open-Source Weights
+                                        <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                                    </a>
+                                </div>
+
+                                <!-- Premium Tech Stack Badges -->
+                                <div class="flex flex-wrap gap-3 mt-8 pt-6 border-t border-gray-100">
+                                    <span class="px-4 py-2 bg-white text-gray-700 text-sm font-bold rounded-lg border border-gray-200 shadow-sm flex items-center hover:bg-gray-50 transition-colors">
+                                        <i class="fab fa-python text-blue-500 mr-2 text-lg"></i> PyTorch / MONAI
+                                    </span>
+                                    <span class="px-4 py-2 bg-white text-gray-700 text-sm font-bold rounded-lg border border-gray-200 shadow-sm flex items-center hover:bg-gray-50 transition-colors">
+                                        <i class="fas fa-brain text-purple-500 mr-2 text-lg"></i> DINOv2 + LoRA
+                                    </span>
+                                    <span class="px-4 py-2 bg-white text-gray-700 text-sm font-bold rounded-lg border border-gray-200 shadow-sm flex items-center hover:bg-gray-50 transition-colors">
+                                        <i class="fas fa-compress-arrows-alt text-green-500 mr-2 text-lg"></i> Knowledge Distillation
+                                    </span>
+                                    <span class="px-4 py-2 bg-white text-gray-700 text-sm font-bold rounded-lg border border-gray-200 shadow-sm flex items-center hover:bg-gray-50 transition-colors">
+                                        <i class="fas fa-microchip text-red-500 mr-2 text-lg"></i> ONNX Edge Inference
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- FOOTER -->
+                <footer class="border-t mt-16 pt-8 text-sm text-gray-500 flex justify-between items-center">
+                    <div>&copy; 2026 Rao Farhat Masood.</div>
+                    <div class="text-xs">Last updated: Oct, 2026</div>
+                </footer>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

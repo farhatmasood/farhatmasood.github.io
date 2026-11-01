@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rao Farhat Masood — Portfolio</title>
+
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- MathJax for LaTeX Rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Academic Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;1,8..60,400&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+    <!-- Mobile top bar -->
+    <nav class="md:hidden p-4 border-b bg-white flex justify-between items-center sticky top-0 z-50 shadow-sm">
+        <span class="font-bold text-lg">Rao Farhat Masood</span>
+        <button id="mobile-menu-btn" class="text-xl text-gray-700"><i class="fas fa-bars"></i></button>
+    </nav>
+
+    <!-- Mobile dropdown menu -->
+    <div id="mobile-menu" class="md:hidden hidden bg-white border-b shadow-sm sticky top-[57px] z-40">
+        <div class="px-5 py-3">
+            <div class="mode-toggle mb-3">
+                <a class="mode-btn mode-active" data-mode="academic" href="../index.html">Academic</a>
+                <a class="mode-btn" data-mode="professional" href="../professional/profile.html">Professional</a>
+            </div>
+            <div class="nav-group" data-mode="academic">
+                <div class="space-y-1 text-sm uppercase tracking-wider font-semibold">
+                    <a class="tab-link" href="../index.html">About</a>
+                    <a class="tab-link" href="featured.html">Featured</a>
+                    <a class="tab-link" href="publications.html">Publications</a>
+                    <a class="tab-link tab-active" href="repositories.html">Repositories</a>
+                    <a class="tab-link" href="research.html">Research</a>
+                    <a class="tab-link" href="hobbies.html">Hobbies</a>
+                    <a class="tab-link" href="service.html">Service</a>
+                </div>
+            </div>
+            <div class="nav-group hidden" data-mode="professional">
+                <div class="space-y-1 text-sm uppercase tracking-wider font-semibold">
+                    <a class="tab-link" href="../professional/profile.html">Profile</a>
+                    <a class="tab-link" href="../professional/career-path.html">Career Path</a>
+                    <a class="tab-link" href="../professional/experience.html">Experience</a>
+                    <a class="tab-link" href="../professional/competencies.html">Competencies</a>
+                    <a class="tab-link" href="../professional/education.html">Education &amp; Skills</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-12">
+
+            <!-- SIDEBAR (Profile) -->
+            <div class="md:col-span-4 lg:col-span-3">
+                <div class="sidebar text-center md:text-right">
+                    <!-- Profile Image Placeholder -->
+                    <div class="w-40 h-40 mx-auto md:ml-auto md:mr-0 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden mb-5 shadow-sm ring-1 ring-slate-200 flex items-center justify-center">
+                        <i class="fas fa-user text-6xl text-slate-400"></i>
+                    </div>
+
+                    <h1 class="text-2xl font-bold mb-1 tracking-tight">Rao Farhat Masood</h1>
+                    <p id="role-line" class="text-xs text-slate-500 mb-5 leading-relaxed">PhD · Computer Vision &amp; Medical Imaging</p>
+
+                    <div class="flex justify-center md:justify-end gap-4 text-xl text-slate-600 mb-6">
+                        <a href="https://github.com/farhatmasood" title="GitHub" class="hover:text-black transition"><i class="fab fa-github"></i></a>
+                        <a href="https://www.linkedin.com/in/rao-farhat-masood-829966118/" title="LinkedIn" class="hover:text-blue-600 transition"><i class="fab fa-linkedin"></i></a>
+                        <a href="https://scholar.google.com/citations?user=G_uCi0UAAAAJ&hl=en" title="Google Scholar" class="hover:text-blue-800 transition"><i class="fas fa-graduation-cap"></i></a>
+                        <a href="https://orcid.org/0000-0001-9054-9192" title="ORCiD" class="hover:text-green-600 transition"><i class="fab fa-orcid"></i></a>
+                    </div>
+
+                    <!-- Mode toggle -->
+                    <div class="hidden md:flex justify-end mb-6">
+                        <div class="mode-toggle">
+                            <a class="mode-btn mode-active" data-mode="academic" href="../index.html">Academic</a>
+                            <a class="mode-btn" data-mode="professional" href="../professional/profile.html">Professional</a>
+                        </div>
+                    </div>
+
+                    <!-- Desktop Tab Nav -->
+                    <nav class="hidden md:block text-sm uppercase tracking-wider font-semibold">
+                        <div class="nav-group flex flex-col items-end" data-mode="academic">
+                            <a class="tab-link" href="../index.html">About</a>
+                            <a class="tab-link" href="featured.html">Featured</a>
+                            <a class="tab-link" href="publications.html">Publications</a>
+                            <a class="tab-link tab-active" href="repositories.html">Repositories</a>
+                            <a class="tab-link" href="research.html">Research</a>
+                            <a class="tab-link" href="hobbies.html">Hobbies</a>
+                            <a class="tab-link" href="service.html">Service</a>
+                        </div>
+                        <div class="nav-group hidden flex-col items-end" data-mode="professional">
+                            <a class="tab-link" href="../professional/profile.html">Profile</a>
+                            <a class="tab-link" href="../professional/career-path.html">Career Path</a>
+                            <a class="tab-link" href="../professional/experience.html">Experience</a>
+                            <a class="tab-link" href="../professional/competencies.html">Competencies</a>
+                            <a class="tab-link" href="../professional/education.html">Education &amp; Skills</a>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- MAIN CONTENT -->
+            <div class="md:col-span-8 lg:col-span-9 min-h-[60vh]">
+
+                <!-- GITHUB REPOSITORIES SECTION -->
+                <section id="github-repos" class="tab-section" data-mode="academic">
+                    <h2 class="section-title">GitHub Repositories</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+                        <!-- DDeID -->
+                        <div class="card p-5 flex flex-col">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="citation-title text-lg leading-tight">DDeID</div>
+                                <span class="year-chip">2026</span>
+                            </div>
+                            <div class="citation-author text-gray-700 mb-1">De-identification and Linkage of DICOM Studies and Radiology Reports</div>
+                            <div class="citation-journal text-gray-500 mb-2 text-sm"><em>Codebase</em></div>
+                            <ul class="text-sm text-gray-600 flex-1 space-y-1 list-disc pl-4">
+                                <li>Links each study to its report, or leaves the pair unmatched.</li>
+                                <li>Removes identifiers from image headers and report text.</li>
+                                <li>Copies pixel data unchanged and keeps series links intact.</li>
+                                <li>Sorts the release by modality and anatomy.</li>
+                            </ul>
+                            <div class="mt-2"><a href="https://github.com/farhatmasood/DDeID" target="_blank" class="btn-academic"><i class="fab fa-github mr-1"></i> Repository</a></div>
+                        </div>
+
+                        <!-- PC-RadNet -->
+                        <div class="card p-5 flex flex-col">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="citation-title text-lg leading-tight">PC-RadNet</div>
+                                <span class="year-chip">2026</span>
+                            </div>
+                            <div class="citation-author text-gray-700 mb-1">Prompt-calibrated Multi-task Model for Lumbar Spine MRI</div>
+                            <div class="citation-journal text-gray-500 mb-2 text-sm"><em>Codebase</em></div>
+                            <ul class="text-sm text-gray-600 flex-1 space-y-1 list-disc pl-4">
+                                <li>Segments a named structure from a text prompt, without a box or point.</li>
+                                <li>Returns Pfirrmann grade, disc height and nine disorder scores in the same pass.</li>
+                                <li>Drafts an RSNA-structured report from those predictions.</li>
+                                <li>Trains 2.73 M parameters on a frozen DINOv2 backbone.</li>
+                            </ul>
+                            <div class="mt-2"><a href="https://github.com/farhatmasood/pc-radnet" target="_blank" class="btn-academic"><i class="fab fa-github mr-1"></i> Repository</a></div>
+                        </div>
+
+                        <!-- Spinal Adapter -->
+                        <div class="card p-5 flex flex-col">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="citation-title text-lg leading-tight">Spinal Adapter</div>
+                                <span class="year-chip">2026</span>
+                            </div>
+                            <div class="citation-author text-gray-700 mb-1">Frozen-backbone Domain Adapter for Spine MRI</div>
+                            <div class="citation-journal text-gray-500 mb-2 text-sm"><em>Codebase</em></div>
+                            <ul class="text-sm text-gray-600 flex-1 space-y-1 list-disc pl-4">
+                                <li>Keeps MedSAM and MedGemma frozen.</li>
+                                <li>Adds a small spine module for segmentation and report prompting.</li>
+                                <li>Trains only the adapter, or only the projection heads.</li>
+                                <li>Conditions segmentation on the imaging plane.</li>
+                            </ul>
+                            <div class="mt-2"><a href="https://github.com/farhatmasood/spinal-adapter" target="_blank" class="btn-academic"><i class="fab fa-github mr-1"></i> Repository</a></div>
+                        </div>
+
+                        <!-- Review Paper -->
+                        <!-- <div class="card p-5 flex flex-col">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="citation-title text-lg leading-tight">Review Paper</div>
+                                <span class="year-chip">2026</span>
+                            </div>
+                            <div class="citation-author text-gray-700 mb-1">Vision-Language Foundation Models for Lumbar Spine Diagnostics: A Systematic Review of Architectures, Knowledge Distillation and Clinical Deployment Pathways</div>
+                            <div class="citation-journal text-gray-500 mb-2 text-sm"><em>Systematic Review &amp; Meta-Analysis</em></div>
+                            <p class="text-sm text-gray-600 flex-1">A comprehensive synthesis of 165 peer-reviewed studies (2015–2026) evaluating the integration of Vision-Language Models (VLMs) and LLMs in spine diagnostics. Introduces a unified mathematical framework detailing self-attention, contrastive pre-training, and knowledge distillation objectives. Features a random-effects meta-analysis of 14 spine segmentation pipelines establishing a pooled vertebral Dice coefficient of 0.897. Concludes by identifying six critical research gaps and proposing a resource-stratified, three-tier deployment roadmap to guide the clinical translation of volumetric multi-sequence processing models.</p>
+                            <div class="mt-2"><a href="https://github.com/farhatmasood/ALSD_VLM_Review" target="_blank" class="btn-academic"><i class="fab fa-github mr-1"></i> Repository</a></div>
+                        </div> -->
+
+                        <!-- OCRVDS -->
+                        <div class="card p-5 flex flex-col">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="citation-title text-lg leading-tight">OCRVDS</div>
+                                <span class="year-chip">2026</span>
+                            </div>
+                            <div class="citation-author text-gray-700 mb-1">Local Vehicle Detection, Recognition and Plate OCR</div>
+                            <div class="citation-journal text-gray-500 mb-2 text-sm"><em>Codebase</em></div>
+                            <ul class="text-sm text-gray-600 flex-1 space-y-1 list-disc pl-4">
+                                <li>Reads a phone camera over the local network.</li>
+                                <li>Detects objects, vehicle type, make and model.</li>
+                                <li>Reads license plates and other text in view.</li>
+                                <li>Tracks each vehicle and stores it locally.</li>
+                            </ul>
+                            <div class="mt-2"><a href="https://github.com/farhatmasood/OCRVDS" target="_blank" class="btn-academic"><i class="fab fa-github mr-1"></i> Repository</a></div>
+                        </div>
+
+                        <!-- LSMA-PQR -->
+                        <div class="card p-5 flex flex-col">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="citation-title text-lg leading-tight">LSMA-PQR</div>
+                                <span class="year-chip">2026</span>
+                            </div>
+                            <div class="citation-author text-gray-700 mb-1">Annotated Lumbar Spine MRI with Grades, Heights and Reports</div>
+                            <div class="citation-journal text-gray-500 mb-2 text-sm"><em>Dataset</em></div>
+                            <ul class="text-sm text-gray-600 flex-1 space-y-1 list-disc pl-4">
+                                <li>515 patients and 4,120 axial and sagittal MRI images.</li>
+                                <li>Masks for seven anatomical structures.</li>
+                                <li>Pfirrmann grades and disc heights for 1,545 discs.</li>
+                                <li>A structured radiology report for each patient.</li>
+                            </ul>
+                            <div class="mt-2"><a href="https://github.com/farhatmasood/LSMA-PQR" target="_blank" class="btn-academic"><i class="fab fa-github mr-1"></i> Repository</a></div>
+                        </div>
+
+                        <!-- WELDE -->
+                        <div class="card p-5 flex flex-col">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="citation-title text-lg leading-tight">WELDE</div>
+                                <span class="year-chip">2026</span>
+                            </div>
+                            <div class="citation-author text-gray-700 mb-1">Weighted Ensemble Loss for Imbalanced Medical Classification</div>
+                            <div class="citation-journal text-gray-500 mb-2 text-sm"><em>Network Modeling Analysis in Health Informatics and Bioinformatics</em></div>
+                            <ul class="text-sm text-gray-600 flex-1 space-y-1 list-disc pl-4">
+                                <li>Classifies imbalanced medical findings.</li>
+                                <li>Trains four heads, each with a different loss.</li>
+                                <li>Keeps the ResNet-50 backbone frozen.</li>
+                                <li>Learns how much each head contributes.</li>
+                            </ul>
+                            <div class="mt-2"><a href="https://github.com/farhatmasood/welde" target="_blank" class="btn-academic"><i class="fab fa-github mr-1"></i> Repository</a></div>
+                        </div>
+
+                        <!-- HiTAD -->
+                        <div class="card p-5 flex flex-col">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="citation-title text-lg leading-tight">HiTAD</div>
+                                <span class="year-chip">2026</span>
+                            </div>
+                            <div class="citation-author text-gray-700 mb-1">Two-stage Detection of Overlapping Spinal Disorders</div>
+                            <div class="citation-journal text-gray-500 mb-2 text-sm"><em>Codebase</em></div>
+                            <ul class="text-sm text-gray-600 flex-1 space-y-1 list-disc pl-4">
+                                <li>Detects six disorders on mid-sagittal lumbar MRI.</li>
+                                <li>Finds isolated disorders, then refines overlapping ones.</li>
+                                <li>Keeps co-occurring findings at the same level.</li>
+                                <li>Grades detected spondylolisthesis by the Meyerding scale.</li>
+                            </ul>
+                            <div class="mt-2"><a href="https://github.com/farhatmasood/HiTAD" target="_blank" class="btn-academic"><i class="fab fa-github mr-1"></i> Repository</a></div>
+                        </div>
+
+                        <!-- Expression Recognizer -->
+                        <div class="card p-5 flex flex-col">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="citation-title text-lg leading-tight">Expression Recognizer</div>
+                                <span class="year-chip">2026</span>
+                            </div>
+                            <div class="citation-author text-gray-700 mb-1">Browser-based Facial Expression Classification</div>
+                            <div class="citation-journal text-gray-500 mb-2 text-sm"><em>Codebase</em></div>
+                            <ul class="text-sm text-gray-600 flex-1 space-y-1 list-disc pl-4">
+                                <li>Detects a face from the webcam.</li>
+                                <li>Classifies seven expressions in the browser.</li>
+                                <li>Shows the label and confidence on the frame.</li>
+                                <li>Sends no image off the device.</li>
+                            </ul>
+                            <div class="mt-2"><a href="https://github.com/farhatmasood/expression_recognizer" target="_blank" class="btn-academic"><i class="fab fa-github mr-1"></i> Repository</a></div>
+                        </div>
+
+                        <!-- Vertebral Body Segmentation -->
+                        <div class="card p-5 flex flex-col">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="citation-title text-lg leading-tight">Vertebral Body Segmentation</div>
+                                <span class="year-chip">2022</span>
+                            </div>
+                            <div class="citation-author text-gray-700 mb-1">U-Net Segmentation of Vertebral Bodies on MRI</div>
+                            <div class="citation-journal text-gray-500 mb-2 text-sm"><em>Biomedical Signal Processing and Control</em></div>
+                            <ul class="text-sm text-gray-600 flex-1 space-y-1 list-disc pl-4">
+                                <li>Segments vertebral bodies on MRI.</li>
+                                <li>Implements U-Net and ResNet50-U-Net.</li>
+                                <li>Trains, evaluates and runs inference.</li>
+                                <li>Uses the public vertebral-body MRI dataset.</li>
+                            </ul>
+                            <div class="mt-2"><a href="https://github.com/farhatmasood/Vertebral-Body-Segmentation" target="_blank" class="btn-academic"><i class="fab fa-github mr-1"></i> Repository</a></div>
+                        </div>
+
+                        <!-- DOI-BMT -->
+                        <div class="card p-5 flex flex-col">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="citation-title text-lg leading-tight">DOI-BMT</div>
+                                <span class="year-chip">2026</span>
+                            </div>
+                            <div class="citation-author text-gray-700 mb-1">DOI Checking and Bibliography Management</div>
+                            <div class="citation-journal text-gray-500 mb-2 text-sm"><em>Codebase</em></div>
+                            <ul class="text-sm text-gray-600 flex-1 space-y-1 list-disc pl-4">
+                                <li>Checks DOI links in BibTeX and LaTeX files.</li>
+                                <li>Searches for missing or broken DOIs.</li>
+                                <li>Accepts a DOI only when the metadata agree.</li>
+                                <li>Sorts entries and formats citations.</li>
+                            </ul>
+                            <div class="mt-2"><a href="https://github.com/farhatmasood/DOI_BMT" target="_blank" class="btn-academic"><i class="fab fa-github mr-1"></i> Repository</a></div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- FOOTER -->
+                <footer class="border-t mt-16 pt-8 text-sm text-gray-500 flex justify-between items-center">
+                    <div>&copy; 2026 Rao Farhat Masood.</div>
+                    <div class="text-xs">Last updated: Oct, 2026</div>
+                </footer>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rao Farhat Masood — Portfolio</title>
+
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- MathJax for LaTeX Rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Academic Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;1,8..60,400&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+    <!-- Mobile top bar -->
+    <nav class="md:hidden p-4 border-b bg-white flex justify-between items-center sticky top-0 z-50 shadow-sm">
+        <span class="font-bold text-lg">Rao Farhat Masood</span>
+        <button id="mobile-menu-btn" class="text-xl text-gray-700"><i class="fas fa-bars"></i></button>
+    </nav>
+
+    <!-- Mobile dropdown menu -->
+    <div id="mobile-menu" class="md:hidden hidden bg-white border-b shadow-sm sticky top-[57px] z-40">
+        <div class="px-5 py-3">
+            <div class="mode-toggle mb-3">
+                <a class="mode-btn" data-mode="academic" href="../index.html">Academic</a>
+                <a class="mode-btn mode-active" data-mode="professional" href="profile.html">Professional</a>
+            </div>
+            <div class="nav-group hidden" data-mode="academic">
+                <div class="space-y-1 text-sm uppercase tracking-wider font-semibold">
+                    <a class="tab-link" href="../index.html">About</a>
+                    <a class="tab-link" href="../academic/featured.html">Featured</a>
+                    <a class="tab-link" href="../academic/publications.html">Publications</a>
+                    <a class="tab-link" href="../academic/repositories.html">Repositories</a>
+                    <a class="tab-link" href="../academic/research.html">Research</a>
+                    <a class="tab-link" href="../academic/hobbies.html">Hobbies</a>
+                    <a class="tab-link" href="../academic/service.html">Service</a>
+                </div>
+            </div>
+            <div class="nav-group" data-mode="professional">
+                <div class="space-y-1 text-sm uppercase tracking-wider font-semibold">
+                    <a class="tab-link" href="profile.html">Profile</a>
+                    <a class="tab-link tab-active" href="career-path.html">Career Path</a>
+                    <a class="tab-link" href="experience.html">Experience</a>
+                    <a class="tab-link" href="competencies.html">Competencies</a>
+                    <a class="tab-link" href="education.html">Education &amp; Skills</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-12">
+
+            <!-- SIDEBAR (Profile) -->
+            <div class="md:col-span-4 lg:col-span-3">
+                <div class="sidebar text-center md:text-right">
+                    <!-- Profile Image Placeholder -->
+                    <div class="w-40 h-40 mx-auto md:ml-auto md:mr-0 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden mb-5 shadow-sm ring-1 ring-slate-200 flex items-center justify-center">
+                        <i class="fas fa-user text-6xl text-slate-400"></i>
+                    </div>
+
+                    <h1 class="text-2xl font-bold mb-1 tracking-tight">Rao Farhat Masood</h1>
+                    <p id="role-line" class="text-xs text-slate-500 mb-5 leading-relaxed">Electrical Engineer · PhD</p>
+
+                    <div class="flex justify-center md:justify-end gap-4 text-xl text-slate-600 mb-6">
+                        <a href="https://github.com/farhatmasood" title="GitHub" class="hover:text-black transition"><i class="fab fa-github"></i></a>
+                        <a href="https://www.linkedin.com/in/rao-farhat-masood-829966118/" title="LinkedIn" class="hover:text-blue-600 transition"><i class="fab fa-linkedin"></i></a>
+                        <a href="https://scholar.google.com/citations?user=G_uCi0UAAAAJ&hl=en" title="Google Scholar" class="hover:text-blue-800 transition"><i class="fas fa-graduation-cap"></i></a>
+                        <a href="https://orcid.org/0000-0001-9054-9192" title="ORCiD" class="hover:text-green-600 transition"><i class="fab fa-orcid"></i></a>
+                    </div>
+
+                    <!-- Mode toggle -->
+                    <div class="hidden md:flex justify-end mb-6">
+                        <div class="mode-toggle">
+                            <a class="mode-btn" data-mode="academic" href="../index.html">Academic</a>
+                            <a class="mode-btn mode-active" data-mode="professional" href="profile.html">Professional</a>
+                        </div>
+                    </div>
+
+                    <!-- Desktop Tab Nav -->
+                    <nav class="hidden md:block text-sm uppercase tracking-wider font-semibold">
+                        <div class="nav-group hidden flex-col items-end" data-mode="academic">
+                            <a class="tab-link" href="../index.html">About</a>
+                            <a class="tab-link" href="../academic/featured.html">Featured</a>
+                            <a class="tab-link" href="../academic/publications.html">Publications</a>
+                            <a class="tab-link" href="../academic/repositories.html">Repositories</a>
+                            <a class="tab-link" href="../academic/research.html">Research</a>
+                            <a class="tab-link" href="../academic/hobbies.html">Hobbies</a>
+                            <a class="tab-link" href="../academic/service.html">Service</a>
+                        </div>
+                        <div class="nav-group flex flex-col items-end" data-mode="professional">
+                            <a class="tab-link" href="profile.html">Profile</a>
+                            <a class="tab-link tab-active" href="career-path.html">Career Path</a>
+                            <a class="tab-link" href="experience.html">Experience</a>
+                            <a class="tab-link" href="competencies.html">Competencies</a>
+                            <a class="tab-link" href="education.html">Education &amp; Skills</a>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- MAIN CONTENT -->
+            <div class="md:col-span-8 lg:col-span-9 min-h-[60vh]">
+
+                <section id="prof-trajectory" class="tab-section" data-mode="professional">
+    <h2 class="section-title">Career Path</h2>
+
+    <div class="tl-legend">
+        <span><span class="tl-dot-key" style="background:#1d4ed8;"></span>Professional &amp; Engineering Track</span>
+        <span><span class="tl-dot-key" style="background:#4f46e5;"></span>Academic &amp; Research Track</span>
+    </div>
+
+    <div class="timeline">
+
+        <div class="tl-row" style="min-height: 200px;">
+            <div class="tl-side left empty"></div>
+            <div class="tl-center"><span class="tl-year">2003–07</span></div>
+            <div class="tl-side right">
+                <div class="tl-card acad" style="height: 100%; display: flex; flex-direction: column; justify-content: center;">
+                    <span class="tl-track acad"><i class="fas fa-flask"></i> Academic</span>
+                    <h4>BE, Electrical Engineering — NUST</h4>
+                    <div class="tl-org">National University of Sciences &amp; Technology</div>
+                    <p>Formative engineering foundations. Final-year project focused on a Neural-Fuzzy Logic smart control system.</p>
+                    <div class="mt-auto"><span class="skill-tag">Control Systems</span><span class="skill-tag">Neural-Fuzzy Logic</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tl-row" style="min-height: 400px;">
+            <div class="tl-side left">
+                <div class="tl-card pro" style="height: 100%; display: flex; flex-direction: column; justify-content: center;">
+                    <span class="tl-track pro"><i class="fas fa-cogs"></i> Professional</span>
+                    <h4>Engineering Manager — Corps of EME</h4>
+                    <div class="tl-org">Defence Forces of Pakistan</div>
+                    <p>Directed enterprise fleet engineering and multi-discipline repair workshops. Institutionalized data-driven fault-trend diagnostics and root-cause analysis across the enterprise.</p>
+                    <div class="mt-auto"><span class="skill-tag">Operations Leadership</span><span class="skill-tag">Fault Analytics</span><span class="skill-tag">QA Systems</span></div>
+                </div>
+            </div>
+            <div class="tl-center"><span class="tl-year">2007–16</span></div>
+            <div class="tl-side right empty"></div>
+        </div>
+
+        <div class="tl-row" style="min-height: 140px;">
+            <div class="tl-side left">
+                <div class="tl-card pro" style="height: 100%; display: flex; flex-direction: column; justify-content: center;">
+                    <span class="tl-track pro"><i class="fas fa-x-ray"></i> Professional · Pivot</span>
+                    <h4>Engineering Manager — AFIC &amp; NIHD</h4>
+                    <div class="tl-org">Armed Forces Institute of Cardiology</div>
+                    <p>Governed cardiac imaging platforms (3T MRI, CT, Cath Labs). Built deep domain expertise in medical acquisition physics and DICOM architecture.</p>
+                    <div class="mt-auto"><span class="skill-tag">MRI/CT/SPECT</span><span class="skill-tag">DICOM/PACS</span></div>
+                </div>
+            </div>
+            <div class="tl-center"><span class="tl-year">2016–18</span></div>
+            <div class="tl-side right empty"></div>
+        </div>
+
+        <div class="tl-row" style="min-height: 100px;">
+            <div class="tl-side left">
+                <div class="tl-card pro" style="height: 100%; display: flex; flex-direction: column; justify-content: center;">
+                    <span class="tl-track pro"><i class="fas fa-globe-africa"></i> Professional</span>
+                    <h4>Operations Manager — UN Level-III Hospital</h4>
+                    <div class="tl-org">United Nations · Darfur, Sudan</div>
+                    <p>Sustained 100% mission-critical clinical readiness in a resource-constrained, conflict-zone environment.</p>
+                </div>
+            </div>
+            <div class="tl-center"><span class="tl-year">2018–19</span></div>
+            <div class="tl-side right empty"></div>
+        </div>
+
+        <div class="tl-row both" style="min-height: 180px;">
+            <div class="tl-side left">
+                <div class="tl-card pro" style="height: 100%; display: flex; flex-direction: column; justify-content: center;">
+                    <span class="tl-track pro"><i class="fas fa-network-wired"></i> Professional</span>
+                    <h4>Department Head — Clinical Engineering</h4>
+                    <div class="tl-org">Combined Military Hospital (1,000-bed)</div>
+                    <p>Conceived Smart Hospital IoT initiatives and led rapid COVID-19 ventilator validation protocols for immediate clinical deployment.</p>
+                    <div class="mt-auto"><span class="skill-tag">IoT / IoMT</span><span class="skill-tag">Clinical Integration</span></div>
+                </div>
+            </div>
+            <div class="tl-center"><span class="tl-year">2019–21</span></div>
+            <div class="tl-side right">
+                <div class="tl-card acad" style="height: 100%; display: flex; flex-direction: column; justify-content: center;">
+                    <span class="tl-track acad"><i class="fas fa-medal"></i> Academic</span>
+                    <h4>MS Electrical Engineering (Gold Medal)</h4>
+                    <div class="tl-org">Capital University of Science &amp; Technology</div>
+                    <p>Thesis: Deep-learning lumbar-spine vertebrae segmentation, automated measurement extraction and disorder classification.</p>
+                    <div class="mt-auto"><span class="skill-tag">Deep Learning</span><span class="skill-tag">CNN Segmentation</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tl-row both" style="min-height: 250px;">
+            <div class="tl-side left">
+                <div class="tl-card pro" style="height: 100%; display: flex; flex-direction: column; justify-content: center;">
+                    <span class="tl-track pro"><i class="fas fa-chart-line"></i> Professional</span>
+                    <h4>Senior Engineering Program Manager</h4>
+                    <div class="tl-org">AFIC &amp; NIHD (2023 – Apr 2026)</div>
+                    <p>Directed infrastructure operations for a 400-bed national cardiac centre. Integrated predictive analytics and real-time monitoring directly into clinical safety protocols.</p>
+                    <div class="mt-auto"><span class="skill-tag">Predictive Analytics</span><span class="skill-tag">Executive Leadership</span></div>
+                </div>
+            </div>
+            <div class="tl-center"><span class="tl-year">2023–26</span></div>
+            <div class="tl-side right">
+                <div class="tl-card acad" style="height: 100%; display: flex; flex-direction: column; justify-content: center;">
+                    <span class="tl-track acad"><i class="fas fa-microchip"></i> Academic</span>
+                    <h4>PhD</h4>
+                    <div class="tl-org">Capital University of Science &amp; Technology</div>
+                    <p>Completed. Formally published the <strong>WELDE</strong> framework and open-sourced the <strong>LSMA-PQR</strong> multi-modal dataset.</p>
+                    <div class="mt-auto"><span class="skill-tag">WELDE Algorithm</span><span class="skill-tag">LSMA-PQR</span><span class="skill-tag">Foundation Models</span></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- <div class="mt-12 pt-8 border-t">
+        <div class="flex items-center gap-3 mb-2">
+            <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 text-white"><i class="fas fa-arrow-trend-up"></i></span>
+            <h3 class="text-xl font-semibold text-gray-800">The Road Ahead — A Deliberate Learning Curve</h3>
+        </div>
+        <p class="text-sm text-gray-600 mb-6 max-w-3xl">The trajectory continues upward. These are the capabilities I am actively building toward — scaling from focused, domain-specific deep learning into broad, exploratory, interdisciplinary research at the frontier of medical AI.</p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div class="roadmap-card">
+                <div class="rm-icon"><i class="fas fa-cubes"></i></div>
+                <h4>Foundation Models &amp; Self-Supervision at Scale</h4>
+                <p>Deepening pre-training, masked-image-modelling and contrastive self-supervised methods (DINOv2, MAE) on large unlabelled medical corpora.</p>
+                <span class="rm-aim">Building toward &rarr;</span>
+            </div>
+            <div class="roadmap-card">
+                <div class="rm-icon"><i class="fas fa-layer-group"></i></div>
+                <h4>Cross-Modality &amp; Multimodal Versatility</h4>
+                <p>Extending beyond mid-sagittal MRI to volumetric 3D, multi-sequence MRI, CT and X-ray — and to tasks beyond segmentation and classification.</p>
+                <span class="rm-aim">Building toward &rarr;</span>
+            </div>
+            <div class="roadmap-card">
+                <div class="rm-icon"><i class="fas fa-server"></i></div>
+                <h4>Scalable &amp; Cloud-Native ML</h4>
+                <p>Distributed multi-GPU training, reproducible MLOps workflows (W&amp;B, containers, CI) and large-dataset pipelines for production-grade research.</p>
+                <span class="rm-aim">Building toward &rarr;</span>
+            </div>
+            <div class="roadmap-card">
+                <div class="rm-icon"><i class="fas fa-trophy"></i></div>
+                <h4>High-Impact International Venues</h4>
+                <p>Targeting competitive, top-tier conferences and journals in medical image computing and computer vision (MICCAI, CVPR, IEEE TMI, Medical Image Analysis).</p>
+                <span class="rm-aim">Building toward &rarr;</span>
+            </div>
+            <div class="roadmap-card">
+                <div class="rm-icon"><i class="fas fa-code-branch"></i></div>
+                <h4>Open-Source &amp; Collaborative Research</h4>
+                <p>Growing the open-source footprint (reusable tools, reproducible baselines) and forming external, cross-institutional research collaborations.</p>
+                <span class="rm-aim">Building toward &rarr;</span>
+            </div>
+            <div class="roadmap-card">
+                <div class="rm-icon"><i class="fas fa-vial-circle-check"></i></div>
+                <h4>Clinical Translation &amp; Validation</h4>
+                <p>Carrying foundation-model research through prospective clinical validation and edge deployment — closing the loop between research and bedside impact.</p>
+                <span class="rm-aim">Building toward &rarr;</span>
+            </div>
+        </div>
+    </div> -->
+</section>
+
+                <!-- FOOTER -->
+                <footer class="border-t mt-16 pt-8 text-sm text-gray-500 flex justify-between items-center">
+                    <div>&copy; 2026 Rao Farhat Masood.</div>
+                    <div class="text-xs">Last updated: Oct, 2026</div>
+                </footer>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

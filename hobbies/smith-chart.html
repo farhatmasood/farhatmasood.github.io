@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smith Chart, Simply</title>
+    <meta name="description" content="An interactive, plain-language explanation of the Smith chart: reflection, impedance, VSWR, transmission lines and impedance matching.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;1,8..60,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="explainer.css">
+</head>
+<body>
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <nav class="crumbs">
+            <a href="../index.html">Portfolio</a><span>/</span>
+            <a href="../academic/hobbies.html">Hobby Projects</a><span>/</span>
+            <strong>Smith Chart</strong>
+        </nav>
+        <nav class="sib">
+            <a href="bode-plot.html">Bode Plot →</a>
+        </nav>
+    </div>
+</header>
+
+<main class="page">
+
+    <div class="hero">
+        <span class="tag">Interactive explainer · RF engineering</span>
+        <h1>The Smith Chart, explained simply</h1>
+        <p class="lede">A Smith chart is a map. Every load you could connect to the end of a cable has exactly one spot on it, and the distance from the centre tells you how much of your signal bounces back. That is the whole idea. The rest is learning to read the map.</p>
+        <nav class="toc">
+            <a href="#bounce">1 · Signals bounce</a>
+            <a href="#gamma">2 · One number: Γ</a>
+            <a href="#squeeze">3 · Infinity in a circle</a>
+            <a href="#read">4 · Reading the map</a>
+            <a href="#walk">5 · Walking down a cable</a>
+            <a href="#parts">6 · Adding parts</a>
+            <a href="#match">7 · Matching game</a>
+            <a href="#cheat">8 · Cheat sheet</a>
+        </nav>
+    </div>
+
+    <!-- 1 -->
+    <section class="step" id="bounce">
+        <div class="step-head"><span class="step-num">1</span><h2>Signals bounce when things don't match</h2></div>
+        <div class="key analogy"><strong>Picture a rope.</strong> Tie one end to a wall and flick it: the wave runs to the wall and comes back <em>upside down</em>. Tie it to a ring that slides freely on a pole: the wave comes back <em>right way up</em>. Tie it to an identical rope that goes on forever: the wave just keeps going and <em>nothing comes back</em>.</div>
+        <p>Electrical signals on a cable behave in the same way. The cable has a <b>characteristic impedance</b> Z<sub>0</sub>, usually 50&nbsp;Ω; that is "the rope". Whatever sits at the end (an antenna, an amplifier, a resistor) is the <b>load</b> Z<sub>L</sub>; that is "what the rope is tied to". If Z<sub>L</sub> equals Z<sub>0</sub>, the signal flows into the load. If not, part of it bounces back toward the source.</p>
+
+        <div class="lab" id="lab1">
+            <div class="lab-title">Lab 1 · Watch a wave bounce</div>
+            <p class="lab-hint">Change the load resistor. Blue travels toward the load, red is the bounce, black is what you would actually measure on the cable.</p>
+            <canvas id="c1" class="plot"></canvas>
+            <div class="legend"><span><i style="background:var(--c1)"></i>Incident (going in)</span><span><i style="background:var(--c2)"></i>Reflected (bouncing back)</span><span><i style="background:#111"></i>Total on the cable</span><span><i style="background:#94a3b8"></i>Standing-wave envelope</span></div>
+            <div class="lab-grid even" style="margin-top:0.9rem">
+                <div>
+                    <div class="ctrl"><label><span>Load resistance R<sub>L</sub></span> <span class="val" id="l1R"></span></label><input type="range" id="l1s" min="0" max="1" step="0.001" value="0.75"></div>
+                    <div class="btn-row">
+                        <button class="btn" data-l1="0">Short (0 Ω)</button>
+                        <button class="btn" data-l1="0.5">Matched (50 Ω)</button>
+                        <button class="btn" data-l1="1">Open (∞)</button>
+                    </div>
+                </div>
+                <div>
+                    <div class="readout">
+                        <div><b>Bounce Γ</b><span id="l1G"></span></div>
+                        <div><b>Power reflected</b><span id="l1P"></span></div>
+                    </div>
+                    <div class="verdict" id="l1V"></div>
+                </div>
+            </div>
+        </div>
+        <div class="key"><strong>Why it matters:</strong> reflected power never reaches the antenna, wastes transmitter power, and can even damage amplifiers. RF engineers spend much of their time making Z<sub>L</sub> look like Z<sub>0</sub>. The Smith chart is the tool they use to do it.</div>
+    </section>
+
+    <!-- 2 -->
+    <section class="step" id="gamma">
+        <div class="step-head"><span class="step-num">2</span><h2>One number describes the bounce: Γ</h2></div>
+        <p>The <b>reflection coefficient</b> Γ (gamma) says how big the bounce is compared with the wave that went in:</p>
+        <div class="formula">Γ = (Z<sub>L</sub> − Z<sub>0</sub>) / (Z<sub>L</sub> + Z<sub>0</sub>)<span class="note">Same load as the cable → top is zero → no bounce.</span></div>
+        <div class="table-wrap box" style="padding:0.3rem 0.6rem">
+            <table>
+                <tr><th>Load on a 50 Ω cable</th><th>Γ</th><th>What happens</th></tr>
+                <tr><td>Short circuit (0 Ω)</td><td class="mono">−1</td><td>Everything bounces back, flipped (the wall)</td></tr>
+                <tr><td>Open circuit (∞)</td><td class="mono">+1</td><td>Everything bounces back, not flipped (the free ring)</td></tr>
+                <tr><td>50 Ω</td><td class="mono">0</td><td>Nothing bounces: perfect match</td></tr>
+                <tr><td>100 Ω</td><td class="mono">+0.33</td><td>A third of the voltage bounces; Γ² = 11% of the power</td></tr>
+                <tr><td>25 Ω</td><td class="mono">−0.33</td><td>Same size bounce, but flipped</td></tr>
+            </table>
+        </div>
+        <p>Loads are usually not plain resistors. Coils and capacitors delay the bounce, so in general Γ is a <b>complex number</b> with two parts:</p>
+        <ul>
+            <li><b>Size |Γ|</b>, from 0 to 1: how much bounces back.</li>
+            <li><b>Angle ∠Γ</b>: how much the bounce is delayed or flipped.</li>
+        </ul>
+        <div class="key"><strong>Here is the trick.</strong> For any real-world (passive) load, |Γ| is never bigger than 1. So every possible load lands somewhere <em>inside a circle of radius 1</em>. Draw that circle and you have a Smith chart.</div>
+        <p class="muted small">To make one chart work for every cable, engineers divide by Z<sub>0</sub> first: <b>z = Z<sub>L</sub>/Z<sub>0</sub></b> (lower-case z means "normalised"). Then Γ = (z − 1)/(z + 1), and the centre of the chart is always z = 1.</p>
+    </section>
+
+    <!-- 3 -->
+    <section class="step" id="squeeze">
+        <div class="step-head"><span class="step-num">3</span><h2>Squeezing infinity into a circle</h2></div>
+        <p>An impedance has two parts: z = <b style="color:var(--c1)">r</b> + j<b style="color:var(--c2)">x</b>. The <b style="color:var(--c1)">resistance r</b> absorbs power and is never negative. The <b style="color:var(--c2)">reactance x</b> stores energy: positive for coils (inductive), negative for capacitors (capacitive). Plot all possible values and you get an <em>infinite</em> half-plane, which is no use on paper.</p>
+        <p>The Γ formula bends that infinite half-plane into the unit circle. Straight grid lines become circles:</p>
+        <div class="lab" id="lab2">
+            <div class="lab-title">Lab 2 · Same point, two maps</div>
+            <p class="lab-hint">Move your pointer over either picture. The dot appears at the matching place on the other one.</p>
+            <div class="lab-grid even">
+                <div><canvas id="c2a" class="plot"></canvas><p class="small muted" style="text-align:center;margin:0.3rem 0 0">Ordinary impedance plane (it goes on forever →)</p></div>
+                <div><canvas id="c2b" class="plot"></canvas><p class="small muted" style="text-align:center;margin:0.3rem 0 0">Smith chart (all of it, in one circle)</p></div>
+            </div>
+            <div class="readout" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+                <div><b>Impedance z</b><span id="l2z">—</span></div>
+                <div><b>Γ</b><span id="l2g">—</span></div>
+                <div><b>Bounce |Γ|</b><span id="l2m">—</span></div>
+            </div>
+        </div>
+        <ul>
+            <li><b style="color:var(--c1)">Blue circles</b>: constant resistance r. They all touch the right edge.</li>
+            <li><b style="color:var(--c2)">Red arcs</b>: constant reactance x. Upper ones are inductive, lower ones capacitive.</li>
+            <li>The far right point is where "infinity" ended up: the open circuit.</li>
+        </ul>
+    </section>
+
+    <!-- 4 -->
+    <section class="step" id="read">
+        <div class="step-head"><span class="step-num">4</span><h2>Reading the map</h2></div>
+        <div class="cheat">
+            <div class="box"><h4>🎯 Centre</h4><p>z = 1 (50 Ω on a 50 Ω cable). Perfect match, no bounce.</p></div>
+            <div class="box"><h4>⬅️ Left edge</h4><p>Short circuit. Γ = −1.</p></div>
+            <div class="box"><h4>➡️ Right edge</h4><p>Open circuit. Γ = +1.</p></div>
+            <div class="box"><h4>➖ Horizontal line</h4><p>Pure resistors: no coil, no capacitor.</p></div>
+            <div class="box"><h4>⬆️ Top half</h4><p>Inductive loads (behave like a coil).</p></div>
+            <div class="box"><h4>⬇️ Bottom half</h4><p>Capacitive loads (behave like a capacitor).</p></div>
+            <div class="box"><h4>⭕ Outer rim</h4><p>No resistance at all: pure L or C. Everything bounces.</p></div>
+            <div class="box"><h4>📏 Distance from centre</h4><p>Equals |Γ|. Closer to the centre means a better match.</p></div>
+        </div>
+
+        <div class="lab" id="lab3">
+            <div class="lab-title">Lab 3 · Smith chart explorer</div>
+            <p class="lab-hint">Drag the dot on the chart, or use the sliders. The dashed circle passes through every load with the same amount of bounce.</p>
+            <div class="lab-grid">
+                <canvas id="c3" class="plot"></canvas>
+                <div>
+                    <div class="ctrl"><label><span>Cable Z<sub>0</sub></span> <select id="l3z0"><option value="50">50 Ω</option><option value="75">75 Ω</option></select></label></div>
+                    <div class="ctrl"><label>Resistance R <span class="val" id="l3Rv"></span></label><input type="range" id="l3R" min="0" max="0.995" step="0.001"></div>
+                    <div class="ctrl"><label>Reactance X <span class="val" id="l3Xv"></span></label><input type="range" id="l3X" min="-0.995" max="0.995" step="0.001"></div>
+                    <div class="btn-row">
+                        <button class="btn" data-l3="1,0">Matched</button>
+                        <button class="btn" data-l3="0,0">Short</button>
+                        <button class="btn" data-l3="1e9,0">Open</button>
+                        <button class="btn" data-l3="2,0">2× Z₀</button>
+                        <button class="btn" data-l3="0,1">Coil</button>
+                        <button class="btn" data-l3="0,-1">Capacitor</button>
+                        <button class="btn" data-l3="0.6,0.8">Antenna-ish</button>
+                    </div>
+                    <div class="readout">
+                        <div><b>Load Z</b><span id="l3Z"></span></div>
+                        <div><b>Normalised z</b><span id="l3z"></span></div>
+                        <div><b>|Γ| ∠Γ</b><span id="l3G"></span></div>
+                        <div><b>VSWR</b><span id="l3S"></span></div>
+                        <div><b>Return loss</b><span id="l3RL"></span></div>
+                        <div><b>Power delivered</b><span id="l3P"></span></div>
+                    </div>
+                    <div class="verdict" id="l3V"></div>
+                </div>
+            </div>
+        </div>
+
+        <h3>The numbers engineers quote</h3>
+        <p>All of these are just |Γ| written another way. Once you know where the dot is, you know all of them.</p>
+        <div class="table-wrap box" style="padding:0.3rem 0.6rem">
+            <table>
+                <tr><th>Name</th><th>Formula</th><th>Plain meaning</th></tr>
+                <tr><td>VSWR</td><td class="mono">(1 + |Γ|) / (1 − |Γ|)</td><td>Ratio of the biggest to the smallest voltage along the cable. 1 is perfect; below 2 is usually fine.</td></tr>
+                <tr><td>Return loss</td><td class="mono">−20·log₁₀|Γ| dB</td><td>How far below the input the bounce is. Bigger is better: 10 dB ≈ 10% reflected, 20 dB ≈ 1%.</td></tr>
+                <tr><td>Reflected power</td><td class="mono">|Γ|²</td><td>Fraction of power that comes back.</td></tr>
+            </table>
+        </div>
+    </section>
+
+    <!-- 5 -->
+    <section class="step" id="walk">
+        <div class="step-head"><span class="step-num">5</span><h2>Walking down a cable = turning around the centre</h2></div>
+        <p>This is where the Smith chart earns its keep. Put some cable between you and the load. The <b>amount</b> of bounce stays the same (a lossless cable doesn't absorb anything), but the bounce arrives back <b>later</b>, so its angle changes. On the chart that is a simple rotation:</p>
+        <div class="key"><strong>Rule:</strong> moving away from the load toward the generator turns the dot <b>clockwise</b> around the centre. <b>Half a wavelength</b> of cable is <b>one full turn</b>.</div>
+        <div class="lab" id="lab4">
+            <div class="lab-title">Lab 4 · Add cable, watch the dot turn</div>
+            <p class="lab-hint">Pick a load, then lengthen the cable. The impedance you see at the input changes, but the distance from the centre doesn't.</p>
+            <div class="lab-grid">
+                <canvas id="c4" class="plot"></canvas>
+                <div>
+                    <div class="btn-row">
+                        <button class="btn" data-l4="0,0">Short</button>
+                        <button class="btn" data-l4="1e9,0">Open</button>
+                        <button class="btn" data-l4="100,0">100 Ω</button>
+                        <button class="btn" data-l4="25,0">25 Ω</button>
+                        <button class="btn" data-l4="30,40">30 + j40 Ω</button>
+                        <button class="btn" data-l4="80,-60">80 − j60 Ω</button>
+                    </div>
+                    <div class="ctrl"><label>Cable length <span class="val" id="l4Lv"></span></label><input type="range" id="l4L" min="0" max="0.5" step="0.0025" value="0.125"></div>
+                    <div class="btn-row"><button class="btn primary" id="l4play">▶ Sweep 0 → λ/2</button></div>
+                    <div class="readout">
+                        <div><b>Load Z<sub>L</sub></b><span id="l4ZL"></span></div>
+                        <div><b>Input Z<sub>in</sub></b><span id="l4Zin"></span></div>
+                        <div><b>|Γ| (unchanged)</b><span id="l4G"></span></div>
+                        <div><b>Turned by</b><span id="l4A"></span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p>Two famous results fall straight out of the picture:</p>
+        <ul>
+            <li><b>λ/2 cable</b> = one full turn: the input looks exactly like the load.</li>
+            <li><b>λ/4 cable</b> = half a turn: the dot jumps to the opposite side. A short looks like an open, and 100 Ω looks like 25 Ω (Z<sub>in</sub> = Z<sub>0</sub>²/Z<sub>L</sub>). This is the <em>quarter-wave transformer</em>.</li>
+        </ul>
+    </section>
+
+    <!-- 6 -->
+    <section class="step" id="parts">
+        <div class="step-head"><span class="step-num">6</span><h2>Adding a coil or capacitor = sliding along a circle</h2></div>
+        <p>To fix a mismatch we add coils (L) and capacitors (C). Each one moves the dot along one of the chart's circles:</p>
+        <ul>
+            <li><b>Series part</b> (in line with the load): it only changes the reactance x, so the dot <b>slides along its own resistance circle</b>. A coil moves it up (clockwise), a capacitor moves it down.</li>
+            <li><b>Shunt part</b> (across the load, to ground): parallel parts are easier to add as <b>admittance</b> y = 1/z = g + jb. A shunt part only changes b, so the dot <b>slides along a constant-conductance circle</b>. A capacitor moves it down (clockwise), a coil moves it up.</li>
+        </ul>
+        <div class="key"><strong>The admittance trick:</strong> y = 1/z is the same point turned 180° around the centre. So the admittance grid is just the Smith chart flipped left-to-right. Overlay both grids (often drawn in two colours) and you can switch between series and shunt thinking without any arithmetic.</div>
+        <div class="table-wrap box" style="padding:0.3rem 0.6rem">
+            <table>
+                <tr><th>You add</th><th>Moves along</th><th>Direction</th></tr>
+                <tr><td>Series coil (L)</td><td>Constant-r circle</td><td>Clockwise (up)</td></tr>
+                <tr><td>Series capacitor (C)</td><td>Constant-r circle</td><td>Counter-clockwise (down)</td></tr>
+                <tr><td>Shunt capacitor (C)</td><td>Constant-g circle</td><td>Clockwise (down)</td></tr>
+                <tr><td>Shunt coil (L)</td><td>Constant-g circle</td><td>Counter-clockwise (up)</td></tr>
+                <tr><td>Length of cable</td><td>Circle around the centre</td><td>Clockwise, toward the generator</td></tr>
+            </table>
+        </div>
+    </section>
+
+    <!-- 7 -->
+    <section class="step" id="match">
+        <div class="step-head"><span class="step-num">7</span><h2>The matching game: get the dot to the centre</h2></div>
+        <p>Matching means adding parts until the load looks like Z<sub>0</sub>, so the dot sits at the centre. With two parts (an "L-network") the recipe is always the same:</p>
+        <ol>
+            <li>Use the <b>first part</b> to slide onto the <b style="color:var(--good)">green circle</b>. This is the one circle that passes through the centre.</li>
+            <li>Use the <b>second part</b> to slide along the green circle into the centre.</li>
+        </ol>
+        <div class="lab" id="lab5">
+            <div class="lab-title">Lab 5 · Match it yourself</div>
+            <p class="lab-hint">Drag the two sliders until the dot reaches the centre. Stuck? Press "Show me". Press it again to see the second possible solution.</p>
+            <div class="lab-grid">
+                <canvas id="c5" class="plot"></canvas>
+                <div>
+                    <div class="ctrl"><label><span>Load (Z<sub>0</sub> = 50 Ω)</span>
+                        <select id="l5load">
+                            <option value="25,-30">25 − j30 Ω</option>
+                            <option value="100,50">100 + j50 Ω</option>
+                            <option value="10,20">10 + j20 Ω</option>
+                            <option value="150,-100">150 − j100 Ω</option>
+                            <option value="40,70">40 + j70 Ω</option>
+                        </select></label></div>
+                    <div class="ctrl"><label>Network
+                        <select id="l5order">
+                            <option value="series">Series part first, then shunt</option>
+                            <option value="shunt">Shunt part first, then series</option>
+                        </select></label></div>
+                    <div class="ctrl"><label><span id="l5an">Part 1</span> <span class="val" id="l5av"></span></label><input type="range" id="l5a" min="-3" max="3" step="0.005" value="0"></div>
+                    <div class="ctrl"><label><span id="l5bn">Part 2</span> <span class="val" id="l5bv"></span></label><input type="range" id="l5b" min="-3" max="3" step="0.005" value="0"></div>
+                    <div class="ctrl"><label>Frequency <span class="val" id="l5fv"></span></label><input type="range" id="l5f" min="0" max="3" step="0.01" value="2"></div>
+                    <div class="btn-row">
+                        <button class="btn primary" id="l5solve">Show me</button>
+                        <button class="btn" id="l5reset">Reset</button>
+                        <button class="btn" id="l5rand">Random load</button>
+                    </div>
+                    <div class="readout">
+                        <div><b>Part 1</b><span id="l5p1"></span></div>
+                        <div><b>Part 2</b><span id="l5p2"></span></div>
+                        <div><b>Source sees</b><span id="l5Zin"></span></div>
+                        <div><b>VSWR</b><span id="l5S"></span></div>
+                    </div>
+                    <div class="verdict" id="l5V"></div>
+                </div>
+            </div>
+            <div class="legend"><span><i style="background:var(--c1)"></i>Impedance grid</span><span><i style="background:var(--c4)"></i>Admittance grid (flipped)</span><span><i style="background:var(--good)"></i>Green circle (the target)</span><span><i style="background:#f59e0b"></i>Your path</span></div>
+        </div>
+        <p class="muted small">Why can't one order always work? If the load resistance is bigger than Z<sub>0</sub>, its resistance circle never crosses the green circle, so a series part first can't reach it. Then the shunt part has to go first. The lab picks a working order whenever you change the load.</p>
+    </section>
+
+    <!-- 8 -->
+    <section class="step" id="cheat">
+        <div class="step-head"><span class="step-num">8</span><h2>Cheat sheet</h2></div>
+        <div class="cheat">
+            <div class="box"><h4>What it is</h4><p>A map of every load, placed by its reflection Γ. Inside the unit circle means passive load.</p></div>
+            <div class="box"><h4>Goal</h4><p>Move the dot to the centre (z = 1). That is a perfect match with no bounce.</p></div>
+            <div class="box"><h4>Distance = bounce</h4><p>Radius = |Γ|. Circles around the centre have constant VSWR and return loss.</p></div>
+            <div class="box"><h4>Cable = rotation</h4><p>Clockwise toward the generator. λ/2 = one full turn; λ/4 = flip to the opposite side.</p></div>
+            <div class="box"><h4>Series L / C</h4><p>Slide along a constant-r circle. L clockwise (up), C counter-clockwise (down).</p></div>
+            <div class="box"><h4>Shunt C / L</h4><p>Slide along a constant-g circle. C clockwise (down), L counter-clockwise (up).</p></div>
+            <div class="box"><h4>z ↔ y</h4><p>Turn the point 180° around the centre to switch between impedance and admittance.</p></div>
+            <div class="box"><h4>Where it's used</h4><p>Antenna tuning, amplifier design, PCB trace and connector design, network-analyser screens, MRI RF coil matching.</p></div>
+        </div>
+    </section>
+
+    <div class="next-links">
+        <a href="bode-plot.html"><small>Next explainer</small><strong>Bode Plot →</strong><br><span class="small muted">How a system treats every frequency, in two simple graphs.</span></a>
+        <a href="../academic/hobbies.html"><small>Back to</small><strong>← Hobby Projects</strong><br><span class="small muted">All tools, simulators and explainers.</span></a>
+    </div>
+    <footer class="foot">© 2026 Rao Farhat Masood.</footer>
+</main>
+
+<script>
+(function () {
+    'use strict';
+    // ---------- small helpers ----------
+    const C = (re, im = 0) => ({ re, im });
+    const add = (a, b) => C(a.re + b.re, a.im + b.im);
+    const sub = (a, b) => C(a.re - b.re, a.im - b.im);
+    const div = (a, b) => { const d = b.re * b.re + b.im * b.im; return C((a.re * b.re + a.im * b.im) / d, (a.im * b.re - a.re * b.im) / d); };
+    const abs = a => Math.hypot(a.re, a.im);
+    const arg = a => Math.atan2(a.im, a.re);
+    const ONE = C(1, 0);
+    const inv = z => (abs(z) < 1e-12 ? C(1e12, 0) : div(ONE, z));
+    const z2g = z => (!isFinite(z.re) || abs(z) > 1e11 ? C(1, 0) : div(sub(z, ONE), add(z, ONE)));
+    const g2z = g => (abs(sub(ONE, g)) < 1e-9 ? C(Infinity, 0) : div(add(ONE, g), sub(ONE, g)));
+    const rot = (g, a) => C(g.re * Math.cos(a) - g.im * Math.sin(a), g.re * Math.sin(a) + g.im * Math.cos(a));
+    const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+    function fmt(v, d = 2) {
+        if (!isFinite(v) || Math.abs(v) > 1e6) return '∞';
+        if (Math.abs(v) >= 1000) return v.toFixed(0);
+        return String(+v.toFixed(d)).replace('-', '−');
+    }
+    function fmtZ(z, unit = ' Ω', d = 1) {
+        if (!isFinite(z.re) || abs(z) > 1e6) return '∞ (open)';
+        return fmt(z.re, d) + (z.im < 0 ? ' − j' : ' + j') + fmt(Math.abs(z.im), d) + unit;
+    }
+    function fitCanvas(c, ratio) {
+        const w = c.clientWidth, h = Math.round(w * ratio), dpr = window.devicePixelRatio || 1;
+        if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) {
+            c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); c.style.height = h + 'px';
+        }
+        const ctx = c.getContext('2d');
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, w, h);
+        return { ctx, w, h };
+    }
+    function verdict(el, g) {
+        const m = abs(g);
+        el.className = 'verdict ' + (m < 0.2 ? 'good' : m < 0.45 ? 'ok' : 'bad');
+        el.textContent = m < 0.02 ? 'Perfect match: everything reaches the load.'
+            : m < 0.2 ? 'Good match: almost all power gets through.'
+            : m < 0.45 ? 'So-so: noticeable power is bouncing back.'
+            : m > 0.995 ? 'Total reflection: nothing is absorbed.'
+            : 'Poor match: a lot of power is bouncing back.';
+    }
+    const vswr = m => (m >= 0.9999 ? Infinity : (1 + m) / (1 - m));
+
+    // ---------- Smith chart drawing ----------
+    const RV = [0.2, 0.5, 1, 2, 5];
+    function smithGeom(w, h) { const R = Math.min(w, h) / 2 - 26; return { cx: w / 2, cy: h / 2, R }; }
+    function P(G, g) { return [G.cx + g.re * G.R, G.cy - g.im * G.R]; }
+    function drawSmith(ctx, G, o = {}) {
+        const { cx, cy, R } = G;
+        ctx.save();
+        ctx.fillStyle = '#fff';
+        ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI); ctx.fill();
+        ctx.clip();
+        ctx.lineWidth = 1;
+        const rc = o.colored ? 'rgba(29,78,216,0.45)' : css('--grid-strong');
+        const xc = o.colored ? 'rgba(220,38,38,0.42)' : css('--grid-strong');
+        if (o.adm) {
+            ctx.strokeStyle = 'rgba(124,58,237,0.28)'; ctx.setLineDash([3, 3]);
+            RV.forEach(g => { ctx.beginPath(); ctx.arc(cx - R * g / (1 + g), cy, R / (1 + g), 0, 2 * Math.PI); ctx.stroke(); });
+            RV.forEach(b => [b, -b].forEach(bb => { ctx.beginPath(); ctx.arc(cx - R, cy + R / bb, R / Math.abs(bb), 0, 2 * Math.PI); ctx.stroke(); }));
+            ctx.setLineDash([]);
+        }
+        ctx.strokeStyle = rc;
+        RV.forEach(r => { ctx.beginPath(); ctx.arc(cx + R * r / (1 + r), cy, R / (1 + r), 0, 2 * Math.PI); ctx.stroke(); });
+        ctx.strokeStyle = xc;
+        RV.forEach(x => [x, -x].forEach(xx => { ctx.beginPath(); ctx.arc(cx + R, cy - R / xx, R / Math.abs(xx), 0, 2 * Math.PI); ctx.stroke(); }));
+        ctx.strokeStyle = '#94a3b8';
+        ctx.beginPath(); ctx.moveTo(cx - R, cy); ctx.lineTo(cx + R, cy); ctx.stroke();
+        ctx.restore();
+        ctx.strokeStyle = '#475569'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI); ctx.stroke();
+        // labels
+        ctx.font = '10px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillStyle = o.colored ? '#1d4ed8' : '#64748b';
+        [0, ...RV].forEach(r => { const [px, py] = P(G, C((r - 1) / (r + 1), 0)); ctx.fillText(r, px + (r === 0 ? 8 : 0), py - 2); });
+        ctx.fillStyle = o.colored ? '#dc2626' : '#64748b'; ctx.textBaseline = 'middle';
+        RV.forEach(x => [x, -x].forEach(xx => {
+            const g = z2g(C(0, xx)), a = arg(g);
+            ctx.fillText((xx > 0 ? '+' : '−') + Math.abs(xx), cx + Math.cos(a) * (R + 13), cy - Math.sin(a) * (R + 11));
+        }));
+        ctx.fillStyle = '#64748b'; ctx.font = '600 10px Inter, sans-serif';
+        ctx.fillText('short', cx - R + 16, cy + 10); ctx.fillText('open', cx + R - 15, cy + 10);
+        ctx.fillText('inductive', cx, cy - R * 0.62); ctx.fillText('capacitive', cx, cy + R * 0.62);
+    }
+    function dot(ctx, x, y, col, r = 6) {
+        ctx.fillStyle = col; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+    }
+    function ringAt(ctx, G, m, col, dash = [5, 4]) {
+        ctx.save(); ctx.strokeStyle = col; ctx.setLineDash(dash); ctx.lineWidth = 1.3;
+        ctx.beginPath(); ctx.arc(G.cx, G.cy, m * G.R, 0, 2 * Math.PI); ctx.stroke(); ctx.restore();
+    }
+    function pointerG(e, c, G) {
+        const b = c.getBoundingClientRect();
+        return C((e.clientX - b.left - G.cx) / G.R, -(e.clientY - b.top - G.cy) / G.R);
+    }
+    // slider position <-> value: 0..1 maps to 0..infinity with 0.5 -> 1
+    const s2v = s => Math.tan(Math.PI * s / 2);
+    const v2s = v => (2 / Math.PI) * Math.atan(v);
+
+    const redraws = [];
+    window.addEventListener('resize', () => redraws.forEach(f => f()));
+
+    // ---------- Lab 1: bouncing wave ----------
+    (function () {
+        const c = document.getElementById('c1'), s = document.getElementById('l1s');
+        let t = 0, running = false;
+        const RL = () => 50 * s2v(+s.value);
+        function frame() {
+            const { ctx, w, h } = fitCanvas(c, w0());
+            const R = RL(), G = R > 1e7 ? 1 : (R - 50) / (R + 50);
+            const x0 = 64, x1 = w - 64, mid = h / 2 + 6, A = h * 0.17;
+            const lam = (x1 - x0) / 2.25, k = 2 * Math.PI / lam;
+            // cable
+            ctx.fillStyle = '#f1f5f9'; ctx.fillRect(x0, mid - A * 2.1, x1 - x0, A * 4.2);
+            ctx.strokeStyle = '#cbd5e1'; ctx.beginPath(); ctx.moveTo(x0, mid); ctx.lineTo(x1, mid); ctx.stroke();
+            // source and load
+            ctx.fillStyle = '#334155'; ctx.font = '600 11px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(x0 - 28, mid, 18, 0, 2 * Math.PI); ctx.stroke();
+            ctx.beginPath(); for (let i = 0; i <= 20; i++) { const xx = x0 - 38 + i; const yy = mid - 6 * Math.sin(i / 20 * 2 * Math.PI); i ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); } ctx.stroke();
+            ctx.fillText('source', x0 - 28, mid + 32);
+            ctx.strokeRect(x1 + 10, mid - 22, 30, 44);
+            ctx.fillText(R > 1e7 ? 'open' : R < 0.5 ? 'short' : Math.round(R) + ' Ω', x1 + 25, mid + 36);
+            ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#64748b';
+            ctx.fillText('50 Ω cable', (x0 + x1) / 2, mid - A * 2.1 - 10);
+            // waves (d = distance from load)
+            const line = (fn, col, lw, dash) => {
+                ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.setLineDash(dash || []);
+                ctx.beginPath();
+                for (let px = x0; px <= x1; px += 2) { const d = x1 - px, y = mid - A * fn(d); px === x0 ? ctx.moveTo(px, y) : ctx.lineTo(px, y); }
+                ctx.stroke(); ctx.setLineDash([]);
+            };
+            const env = d => Math.sqrt(1 + G * G + 2 * G * Math.cos(2 * k * d));
+            line(env, '#94a3b8', 1.2, [4, 4]);
+            line(d => -env(d), '#94a3b8', 1.2, [4, 4]);
+            line(d => Math.cos(t + k * d), css('--c1'), 1.6);
+            line(d => G * Math.cos(t - k * d), css('--c2'), 1.6);
+            line(d => Math.cos(t + k * d) + G * Math.cos(t - k * d), '#111', 2.6);
+            // readouts
+            document.getElementById('l1R').textContent = R > 1e7 ? '∞ (open)' : fmt(R, 1) + ' Ω';
+            document.getElementById('l1G').textContent = fmt(G, 3);
+            document.getElementById('l1P').textContent = fmt(G * G * 100, 1) + ' %';
+            verdict(document.getElementById('l1V'), C(G, 0));
+        }
+        const w0 = () => (c.clientWidth < 520 ? 0.62 : 0.36);
+        function loop() { if (!running) return; t += 0.06; frame(); requestAnimationFrame(loop); }
+        new IntersectionObserver(es => { running = es[0].isIntersecting; if (running) loop(); }).observe(c);
+        s.addEventListener('input', frame);
+        document.querySelectorAll('[data-l1]').forEach(b => b.addEventListener('click', () => { s.value = b.dataset.l1; frame(); }));
+        redraws.push(frame); frame();
+    })();
+
+    // ---------- Lab 2: plane <-> Smith ----------
+    (function () {
+        const ca = document.getElementById('c2a'), cb = document.getElementById('c2b');
+        let cur = C(1, 0.5);
+        const RMAX = 4, XMAX = 3;
+        function planeGeom(w, h) { const m = 26; return { m, w, h, sx: (w - 2 * m) / RMAX, sy: (h - 2 * m) / (2 * XMAX), oy: h / 2 }; }
+        const toPlane = (Q, z) => [Q.m + z.re * Q.sx, Q.oy - z.im * Q.sy];
+        function draw() {
+            // left: plane
+            let { ctx, w, h } = fitCanvas(ca, 1);
+            const Q = planeGeom(w, h);
+            ctx.fillStyle = '#fff'; ctx.fillRect(Q.m, Q.m, w - 2 * Q.m, h - 2 * Q.m);
+            ctx.lineWidth = 1; ctx.font = '10px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            [0, ...RV.filter(r => r <= RMAX), 3, 4].forEach(r => {
+                const x = Q.m + r * Q.sx;
+                ctx.strokeStyle = r === 0 ? '#475569' : 'rgba(29,78,216,0.45)';
+                ctx.beginPath(); ctx.moveTo(x, Q.m); ctx.lineTo(x, h - Q.m); ctx.stroke();
+                if (RV.includes(r) || r === 0) { ctx.fillStyle = '#1d4ed8'; ctx.fillText(r, x, h - Q.m + 4); }
+            });
+            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+            [0, ...RV.filter(x => x <= XMAX).flatMap(x => [x, -x])].forEach(x => {
+                const y = Q.oy - x * Q.sy;
+                ctx.strokeStyle = x === 0 ? '#94a3b8' : 'rgba(220,38,38,0.42)';
+                ctx.beginPath(); ctx.moveTo(Q.m, y); ctx.lineTo(w - Q.m, y); ctx.stroke();
+                ctx.fillStyle = '#dc2626'; ctx.fillText(x > 0 ? '+' + x : x === 0 ? '0' : '−' + (-x), Q.m - 4, y);
+            });
+            ctx.fillStyle = '#64748b'; ctx.textAlign = 'center'; ctx.font = '600 10px Inter, sans-serif';
+            ctx.fillText('r →', w - Q.m - 12, Q.oy + 10);
+            ctx.save(); ctx.translate(10, Q.m + 20); ctx.fillText('x', 0, 0); ctx.restore();
+            const [mx, my] = toPlane(Q, C(1, 0)); dot(ctx, mx, my, css('--good'), 4);
+            if (isFinite(cur.re) && cur.re <= RMAX && Math.abs(cur.im) <= XMAX) { const [px, py] = toPlane(Q, cur); dot(ctx, px, py, '#f59e0b'); }
+            else { ctx.fillStyle = '#f59e0b'; ctx.font = '600 11px Inter, sans-serif'; ctx.fillText('dot is off this map →', w / 2, Q.m + 12); }
+            // right: Smith
+            ({ ctx, w, h } = fitCanvas(cb, 1));
+            const G = smithGeom(w, h);
+            drawSmith(ctx, G, { colored: true });
+            dot(ctx, G.cx, G.cy, css('--good'), 4);
+            const g = z2g(cur), [px, py] = P(G, g); dot(ctx, px, py, '#f59e0b');
+            document.getElementById('l2z').textContent = fmtZ(cur, '', 2);
+            document.getElementById('l2g').textContent = fmtZ(g, '', 2);
+            document.getElementById('l2m').textContent = fmt(abs(g), 3);
+            ca._Q = Q; cb._G = G;
+        }
+        function onA(e) {
+            const b = ca.getBoundingClientRect(), Q = ca._Q;
+            const r = (e.clientX - b.left - Q.m) / Q.sx, x = (Q.oy - (e.clientY - b.top)) / Q.sy;
+            cur = C(Math.max(0, r), x); draw();
+        }
+        function onB(e) {
+            let g = pointerG(e, cb, cb._G); const m = abs(g);
+            if (m > 0.999) g = C(g.re / m * 0.999, g.im / m * 0.999);
+            cur = g2z(g); draw();
+        }
+        ca.addEventListener('pointermove', onA); ca.addEventListener('pointerdown', onA);
+        cb.addEventListener('pointermove', onB); cb.addEventListener('pointerdown', onB);
+        redraws.push(draw); draw();
+    })();
+
+    // ---------- Lab 3: explorer ----------
+    (function () {
+        const c = document.getElementById('c3'), sR = document.getElementById('l3R'), sX = document.getElementById('l3X'), z0s = document.getElementById('l3z0');
+        let z = C(0.6, 0.8), drag = false;
+        function syncSliders() { sR.value = v2s(Math.min(z.re, 1e9)); sX.value = v2s(z.im); }
+        function draw() {
+            const { ctx, w, h } = fitCanvas(c, 1), G = smithGeom(w, h);
+            drawSmith(ctx, G);
+            const g = z2g(z), m = abs(g), Z0 = +z0s.value;
+            ringAt(ctx, G, m, css('--accent'));
+            ctx.strokeStyle = 'rgba(29,78,216,0.35)'; ctx.lineWidth = 1.2;
+            const [px, py] = P(G, g);
+            ctx.beginPath(); ctx.moveTo(G.cx, G.cy); ctx.lineTo(px, py); ctx.stroke();
+            dot(ctx, G.cx, G.cy, css('--good'), 4);
+            dot(ctx, px, py, css('--accent'), 7);
+            const Zr = C(z.re * Z0, z.im * Z0);
+            document.getElementById('l3Rv').textContent = z.re > 1e6 ? '∞' : fmt(Zr.re, 1) + ' Ω';
+            document.getElementById('l3Xv').textContent = fmt(Zr.im, 1) + ' Ω';
+            document.getElementById('l3Z').textContent = fmtZ(Zr);
+            document.getElementById('l3z').textContent = fmtZ(z, '', 2);
+            document.getElementById('l3G').textContent = fmt(m, 3) + ' ∠ ' + fmt(arg(g) * 180 / Math.PI, 1) + '°';
+            const S = vswr(m);
+            document.getElementById('l3S').textContent = isFinite(S) ? fmt(S, 2) + ' : 1' : '∞';
+            document.getElementById('l3RL').textContent = m < 1e-4 ? '∞ dB' : fmt(-20 * Math.log10(m), 1) + ' dB';
+            document.getElementById('l3P').textContent = fmt((1 - m * m) * 100, 1) + ' %';
+            verdict(document.getElementById('l3V'), g);
+            c._G = G;
+        }
+        function onPtr(e) {
+            if (e.type === 'pointerdown') { drag = true; c.setPointerCapture(e.pointerId); }
+            if (!drag) return;
+            let g = pointerG(e, c, c._G); const m = abs(g);
+            if (m > 0.998) g = C(g.re / m * 0.998, g.im / m * 0.998);
+            z = g2z(g); z.re = Math.max(0, z.re); syncSliders(); draw();
+        }
+        c.addEventListener('pointerdown', onPtr); c.addEventListener('pointermove', onPtr);
+        c.addEventListener('pointerup', () => drag = false);
+        sR.addEventListener('input', () => { z = C(s2v(+sR.value), z.im); draw(); });
+        sX.addEventListener('input', () => { z = C(z.re, Math.sign(+sX.value) * s2v(Math.abs(+sX.value))); draw(); });
+        z0s.addEventListener('change', draw);
+        document.querySelectorAll('[data-l3]').forEach(b => b.addEventListener('click', () => {
+            const [r, x] = b.dataset.l3.split(',').map(Number); z = C(r, x); syncSliders(); draw();
+        }));
+        syncSliders(); redraws.push(draw); draw();
+    })();
+
+    // ---------- Lab 4: cable rotation ----------
+    (function () {
+        const c = document.getElementById('c4'), sL = document.getElementById('l4L'), play = document.getElementById('l4play');
+        let ZL = C(30, 40), anim = null;
+        function draw() {
+            const { ctx, w, h } = fitCanvas(c, 1), G = smithGeom(w, h);
+            drawSmith(ctx, G);
+            const l = +sL.value, gL = z2g(C(ZL.re / 50, ZL.im / 50)), m = abs(gL), turn = 4 * Math.PI * l;
+            const gin = rot(gL, -turn), zin = g2z(gin);
+            ringAt(ctx, G, m, '#cbd5e1');
+            // path
+            ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.arc(G.cx, G.cy, m * G.R, -arg(gL), -arg(gL) + turn, false); ctx.stroke();
+            const [lx, ly] = P(G, gL), [ix, iy] = P(G, gin);
+            dot(ctx, lx, ly, '#64748b', 6);
+            dot(ctx, ix, iy, css('--accent'), 7);
+            ctx.font = '600 11px Inter, sans-serif'; ctx.fillStyle = '#475569'; ctx.textAlign = 'left';
+            ctx.fillText('load', lx + 9, ly - 8);
+            ctx.fillStyle = css('--accent'); ctx.fillText('input', ix + 9, iy + 12);
+            document.getElementById('l4Lv').textContent = fmt(l, 3) + ' λ' + (Math.abs(l - 0.25) < 1e-6 ? '  (quarter wave)' : Math.abs(l - 0.5) < 1e-6 ? '  (half wave)' : '');
+            document.getElementById('l4ZL').textContent = fmtZ(ZL);
+            const Zin = C(zin.re * 50, zin.im * 50);
+            document.getElementById('l4Zin').textContent = fmtZ(Zin);
+            document.getElementById('l4G').textContent = fmt(m, 3);
+            document.getElementById('l4A').textContent = fmt(turn * 180 / Math.PI, 0) + '° clockwise';
+        }
+        sL.addEventListener('input', () => { if (anim) cancelAnimationFrame(anim), anim = null; draw(); });
+        document.querySelectorAll('[data-l4]').forEach(b => b.addEventListener('click', () => {
+            const [r, x] = b.dataset.l4.split(',').map(Number); ZL = C(r, x); draw();
+        }));
+        play.addEventListener('click', () => {
+            if (anim) cancelAnimationFrame(anim);
+            const t0 = performance.now();
+            const step = now => { const k = Math.min(1, (now - t0) / 4000); sL.value = (0.5 * k).toFixed(4); draw(); anim = k < 1 ? requestAnimationFrame(step) : null; };
+            anim = requestAnimationFrame(step);
+        });
+        redraws.push(draw); draw();
+    })();
+
+    // ---------- Lab 5: matching game ----------
+    (function () {
+        const c = document.getElementById('c5'), sel = document.getElementById('l5load'), ord = document.getElementById('l5order');
+        const sa = document.getElementById('l5a'), sb = document.getElementById('l5b'), sf = document.getElementById('l5f');
+        const Z0 = 50; let ZL = C(25, -30), root = 0;
+        const zl = () => C(ZL.re / Z0, ZL.im / Z0);
+        const freq = () => Math.pow(10, +sf.value) * 1e6; // 1 MHz .. 1 GHz
+        function fmtF(f) { return f >= 1e9 ? fmt(f / 1e9, 2) + ' GHz' : fmt(f / 1e6, f < 1e7 ? 2 : 0) + ' MHz'; }
+        function part(kind, v) { // kind 'series' -> v = normalised x ; 'shunt' -> v = normalised b
+            const w = 2 * Math.PI * freq();
+            if (Math.abs(v) < 1e-4) return 'nothing';
+            const eng = (val, u) => { const p = [[1e-12, 'p'], [1e-9, 'n'], [1e-6, 'µ'], [1e-3, 'm']]; for (let i = p.length - 1; i >= 0; i--) if (val >= p[i][0]) return fmt(val / p[i][0], 2) + ' ' + p[i][1] + u; return fmt(val * 1e12, 3) + ' p' + u; };
+            if (kind === 'series') { const X = v * Z0; return 'series ' + (X > 0 ? 'L ' + eng(X / w, 'H') : 'C ' + eng(1 / (w * -X), 'F')); }
+            const B = v / Z0; return 'shunt ' + (B > 0 ? 'C ' + eng(B / w, 'F') : 'L ' + eng(1 / (w * -B), 'H'));
+        }
+        function chain() {
+            const a = +sa.value, b = +sb.value, z0 = zl(), pts = [];
+            let z1, z2;
+            if (ord.value === 'series') {
+                for (let i = 0; i <= 60; i++) pts.push(C(z0.re, z0.im + a * i / 60));
+                z1 = C(z0.re, z0.im + a); const y1 = inv(z1);
+                for (let i = 0; i <= 60; i++) pts.push(inv(C(y1.re, y1.im + b * i / 60)));
+                z2 = inv(C(y1.re, y1.im + b));
+            } else {
+                const y0 = inv(z0);
+                for (let i = 0; i <= 60; i++) pts.push(inv(C(y0.re, y0.im + a * i / 60)));
+                z1 = inv(C(y0.re, y0.im + a));
+                for (let i = 0; i <= 60; i++) pts.push(C(z1.re, z1.im + b * i / 60));
+                z2 = C(z1.re, z1.im + b);
+            }
+            return { pts, z1, z2 };
+        }
+        function feasible(order) { const z = zl(); return order === 'series' ? z.re <= 1 : inv(z).re <= 1; }
+        function draw() {
+            const { ctx, w, h } = fitCanvas(c, 1), G = smithGeom(w, h);
+            drawSmith(ctx, G, { adm: true });
+            // target circle
+            ctx.save(); ctx.strokeStyle = css('--good'); ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
+            ctx.beginPath(); ctx.arc(G.cx + (ord.value === 'series' ? -1 : 1) * G.R / 2, G.cy, G.R / 2, 0, 2 * Math.PI); ctx.stroke(); ctx.restore();
+            const { pts, z1, z2 } = chain();
+            ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 3; ctx.lineJoin = 'round';
+            ctx.beginPath(); pts.forEach((z, i) => { const [x, y] = P(G, z2g(z)); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }); ctx.stroke();
+            dot(ctx, G.cx, G.cy, css('--good'), 5);
+            const [lx, ly] = P(G, z2g(zl())); dot(ctx, lx, ly, '#64748b', 6);
+            const [mx, my] = P(G, z2g(z1)); dot(ctx, mx, my, '#f59e0b', 4);
+            const g2 = z2g(z2), [ex, ey] = P(G, g2); dot(ctx, ex, ey, css('--accent'), 7);
+            ctx.font = '600 11px Inter, sans-serif'; ctx.fillStyle = '#475569'; ctx.textAlign = 'left'; ctx.fillText('load', lx + 9, ly - 8);
+            const s1 = ord.value === 'series' ? 'series' : 'shunt', s2 = ord.value === 'series' ? 'shunt' : 'series';
+            const fx = (v, k) => k === 'series' ? 'x = ' + fmt(v, 2) + '  (' + fmt(v * Z0, 1) + ' Ω)' : 'b = ' + fmt(v, 2) + '  (' + fmt(v / Z0 * 1000, 2) + ' mS)';
+            document.getElementById('l5an').textContent = 'Part 1 · ' + s1 + ' (next to load)';
+            document.getElementById('l5bn').textContent = 'Part 2 · ' + s2;
+            document.getElementById('l5av').textContent = fx(+sa.value, s1);
+            document.getElementById('l5bv').textContent = fx(+sb.value, s2);
+            document.getElementById('l5fv').textContent = fmtF(freq());
+            document.getElementById('l5p1').textContent = part(s1, +sa.value);
+            document.getElementById('l5p2').textContent = part(s2, +sb.value);
+            document.getElementById('l5Zin').textContent = fmtZ(C(z2.re * Z0, z2.im * Z0));
+            const m = abs(g2), S = vswr(m);
+            document.getElementById('l5S').textContent = isFinite(S) ? fmt(S, 2) + ' : 1' : '∞';
+            const V = document.getElementById('l5V');
+            if (!feasible(ord.value)) { V.className = 'verdict bad'; V.textContent = 'This order can\'t reach the green circle for this load. Switch the network order.'; }
+            else if (m < 0.03) { V.className = 'verdict good'; V.textContent = 'Matched! The source now sees ' + Z0 + ' Ω.'; }
+            else verdict(V, g2);
+            c._G = G;
+        }
+        function solution(z, order, sgn) {
+            if (order === 'series') {
+                const xp = sgn * Math.sqrt(Math.max(0, z.re - z.re * z.re));
+                return [xp - z.im, -inv(C(z.re, xp)).im];
+            }
+            const y = inv(z), bp = sgn * Math.sqrt(Math.max(0, y.re - y.re * y.re));
+            return [bp - y.im, -inv(C(y.re, bp)).im];
+        }
+        function solve() {
+            if (!feasible(ord.value)) { ord.value = ord.value === 'series' ? 'shunt' : 'series'; }
+            const [a, b] = solution(zl(), ord.value, root ? -1 : 1); root ^= 1;
+            sa.value = a.toFixed(3); sb.value = b.toFixed(3);
+            draw();
+        }
+        function newLoad(Z) { ZL = Z; root = 0; sa.value = 0; sb.value = 0; if (!feasible(ord.value)) ord.value = ord.value === 'series' ? 'shunt' : 'series'; draw(); }
+        sel.addEventListener('change', () => { const [r, x] = sel.value.split(',').map(Number); newLoad(C(r, x)); });
+        ord.addEventListener('change', () => { sa.value = 0; sb.value = 0; root = 0; draw(); });
+        [sa, sb, sf].forEach(s => s.addEventListener('input', draw));
+        document.getElementById('l5solve').addEventListener('click', solve);
+        document.getElementById('l5reset').addEventListener('click', () => { sa.value = 0; sb.value = 0; root = 0; draw(); });
+        document.getElementById('l5rand').addEventListener('click', () => {
+            let Z;
+            do { // keep both solutions inside the slider range
+                Z = C(Math.round(5 + Math.random() * 200), Math.round(-120 + Math.random() * 240));
+                const z = C(Z.re / Z0, Z.im / Z0);
+                const orders = ['series', 'shunt'].filter(o => (o === 'series' ? z.re : inv(z).re) <= 1);
+                var ok = orders.every(o => [1, -1].every(s => solution(z, o, s).every(v => Math.abs(v) < 2.95)));
+            } while (!ok);
+            newLoad(Z);
+        });
+        newLoad(C(25, -30));
+        redraws.push(draw);
+    })();
+})();
+</script>
+</body>
+</html>

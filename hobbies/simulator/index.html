@@ -1,2050 +1,1138 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Physics Playground — Keyboard-Controlled Simulator</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Double Pendulum Chaos Lab</title>
+    <meta name="description" content="Interactive double pendulum simulator: configurable physics and solvers, batch butterfly-effect runs, phase space, high-resolution state and time-to-flip fractal maps with zoom.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
-      :root {
-        --bg: #0a0e16;
-        --panel: rgba(16, 22, 34, 0.82);
-        --panel-solid: #10161f;
-        --border: rgba(120, 160, 220, 0.18);
-        --text: #e6edf6;
-        --muted: #8fa3bd;
-        --accent: #4fc3f7;
-        --accent2: #bb86fc;
-        --good: #7cfc98;
-        --warn: #f7dc6f;
-        --bad: #ff6b6b;
-        --font: "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
-        --mono: "Cascadia Code", "Consolas", "SF Mono", monospace;
-      }
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-      html,
-      body {
-        height: 100%;
-        overflow: hidden;
-        background: var(--bg);
-        color: var(--text);
-        font-family: var(--font);
-        user-select: none;
-        -webkit-user-select: none;
-      }
-      #view {
-        position: fixed;
-        inset: 0;
-        display: block;
-      }
-
-      /* ---- Top app-selector bar ---- */
-      #topbar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        padding: 8px 12px;
-        background: linear-gradient(180deg, rgba(6, 9, 15, 0.92), rgba(6, 9, 15, 0));
-        z-index: 10;
-        flex-wrap: wrap;
-      }
-      #brand {
-        font-weight: 700;
-        letter-spacing: 0.4px;
-        margin-right: 10px;
-        white-space: nowrap;
-      }
-      #brand .dot {
-        color: var(--accent);
-      }
-      .tab {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        padding: 7px 12px;
-        border: 1px solid var(--border);
-        background: var(--panel);
-        color: var(--muted);
-        border-radius: 9px;
-        cursor: pointer;
-        font-size: 13px;
-        transition:
-          all 0.15s ease;
-        backdrop-filter: blur(6px);
-      }
-      .tab:hover {
-        color: var(--text);
-        border-color: rgba(120, 160, 220, 0.4);
-      }
-      .tab.active {
-        color: #04121c;
-        background: var(--accent);
-        border-color: var(--accent);
-        font-weight: 600;
-      }
-      .tab .num {
-        opacity: 0.7;
-        font-family: var(--mono);
-        font-size: 11px;
-      }
-      .tab.active .num {
-        opacity: 0.85;
-      }
-      .spacer {
-        flex: 1;
-      }
-      .topbtn {
-        padding: 7px 12px;
-        border: 1px solid var(--border);
-        background: var(--panel);
-        color: var(--muted);
-        border-radius: 9px;
-        cursor: pointer;
-        font-size: 13px;
-        backdrop-filter: blur(6px);
-      }
-      .topbtn:hover {
-        color: var(--text);
-      }
-      .topbtn.on {
-        color: var(--bad);
-        border-color: rgba(255, 107, 107, 0.5);
-      }
-
-      /* ---- Live stats panel (top-right) ---- */
-      #stats {
-        position: fixed;
-        top: 58px;
-        right: 12px;
-        min-width: 190px;
-        padding: 12px 14px;
-        background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        backdrop-filter: blur(8px);
-        z-index: 9;
-        font-size: 12.5px;
-      }
-      #stats h4 {
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: var(--muted);
-        margin-bottom: 8px;
-        font-weight: 600;
-      }
-      .stat {
-        display: flex;
-        justify-content: space-between;
-        gap: 16px;
-        padding: 2px 0;
-      }
-      .stat .k {
-        color: var(--muted);
-      }
-      .stat .v {
-        font-family: var(--mono);
-        color: var(--text);
-      }
-
-      /* ---- Controls legend (bottom-left) ---- */
-      #legend {
-        position: fixed;
-        bottom: 12px;
-        left: 12px;
-        max-width: 340px;
-        padding: 12px 14px;
-        background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        backdrop-filter: blur(8px);
-        z-index: 9;
-        font-size: 12.5px;
-      }
-      #legend h4 {
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: var(--muted);
-        margin-bottom: 8px;
-        font-weight: 600;
-      }
-      .keyrow {
-        display: flex;
-        gap: 8px;
-        align-items: baseline;
-        padding: 2px 0;
-      }
-      .keyrow .desc {
-        color: var(--muted);
-      }
-      kbd {
-        display: inline-block;
-        min-width: 16px;
-        text-align: center;
-        padding: 1px 6px;
-        font-family: var(--mono);
-        font-size: 11px;
-        color: var(--text);
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        border-bottom-width: 2px;
-        border-radius: 5px;
-        white-space: nowrap;
-      }
-
-      /* ---- Center prompt / toast ---- */
-      #prompt {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        padding: 14px 26px;
-        background: rgba(10, 14, 22, 0.9);
-        border: 1px solid var(--accent);
-        border-radius: 14px;
-        z-index: 12;
-        font-size: 16px;
-        text-align: center;
-        box-shadow: 0 0 40px rgba(79, 195, 247, 0.25);
-        pointer-events: none;
-        opacity: 0;
-        transition: opacity 0.25s ease;
-      }
-      #prompt.show {
-        opacity: 1;
-        animation: pulse 1.6s ease-in-out infinite;
-      }
-      @keyframes pulse {
-        0%,
-        100% {
-          box-shadow: 0 0 30px rgba(79, 195, 247, 0.2);
+        :root {
+            --bg: #f7f8fa; --surface: #fff; --text: #1f2733; --muted: #64748b; --faint: #94a3b8;
+            --accent: #1d4ed8; --accent-soft: #eff4ff; --accent-dark: #1e3a8a; --border: #e6e9ef;
+            --good: #059669; --warn: #d97706; --bad: #dc2626; --stage: #0b1220;
         }
-        50% {
-          box-shadow: 0 0 55px rgba(79, 195, 247, 0.5);
-        }
-      }
-      #prompt small {
-        display: block;
-        margin-top: 4px;
-        color: var(--muted);
-        font-size: 12.5px;
-      }
+        * { box-sizing: border-box; }
+        html, body { height: 100%; }
+        body { margin: 0; display: flex; flex-direction: column; font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+        a { color: var(--accent); text-decoration: none; }
+        .mono { font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; }
 
-      /* ---- Bottom-center status ---- */
-      #status {
-        position: fixed;
-        bottom: 14px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 9;
-        font-size: 13px;
-        color: var(--muted);
-        display: flex;
-        gap: 14px;
-        align-items: center;
-        padding: 7px 16px;
-        background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        backdrop-filter: blur(6px);
-      }
-      #status b {
-        color: var(--text);
-      }
-      #status .paused {
-        color: var(--warn);
-      }
+        .topbar { flex: none; background: #fff; border-bottom: 1px solid var(--border); }
+        .topbar-inner { padding: 0.6rem 16px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; font-size: 0.82rem; font-weight: 600; }
+        .topbar a { color: var(--muted); } .topbar a:hover { color: var(--accent); }
+        .crumbs { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; } .crumbs span { color: var(--faint); }
 
-      /* ---- Help overlay ---- */
-      #help {
-        position: fixed;
-        inset: 0;
-        background: rgba(4, 7, 12, 0.8);
-        backdrop-filter: blur(4px);
-        z-index: 20;
-        display: none;
-        align-items: center;
-        justify-content: center;
-      }
-      #help.show {
-        display: flex;
-      }
-      #help .card {
-        width: min(680px, 92vw);
-        max-height: 86vh;
-        overflow: auto;
-        background: var(--panel-solid);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 26px 30px;
-      }
-      #help h2 {
-        margin-bottom: 4px;
-      }
-      #help p.sub {
-        color: var(--muted);
-        margin-bottom: 18px;
-      }
-      #help h3 {
-        margin: 18px 0 8px;
-        color: var(--accent);
-        font-size: 14px;
-        text-transform: uppercase;
-        letter-spacing: 0.6px;
-      }
-      #help .grid {
-        display: grid;
-        grid-template-columns: 130px 1fr;
-        gap: 6px 14px;
-        font-size: 13.5px;
-      }
-      #help .grid .desc {
-        color: var(--muted);
-      }
-      #help .close {
-        margin-top: 22px;
-        padding: 9px 16px;
-        border: 1px solid var(--border);
-        background: var(--accent);
-        color: #04121c;
-        font-weight: 600;
-        border-radius: 9px;
-        cursor: pointer;
-      }
-      /* ---- Equations panel (bottom-right) ---- */
-      #equations {
-        position: fixed;
-        right: 12px;
-        bottom: 12px;
-        width: 352px;
-        max-height: 55vh;
-        overflow: auto;
-        padding: 14px 16px;
-        background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        backdrop-filter: blur(8px);
-        z-index: 9;
-        font-size: 12.5px;
-      }
-      #equations.hidden {
-        display: none;
-      }
-      #equations h4 {
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: var(--muted);
-        margin-bottom: 10px;
-        font-weight: 600;
-      }
-      .eq-block {
-        margin-bottom: 11px;
-      }
-      .eq-title {
-        color: var(--accent2);
-        font-size: 11.5px;
-        margin-bottom: 3px;
-      }
-      .formula {
-        font-family: var(--mono);
-        color: var(--text);
-        font-size: 13px;
-        line-height: 1.55;
-        padding: 5px 9px;
-        background: rgba(255, 255, 255, 0.04);
-        border-left: 2px solid var(--accent);
-        border-radius: 4px;
-        margin: 3px 0;
-      }
-      .formula.small {
-        font-size: 11px;
-      }
-      .eq-note {
-        color: var(--muted);
-        font-size: 11px;
-        margin-top: 4px;
-      }
-      .eq-ok {
-        color: var(--good);
-      }
-      @media (max-width: 900px) {
-        #equations {
-          display: none;
+        .app { flex: 1; min-height: 0; display: grid; grid-template-columns: 340px minmax(0, 1fr); }
+        #panel { overflow-y: auto; background: #fff; border-right: 1px solid var(--border); padding: 0.4rem 0 2rem; }
+        #main { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+
+        details.sec { border-bottom: 1px solid var(--border); }
+        details.sec > summary { cursor: pointer; list-style: none; padding: 0.7rem 1rem; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); display: flex; justify-content: space-between; }
+        details.sec > summary::after { content: '+'; color: var(--faint); font-size: 0.9rem; }
+        details.sec[open] > summary::after { content: '−'; }
+        .sec-body { padding: 0 1rem 0.9rem; }
+        .row { margin-bottom: 0.55rem; }
+        .rl { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; font-size: 0.78rem; font-weight: 600; color: #334155; }
+        .nv { display: flex; align-items: center; gap: 0.25rem; }
+        .nv input { width: 84px; font: 600 0.76rem 'JetBrains Mono', monospace; color: var(--accent); border: 1px solid var(--border); border-radius: 5px; padding: 0.15rem 0.3rem; text-align: right; }
+        .nv i { font-style: normal; font-size: 0.7rem; color: var(--muted); min-width: 30px; }
+        input[type=range] { width: 100%; accent-color: var(--accent); margin: 0.15rem 0 0; }
+        select, .btn { font: inherit; font-size: 0.76rem; font-weight: 600; border: 1px solid var(--border); background: #fff; color: var(--text); border-radius: 6px; padding: 0.3rem 0.6rem; cursor: pointer; }
+        select { max-width: 60%; }
+        .btn:hover { border-color: #bfd0fb; color: var(--accent); }
+        .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .btn.primary:hover { background: var(--accent-dark); color: #fff; }
+        .btn.on { background: var(--accent-soft); color: var(--accent); border-color: #bfd0fb; }
+        .btns { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.3rem 0 0.6rem; }
+        .chk { display: flex; align-items: center; gap: 0.45rem; font-size: 0.78rem; font-weight: 600; color: #334155; margin-bottom: 0.5rem; }
+        .chk input { accent-color: var(--accent); }
+        .clr { display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; font-weight: 600; color: #334155; margin-bottom: 0.45rem; }
+        .clr input { width: 42px; height: 24px; border: 1px solid var(--border); border-radius: 5px; padding: 0 2px; background: #fff; }
+        .note { font-size: 0.72rem; color: var(--muted); line-height: 1.45; margin: 0.2rem 0 0.6rem; }
+        .sub { font-size: 0.7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin: 0.8rem 0 0.45rem; }
+        #picker { width: 100%; max-width: 220px; aspect-ratio: 1; display: block; margin: 0.2rem auto 0.6rem; border: 1px solid var(--border); border-radius: 8px; cursor: crosshair; touch-action: none; }
+
+        .tabs { flex: none; display: flex; gap: 0.3rem; padding: 0.5rem 0.8rem; background: #fff; border-bottom: 1px solid var(--border); overflow-x: auto; }
+        .tab { white-space: nowrap; }
+        #stage { flex: 1; min-height: 0; position: relative; background: var(--stage); }
+        .view { position: absolute; inset: 0; display: none; }
+        .view.on { display: flex; flex-direction: column; }
+        .cv { flex: 1; min-height: 0; position: relative; }
+        .cv canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+        .mapview { background: #f8fafc; }
+        .split { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; }
+        .split > .cv:last-child { background: var(--stage); }
+        .maptools { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; padding: 0.45rem 0.8rem; background: #fff; border-bottom: 1px solid var(--border); font-size: 0.74rem; }
+        .progress { width: 120px; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; }
+        .progress div { height: 100%; width: 0; background: var(--accent); transition: width 0.15s; }
+        #mapInfo { color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; margin-left: auto; }
+        .hint { position: absolute; left: 12px; top: 10px; color: #94a3b8; font-size: 0.72rem; pointer-events: none; }
+
+        #energyBox { flex: none; height: 74px; background: #fff; border-top: 1px solid var(--border); position: relative; }
+        #energyBox canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+        .bar { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; padding: 0.5rem 0.8rem; background: #fff; border-top: 1px solid var(--border); font-size: 0.76rem; }
+        .bar .grow { flex: 1; min-width: 140px; }
+        .bar .speed { width: 150px; }
+        .chip { font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 999px; background: #f1f5f9; color: var(--muted); white-space: nowrap; }
+        .chip.good { background: #ecfdf5; color: var(--good); } .chip.ok { background: #fffbeb; color: var(--warn); } .chip.bad { background: #fef2f2; color: var(--bad); }
+        #toast { position: fixed; left: 50%; bottom: 80px; transform: translateX(-50%); background: #0f172a; color: #fff; font-size: 0.8rem; padding: 0.5rem 0.9rem; border-radius: 8px; opacity: 0; transition: opacity 0.25s; pointer-events: none; z-index: 50; }
+        #toast.show { opacity: 0.95; }
+
+        @media (max-width: 900px) {
+            html, body { height: auto; }
+            .app { grid-template-columns: 1fr; }
+            #main { order: -1; height: 82vh; }
+            #panel { border-right: 0; border-top: 1px solid var(--border); }
+            .split { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+            .hint { display: none; }
         }
-      }
-      @media (max-width: 640px) {
-        #stats {
-          display: none;
-        }
-        #legend {
-          max-width: 60vw;
-          font-size: 11px;
-        }
-      }
     </style>
-  </head>
-  <body>
-    <canvas id="view"></canvas>
+</head>
+<body>
 
-    <div id="topbar">
-      <div id="brand">Physics<span class="dot">·</span>Playground</div>
-      <div id="tabs"></div>
-      <div class="spacer"></div>
-      <button class="topbtn" id="btn-eq" title="E">📐 Equations</button>
-      <button class="topbtn" id="btn-pause" title="Space">⏸ Pause</button>
-      <button class="topbtn" id="btn-reset" title="R">↻ Reset</button>
-      <button class="topbtn" id="btn-help" title="H">? Help</button>
+<header class="topbar">
+    <div class="topbar-inner">
+        <nav class="crumbs">
+            <a href="../../index.html">Portfolio</a><span>/</span>
+            <a href="../../academic/hobbies.html">Hobby Projects</a><span>/</span>
+            <strong>Double Pendulum Chaos Lab</strong>
+        </nav>
+        <a href="physics-sandbox.html">Classic physics sandbox →</a>
     </div>
+</header>
 
-    <div id="stats">
-      <h4 id="stats-title">Readouts</h4>
-      <div id="stats-body"></div>
-    </div>
+<div class="app">
+    <aside id="panel">
+        <details class="sec" open><summary>Physics &amp; environment</summary><div class="sec-body" id="secPhys">
+            <div class="btns" id="gPresets"></div>
+        </div></details>
+        <details class="sec" open><summary>Initial conditions</summary><div class="sec-body" id="secIC">
+            <canvas id="picker"></canvas>
+            <p class="note" style="text-align:center;margin-top:-0.3rem">2D angle selector: x = θ₁, y = θ₂. Click or drag. You can also drag the bobs in the Motion view.</p>
+            <div class="btns" id="icPresets"></div>
+        </div></details>
+        <details class="sec" open><summary>Solver</summary><div class="sec-body" id="secSolver"></div></details>
+        <details class="sec"><summary>Display</summary><div class="sec-body" id="secView"></div></details>
+        <details class="sec"><summary>Maps (state grid &amp; flip)</summary><div class="sec-body" id="secMap"></div></details>
+        <details class="sec"><summary>Export</summary><div class="sec-body">
+            <div class="btns">
+                <button class="btn" id="exCSV">Data → CSV</button>
+                <button class="btn" id="exJSON">Data → JSON</button>
+                <button class="btn" id="exView">View → PNG</button>
+                <button class="btn" id="exMap">Map → PNG (full res)</button>
+            </div>
+            <p class="note">Data export contains the recorded trajectory (every pendulum's θ₁, θ₂, ω₁, ω₂ and energy at each recorded sample). Map PNG is saved at the computed N × N resolution.</p>
+        </div></details>
+        <details class="sec"><summary>How it works</summary><div class="sec-body">
+            <p class="note">Two point masses on massless rods. The equations of motion come from the Lagrangian and are solved as a 2 × 2 linear system at every step. Damping adds a torque −γ·Mᵢᵢ·ωᵢ on each joint, so γ is a rate in 1/s. The dissipated energy is integrated alongside, so the energy check (E + dissipated − E₀) stays meaningful with damping.</p>
+            <p class="note"><b>Keys:</b> Space = play/pause, R = reset, → = step.</p>
+        </div></details>
+    </aside>
 
-    <div id="legend">
-      <h4 id="legend-title">Controls</h4>
-      <div id="legend-body"></div>
-    </div>
-
-    <div id="prompt"></div>
-
-    <div id="status">
-      <span id="status-app">—</span>
-      <span id="status-extra"></span>
-    </div>
-
-    <div id="equations">
-      <h4 id="equations-title">Physics</h4>
-      <div id="equations-body"></div>
-    </div>
-
-    <div id="help">
-      <div class="card">
-        <h2>Physics Playground</h2>
-        <p class="sub">A keyboard-driven physics sandbox. Everything is under your control.</p>
-
-        <h3>Global keys</h3>
-        <div class="grid">
-          <div><kbd>1</kbd>–<kbd>5</kbd></div>
-          <div class="desc">Switch application</div>
-          <div><kbd>Space</kbd></div>
-          <div class="desc">Pause / resume the simulation</div>
-          <div><kbd>R</kbd></div>
-          <div class="desc">Reset the current application</div>
-          <div><kbd>,</kbd> <kbd>.</kbd></div>
-          <div class="desc">Slow down / speed up time</div>
-          <div><kbd>E</kbd></div>
-          <div class="desc">Show / hide the physics equations</div>
-          <div><kbd>H</kbd> / <kbd>Esc</kbd></div>
-          <div class="desc">Open / close this help</div>
+    <section id="main">
+        <nav class="tabs" id="tabs">
+            <button class="btn tab on" data-view="motion">1 · Motion</button>
+            <button class="btn tab" data-view="phase">2 · Phase space</button>
+            <button class="btn tab" data-view="state">3 · State grid</button>
+            <button class="btn tab" data-view="flip">4 · Time-to-flip</button>
+            <button class="btn tab" data-view="explore">5 · Zoom explorer</button>
+        </nav>
+        <div id="stage">
+            <div class="view on" id="v-motion"><div class="cv"><canvas id="cMotion"></canvas><span class="hint">Drag a bob to set its angle · drag empty space to pan · wheel to zoom</span></div></div>
+            <div class="view" id="v-phase"><div class="cv"><canvas id="cPhase"></canvas><span class="hint">Drag to pan · wheel to zoom · double-click to auto-fit</span></div></div>
+            <div class="view mapview" id="v-state"><div class="cv"><canvas id="cState"></canvas></div></div>
+            <div class="view mapview" id="v-flip"><div class="cv"><canvas id="cFlip"></canvas></div></div>
+            <div class="view mapview" id="v-explore">
+                <div class="split"><div class="cv"><canvas id="cExMap"></canvas></div><div class="cv"><canvas id="cExMotion"></canvas><span class="hint">Click any cell on the map to launch that pendulum</span></div></div>
+            </div>
+            <div class="maptools" id="mapTools">
+                <select id="exKind" title="Map shown in the explorer"><option value="flip">Time-to-flip map</option><option value="state">State color grid</option></select>
+                <button class="btn primary" id="mRender">Render</button>
+                <button class="btn" id="mCancel">Cancel</button>
+                <button class="btn" id="mBack" title="Previous zoom">← Back</button>
+                <button class="btn" id="mReset">Full view</button>
+                <button class="btn" id="mPan" title="Drag pans instead of zooming (or hold Shift)">✋ Pan</button>
+                <div class="progress"><div id="mProg"></div></div>
+                <span id="mStatus" class="chip">idle</span>
+                <span id="mapInfo"></span>
+            </div>
         </div>
+        <div id="energyBox"><canvas id="cEnergy"></canvas></div>
+        <div class="bar">
+            <button class="btn primary" id="bPlay">▶ Play</button>
+            <button class="btn" id="bReset">↺ Reset</button>
+            <button class="btn" id="bStep">⏭ Step</button>
+            <span class="mono" id="tDisp">t = 0.00 s</span>
+            <input type="range" id="timeline" class="grow" min="0" max="0" step="1" value="0" title="Timeline: drag to rewind">
+            <span>Speed</span><input type="range" id="speed" class="speed" min="-1" max="1" step="0.01" value="0"><span class="mono" id="speedV">1.00×</span>
+            <span class="chip" id="eChip">energy</span>
+            <span class="chip" id="perfChip"></span>
+        </div>
+    </section>
+</div>
+<div id="toast"></div>
 
-        <div id="help-app"></div>
+<!-- Physics core: shared by the page and the map workers -->
+<script id="core-src" type="text/plain">
+var Core = (function () {
+    function deriv(s, P, d) {
+        var t1 = s[0], t2 = s[1], w1 = s[2], w2 = s[3];
+        var dl = t1 - t2, c = Math.cos(dl), sn = Math.sin(dl);
+        var M11 = (P.m1 + P.m2) * P.L1 * P.L1, M12 = P.m2 * P.L1 * P.L2 * c, M22 = P.m2 * P.L2 * P.L2;
+        var f1 = -P.m2 * P.L1 * P.L2 * w2 * w2 * sn - (P.m1 + P.m2) * P.g * P.L1 * Math.sin(t1) - P.gam * M11 * w1;
+        var f2 = P.m2 * P.L1 * P.L2 * w1 * w1 * sn - P.m2 * P.g * P.L2 * Math.sin(t2) - P.gam * M22 * w2;
+        var det = M11 * M22 - M12 * M12;
+        d[0] = w1; d[1] = w2;
+        d[2] = (f1 * M22 - M12 * f2) / det;
+        d[3] = (M11 * f2 - M12 * f1) / det;
+        d[4] = P.gam * (M11 * w1 * w1 + M22 * w2 * w2); // dissipated power
+    }
+    function energy(s, P) {
+        var T = 0.5 * (P.m1 + P.m2) * P.L1 * P.L1 * s[2] * s[2] + 0.5 * P.m2 * P.L2 * P.L2 * s[3] * s[3]
+              + P.m2 * P.L1 * P.L2 * s[2] * s[3] * Math.cos(s[0] - s[1]);
+        var V = -(P.m1 + P.m2) * P.g * P.L1 * Math.cos(s[0]) - P.m2 * P.g * P.L2 * Math.cos(s[1]);
+        return [T, V];
+    }
+    var K = [], Y = new Float64Array(5), i;
+    for (i = 0; i < 7; i++) K.push(new Float64Array(5));
+    function rk4(s, h, P) {
+        var k1 = K[0], k2 = K[1], k3 = K[2], k4 = K[3], j;
+        deriv(s, P, k1);
+        for (j = 0; j < 5; j++) Y[j] = s[j] + 0.5 * h * k1[j];
+        deriv(Y, P, k2);
+        for (j = 0; j < 5; j++) Y[j] = s[j] + 0.5 * h * k2[j];
+        deriv(Y, P, k3);
+        for (j = 0; j < 5; j++) Y[j] = s[j] + h * k3[j];
+        deriv(Y, P, k4);
+        for (j = 0; j < 5; j++) s[j] += h / 6 * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j]);
+    }
+    // Velocity Verlet with a velocity predictor (forces here depend on ω)
+    function verlet(s, h, P) {
+        var a = K[0], b = K[1];
+        deriv(s, P, a);
+        Y[0] = s[0] + s[2] * h + 0.5 * a[2] * h * h;
+        Y[1] = s[1] + s[3] * h + 0.5 * a[3] * h * h;
+        Y[2] = s[2] + a[2] * h; Y[3] = s[3] + a[3] * h; Y[4] = s[4];
+        deriv(Y, P, b);
+        s[0] = Y[0]; s[1] = Y[1];
+        s[2] += 0.5 * (a[2] + b[2]) * h;
+        s[3] += 0.5 * (a[3] + b[3]) * h;
+        s[4] += 0.5 * (a[4] + b[4]) * h;
+    }
+    // Dormand-Prince RK45 (the scheme behind SciPy's RK45)
+    var A = [[], [1 / 5], [3 / 40, 9 / 40], [44 / 45, -56 / 15, 32 / 9],
+        [19372 / 6561, -25360 / 2187, 64448 / 6561, -212 / 729],
+        [9017 / 3168, -355 / 33, 46732 / 5247, 49 / 176, -5103 / 18656],
+        [35 / 384, 0, 500 / 1113, 125 / 192, -2187 / 6784, 11 / 84]];
+    var E = [35 / 384 - 5179 / 57600, 0, 500 / 1113 - 7571 / 16695, 125 / 192 - 393 / 640,
+        -2187 / 6784 + 92097 / 339200, 11 / 84 - 187 / 2100, -1 / 40];
+    function dopri(s, h, P, tol) {
+        var j, m, acc, err = 0, e, sc;
+        deriv(s, P, K[0]);
+        for (j = 1; j < 7; j++) {
+            for (i = 0; i < 5; i++) { acc = s[i]; for (m = 0; m < j; m++) acc += h * A[j][m] * K[m][i]; Y[i] = acc; }
+            deriv(Y, P, K[j]);
+        }
+        for (i = 0; i < 4; i++) {
+            e = 0; for (m = 0; m < 7; m++) e += E[m] * K[m][i];
+            sc = tol + tol * Math.max(Math.abs(s[i]), Math.abs(Y[i]));
+            err = Math.max(err, Math.abs(e * h) / sc);
+        }
+        var fac = err === 0 ? 5 : Math.min(5, Math.max(0.2, 0.9 * Math.pow(err, -0.2)));
+        if (err <= 1) { for (i = 0; i < 5; i++) s[i] = Y[i]; return h * fac; }
+        return -h * fac;
+    }
+    // integrate exactly `span` seconds with adaptive steps; st.h carries the step size between calls
+    function rk45(s, span, P, st, tol) {
+        var t = 0, n = 0, h, r;
+        while (span - t > 1e-14 && n < 200000) {
+            h = Math.min(st.h, span - t);
+            r = dopri(s, h, P, tol);
+            if (r > 0) { t += h; if (h >= st.h) st.h = r; else st.h = Math.max(st.h, r); }
+            else st.h = Math.max(-r, 1e-10);
+            n++;
+        }
+        return n;
+    }
+    function step(s, h, P, method, st, tol) {
+        if (method === 'rk45') return rk45(s, h, P, st, tol);
+        if (method === 'verlet') verlet(s, h, P); else rk4(s, h, P);
+        return 1;
+    }
+    return { deriv: deriv, energy: energy, step: step };
+})();
+</script>
 
-        <button class="close" id="help-close">Got it — start playing</button>
-      </div>
-    </div>
+<!-- Map worker: computes rows of the state grid / time-to-flip map -->
+<script id="worker-src" type="text/plain">
+function computeRow(J, row) {
+    var N = J.N, P = J.P, s = new Float64Array(5), st = { h: J.dt }, c, k;
+    var th2 = J.y1 - (row + 0.5) / N * (J.y1 - J.y0);
+    var out = new Float32Array(J.kind === 'state' ? 2 * N : N);
+    var thr = J.thr, tb = Math.min(thr, Math.PI);
+    var Vlow = -(P.m1 + P.m2) * P.g * P.L1 - P.m2 * P.g * P.L2 * Math.cos(tb);   // min V with θ2 = thr
+    var Vup = -(P.m1 + P.m2) * P.g * P.L1 * Math.cos(tb) - P.m2 * P.g * P.L2;    // min V with θ1 = thr
+    for (c = 0; c < N; c++) {
+        var th1 = J.x0 + (c + 0.5) / N * (J.x1 - J.x0);
+        s[0] = th1; s[1] = th2; s[2] = J.w1; s[3] = J.w2; s[4] = 0; st.h = J.dt;
+        if (J.kind === 'state') {
+            var n = Math.max(1, Math.round(J.tEval / J.dt));
+            for (k = 0; k < n; k++) Core.step(s, J.dt, P, J.method, st, J.tol);
+            out[2 * c] = s[0]; out[2 * c + 1] = s[1];
+        } else {
+            var en = Core.energy(s, P), E0 = en[0] + en[1];
+            var chkLow = J.arm !== 'upper', chkUp = J.arm !== 'lower';
+            var canLow = chkLow && E0 >= Vlow, canUp = chkUp && E0 >= Vup;
+            var v = -1;
+            if ((chkLow && Math.abs(s[1]) >= thr) || (chkUp && Math.abs(s[0]) >= thr)) v = 0;
+            else if (canLow || canUp) {
+                var t = 0;
+                while (t < J.tmax) {
+                    Core.step(s, J.dt, P, J.method, st, J.tol); t += J.dt;
+                    if ((chkLow && Math.abs(s[1]) >= thr) || (chkUp && Math.abs(s[0]) >= thr)) { v = t; break; }
+                }
+            }
+            out[c] = v;
+        }
+    }
+    return out;
+}
+if (typeof WorkerGlobalScope !== 'undefined') {
+    onmessage = function (e) {
+        var J = e.data;
+        for (var i = 0; i < J.rows.length; i++) {
+            var out = computeRow(J, J.rows[i]);
+            postMessage({ job: J.job, row: J.rows[i], data: out }, [out.buffer]);
+        }
+    };
+}
+</script>
 
-    <script>
-      "use strict";
-      /* =====================================================================
-         Physics Playground — a single-file, dependency-free simulator.
-         Runs directly from a .html file (file://). Canvas 2D only.
+<script>
+(function () {
+    'use strict';
+    const coreSrc = document.getElementById('core-src').textContent;
+    const workerSrc = document.getElementById('worker-src').textContent;
+    const Core = new Function(coreSrc + '\nreturn Core;')();
+    const computeRowLocal = new Function(coreSrc + workerSrc + '\nreturn computeRow;')();
+    const $ = id => document.getElementById(id);
+    const D2R = Math.PI / 180, R2D = 180 / Math.PI, TAU = 2 * Math.PI;
+    const wrap = a => { a = (a + Math.PI) % TAU; if (a < 0) a += TAU; return a - Math.PI; };
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+    function fmt(v, d = 2) { if (!isFinite(v)) return '∞'; return String(+v.toFixed(d)).replace('-', '−'); }
+    function fit(cv) {
+        const r = cv.getBoundingClientRect(), w = Math.max(10, Math.round(r.width)), h = Math.max(10, Math.round(r.height)), dpr = window.devicePixelRatio || 1;
+        if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+        const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        return { ctx, w, h };
+    }
+    function niceStep(range, target) {
+        const raw = range / target, mag = Math.pow(10, Math.floor(Math.log10(raw))), n = raw / mag;
+        return (n < 1.5 ? 1 : n < 3 ? 2 : n < 7 ? 5 : 10) * mag;
+    }
+    let toastT;
+    function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2200); }
 
-         Architecture:
-           - Small vector + integration helpers.
-           - An Input manager (held keys + edge-triggered presses).
-           - A Game shell that owns the loop, the active app, pause/time-scale,
-             and the DOM HUD (tabs, stats, legend, prompt, status, help).
-           - Five self-contained "apps", each with its own correct physics and
-             its own keyboard controls: Simple Pendulum, Double Pendulum,
-             Projectile, Billiards, Newton's Cradle.
-      ===================================================================== */
+    // ================= settings =================
+    const S = {
+        L1: 1, L2: 1, m1: 1, m2: 1, g: 9.81, gam: 0,
+        th1: 120, th2: 120, w1: 0, w2: 0, N: 1, dth: 1e-3,
+        method: 'rk4', dt: 0.002, tol: 1e-9, Tmax: 60, energy: true,
+        speed: 1, trail: 300, rod: '#cbd5e1', bob: '#f59e0b', rainbow: true, rot: 0, mirror: false, zoom: 1, upper: false,
+        paxes: 't1t2', pwrap: true,
+        mapN: 300, mapDt: 0.01, mapW: false, stateT: 10, statePal: 'rgb',
+        flipThr: 180, flipArm: 'lower', flipT: 30, flipPal: 'viridis', flipLog: true, flipRev: false, noFlip: '#ffffff',
+        cA: '#0b1d51', cB: '#e8475f', cC: '#fde68a'
+    };
+    const ui = {};
+    function makeRow(parent, key, label, o) {
+        const row = document.createElement('div'); row.className = 'row';
+        row.innerHTML = '<div class="rl"><span>' + label + '</span><span class="nv"><input type="number" step="any"><i>' + (o.unit || '') + '</i></span></div><input type="range">';
+        const num = row.querySelector('input[type=number]'), rng = row.querySelector('input[type=range]');
+        const lo = o.log ? Math.max(o.min, o.logMin || o.min) : o.min;
+        const toR = v => o.log ? Math.log10(Math.max(v, lo)) : v, fromR = r => o.log ? Math.pow(10, r) : r;
+        rng.min = toR(lo); rng.max = toR(o.max); rng.step = o.log ? 0.001 : o.step;
+        const show = () => { num.value = +(+S[key]).toPrecision(o.prec || 6); rng.value = toR(S[key]); };
+        function set(v, fromRange) {
+            if (!isFinite(v)) return show();
+            v = clamp(v, o.min, o.max);
+            if (fromRange && !o.log && o.step) v = +(Math.round(v / o.step) * o.step).toFixed(8);
+            if (fromRange && o.log) v = +v.toPrecision(3);
+            S[key] = v; show(); changed(o.group, key);
+        }
+        rng.addEventListener('input', () => set(fromR(+rng.value), true));
+        num.addEventListener('change', () => set(+num.value, false));
+        show(); parent.appendChild(row); ui[key] = show;
+    }
+    function makeSelect(parent, key, label, opts, group) {
+        const row = document.createElement('div'); row.className = 'rl row';
+        row.innerHTML = '<span>' + label + '</span><select></select>';
+        const sel = row.querySelector('select');
+        opts.forEach(([v, t]) => { const o = document.createElement('option'); o.value = v; o.textContent = t; sel.appendChild(o); });
+        sel.value = S[key];
+        sel.addEventListener('change', () => { S[key] = sel.value; changed(group, key); });
+        parent.appendChild(row); ui[key] = () => { sel.value = S[key]; };
+    }
+    function makeCheck(parent, key, label, group) {
+        const l = document.createElement('label'); l.className = 'chk';
+        l.innerHTML = '<input type="checkbox"> ' + label;
+        const c = l.querySelector('input'); c.checked = S[key];
+        c.addEventListener('change', () => { S[key] = c.checked; changed(group, key); });
+        parent.appendChild(l); ui[key] = () => { c.checked = S[key]; };
+    }
+    function makeColor(parent, key, label, group) {
+        const l = document.createElement('label'); l.className = 'clr';
+        l.innerHTML = '<span>' + label + '</span><input type="color">';
+        const c = l.querySelector('input'); c.value = S[key];
+        c.addEventListener('input', () => { S[key] = c.value; changed(group, key); });
+        parent.appendChild(l); ui[key] = () => { c.value = S[key]; };
+    }
+    function sub(parent, text) { const d = document.createElement('div'); d.className = 'sub'; d.textContent = text; parent.appendChild(d); }
+    function note(parent, html) { const p = document.createElement('p'); p.className = 'note'; p.innerHTML = html; parent.appendChild(p); return p; }
+    function buttons(parent, list) {
+        const d = document.createElement('div'); d.className = 'btns';
+        list.forEach(([t, fn]) => { const b = document.createElement('button'); b.className = 'btn'; b.textContent = t; b.onclick = fn; d.appendChild(b); });
+        parent.appendChild(d); return d;
+    }
+    function refreshUI() { Object.values(ui).forEach(f => f()); drawPicker(); }
 
-      /* ---------------------------- Constants ---------------------------- */
-      const G = 980; // gravity, px/s^2  (~9.8 m/s^2 at 100 px per metre)
-      const PPM = 100; // pixels per metre, for human-readable readouts
-      const COLORS = ["#4fc3f7", "#ff6b6b", "#f7dc6f", "#7cfc98", "#bb86fc", "#ff9f43"];
+    // physics
+    const sp = $('secPhys');
+    makeRow(sp, 'L1', 'Rod length L₁', { min: 0.1, max: 10, step: 0.1, unit: 'm', group: 'phys' });
+    makeRow(sp, 'L2', 'Rod length L₂', { min: 0.1, max: 10, step: 0.1, unit: 'm', group: 'phys' });
+    makeRow(sp, 'm1', 'Bob mass m₁', { min: 0.1, max: 10, step: 0.1, unit: 'kg', group: 'phys' });
+    makeRow(sp, 'm2', 'Bob mass m₂', { min: 0.1, max: 10, step: 0.1, unit: 'kg', group: 'phys' });
+    makeRow(sp, 'g', 'Gravity g', { min: 0, max: 25, step: 0.01, unit: 'm/s²', group: 'phys' });
+    sp.appendChild($('gPresets'));
+    [['Earth', 9.81], ['Moon', 1.62], ['Mars', 3.71], ['Jupiter', 24.79], ['Zero-g', 0]].forEach(([n, v]) => {
+        const b = document.createElement('button'); b.className = 'btn'; b.textContent = n + ' ' + v;
+        b.onclick = () => { S.g = v; ui.g(); changed('phys', 'g'); }; $('gPresets').appendChild(b);
+    });
+    makeRow(sp, 'gam', 'Damping γ', { min: 0, max: 1, step: 0.001, unit: '1/s', group: 'phys' });
+    note(sp, 'γ = 0 is a frictionless vacuum. Physics changes apply live; the energy reference is re-based at that moment.');
 
-      /* ---------------------------- Utilities ---------------------------- */
-      const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
-      const TAU = Math.PI * 2;
-      function deg(r) {
-        return (r * 180) / Math.PI;
-      }
-      function fmt(n, d = 1) {
-        return Number(n).toFixed(d);
-      }
+    // initial conditions
+    const si = $('secIC');
+    makeRow(si, 'th1', 'Initial angle θ₁', { min: -180, max: 180, step: 0.1, unit: '°', group: 'ic', prec: 10 });
+    makeRow(si, 'th2', 'Initial angle θ₂', { min: -180, max: 180, step: 0.1, unit: '°', group: 'ic', prec: 10 });
+    makeRow(si, 'w1', 'Angular velocity ω₁', { min: -10, max: 10, step: 0.01, unit: 'rad/s', group: 'ic' });
+    makeRow(si, 'w2', 'Angular velocity ω₂', { min: -10, max: 10, step: 0.01, unit: 'rad/s', group: 'ic' });
+    sub(si, 'Batch (butterfly effect)');
+    makeRow(si, 'N', 'Pendulums N', { min: 1, max: 45, step: 1, unit: '', group: 'ic' });
+    makeRow(si, 'dth', 'Perturbation Δθ₂', { min: 0, logMin: 1e-8, max: 10, log: true, unit: '°', group: 'ic', prec: 3 });
+    note(si, 'Pendulum k starts at θ₂ + k·Δθ₂. Type any value down to 1e-8°.');
+    si.appendChild($('icPresets'));
+    const IC = {
+        'Gentle (periodic)': { th1: 10, th2: 10, w1: 0, w2: 0, N: 1 },
+        'Normal mode': { th1: 10, th2: 10 * Math.SQRT2, w1: 0, w2: 0, N: 1 },
+        'Chaotic': { th1: 120, th2: 120, w1: 0, w2: 0, N: 1 },
+        'Butterfly ×20': { th1: 120, th2: 120, w1: 0, w2: 0, N: 20, dth: 1e-6 },
+        'Fan ×45': { th1: 150, th2: 150, w1: 0, w2: 0, N: 45, dth: 0.01 },
+        'Near inverted': { th1: 179, th2: 179.5, w1: 0, w2: 0, N: 1 }
+    };
+    Object.entries(IC).forEach(([n, v]) => {
+        const b = document.createElement('button'); b.className = 'btn'; b.textContent = n;
+        b.onclick = () => { Object.assign(S, v); refreshUI(); resetSim(); if (n === 'Normal mode') toast('Normal mode is exact only for equal masses and lengths'); };
+        $('icPresets').appendChild(b);
+    });
 
-      // Classic RK4 over a numeric state array. `deriv(state)` returns dstate/dt.
-      function rk4(state, dt, deriv) {
-        const n = state.length;
-        const k1 = deriv(state);
-        const s2 = new Array(n);
-        for (let i = 0; i < n; i++) s2[i] = state[i] + (k1[i] * dt) / 2;
-        const k2 = deriv(s2);
-        const s3 = new Array(n);
-        for (let i = 0; i < n; i++) s3[i] = state[i] + (k2[i] * dt) / 2;
-        const k3 = deriv(s3);
-        const s4 = new Array(n);
-        for (let i = 0; i < n; i++) s4[i] = state[i] + k3[i] * dt;
-        const k4 = deriv(s4);
-        const out = new Array(n);
-        for (let i = 0; i < n; i++)
-          out[i] = state[i] + (dt / 6) * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]);
+    // solver
+    const ss = $('secSolver');
+    makeSelect(ss, 'method', 'Integrator', [['rk4', 'RK4 (4th order)'], ['verlet', 'Velocity Verlet'], ['rk45', 'Adaptive RK45 (Dormand–Prince)']], 'solver');
+    makeRow(ss, 'dt', 'Time step Δt', { min: 0.0001, max: 0.05, log: true, unit: 's', group: 'solver', prec: 3 });
+    makeRow(ss, 'tol', 'RK45 tolerance', { min: 1e-12, max: 1e-3, log: true, unit: '', group: 'solver', prec: 2 });
+    makeRow(ss, 'Tmax', 'Duration T_max', { min: 1, max: 300, step: 1, unit: 's', group: 'solver' });
+    makeCheck(ss, 'energy', 'Live energy conservation check', 'energy');
+    note(ss, 'With RK45, Δt is the output interval; the solver picks its own internal steps to meet the tolerance (the SciPy RK45 scheme, written in JavaScript).');
+
+    // display
+    const sv = $('secView');
+    makeRow(sv, 'trail', 'Trail length', { min: 0, max: 3000, step: 10, unit: 'pts', group: 'view' });
+    makeColor(sv, 'rod', 'Rod colour', 'view');
+    makeColor(sv, 'bob', 'Bob colour (single)', 'view');
+    makeCheck(sv, 'rainbow', 'Rainbow colours for a batch', 'view');
+    makeCheck(sv, 'upper', 'Also trail the upper bob', 'view');
+    sub(sv, 'Perspective');
+    makeRow(sv, 'rot', 'View rotation', { min: -180, max: 180, step: 1, unit: '°', group: 'view' });
+    makeRow(sv, 'zoom', 'Zoom', { min: 0.2, max: 5, log: true, unit: '×', group: 'view', prec: 3 });
+    makeCheck(sv, 'mirror', 'Mirror (view from behind)', 'view');
+    buttons(sv, [['Side', () => setCam(0, false)], ['Tilted 30°', () => setCam(30, false)], ['Upside-down', () => setCam(180, false)], ['Behind', () => setCam(0, true)], ['Recentre', () => { pan.x = pan.y = 0; S.zoom = 1; ui.zoom(); }]]);
+    function setCam(r, m) { S.rot = r; S.mirror = m; ui.rot(); ui.mirror(); }
+    sub(sv, 'Phase space');
+    makeSelect(sv, 'paxes', 'Axes', [['t1t2', 'θ₁ vs θ₂'], ['t1w1', 'θ₁ vs ω₁'], ['t2w2', 'θ₂ vs ω₂'], ['w1w2', 'ω₁ vs ω₂']], 'phase');
+    makeCheck(sv, 'pwrap', 'Wrap angles to [−180°, 180°]', 'phase');
+
+    // maps
+    const sm = $('secMap');
+    makeRow(sm, 'mapN', 'Grid resolution N × N', { min: 10, max: 2000, step: 10, unit: 'px', group: 'map' });
+    makeRow(sm, 'mapDt', 'Map time step', { min: 0.001, max: 0.05, log: true, unit: 's', group: 'map', prec: 3 });
+    makeCheck(sm, 'mapW', 'Start cells with ω₁, ω₂ from Initial conditions (else at rest)', 'map');
+    note(sm, 'Every pixel is its own pendulum started at (θ₁, θ₂). Maps run on all CPU cores; 2000 × 2000 = 4 million pendulums, so expect a wait. The map\'s integrator is the one chosen under Solver.');
+    sub(sm, 'State color grid');
+    makeRow(sm, 'stateT', 'Show state at time t', { min: 0.1, max: 120, step: 0.1, unit: 's', group: 'map' });
+    makeSelect(sm, 'statePal', 'Palette', [['rgb', 'RGB state (θ₁, θ₂)'], ['hsv', 'HSV (hue θ₁, value θ₂)'], ['vir1', 'Viridis (height of θ₁)'], ['vir2', 'Viridis (height of θ₂)'], ['cyc', 'Cyclic rainbow (θ₂)']], 'mapc');
+    sub(sm, 'Time-to-flip map');
+    makeRow(sm, 'flipThr', 'Flip threshold |θ| ≥', { min: 1, max: 720, step: 1, unit: '°', group: 'map' });
+    makeSelect(sm, 'flipArm', 'Arm', [['lower', 'Lower arm θ₂'], ['upper', 'Upper arm θ₁'], ['either', 'Either arm']], 'map');
+    makeRow(sm, 'flipT', 'Timeout cutoff', { min: 1, max: 300, step: 1, unit: 's', group: 'map' });
+    makeSelect(sm, 'flipPal', 'Gradient', [['viridis', 'Viridis'], ['magma', 'Magma'], ['inferno', 'Inferno'], ['plasma', 'Plasma'], ['turbo', 'Turbo'], ['custom', 'Custom (3 colours)']], 'mapc');
+    makeColor(sm, 'cA', 'Custom: fast flip', 'mapc');
+    makeColor(sm, 'cB', 'Custom: middle', 'mapc');
+    makeColor(sm, 'cC', 'Custom: slow flip', 'mapc');
+    makeColor(sm, 'noFlip', 'Never flips (within timeout)', 'mapc');
+    makeCheck(sm, 'flipLog', 'Logarithmic time scale', 'mapc');
+    makeCheck(sm, 'flipRev', 'Reverse gradient', 'mapc');
+    note(sm, '<b>Map controls:</b> drag a box to zoom in; Shift+drag or ✋ Pan to move; wheel zooms around the cursor; click a cell to load it as the initial condition.');
+
+    // ================= simulation =================
+    let PP = makeP();
+    function makeP() { return { L1: S.L1, L2: S.L2, m1: S.m1, m2: S.m2, g: S.g, gam: S.gam }; }
+    const sim = { pend: [], t: 0, hist: [], histT: [], drift: [], playing: false, acc: 0, viewIdx: -1, nextRec: 0, recDt: 1 / 60, done: false, slow: false, stepsPerSec: 0 };
+    const eTot = s => { const e = Core.energy(s, PP); return e[0] + e[1]; };
+    function escale(s) { return Math.max(Math.abs(eTot(s)), (PP.m1 + PP.m2) * PP.g * PP.L1 + PP.m2 * PP.g * PP.L2, Core.energy(s, PP)[0], 1e-12); }
+    function rebase() { sim.pend.forEach(p => { p.eRef = eTot(p.s) + p.s[4]; p.esc = escale(p.s); }); }
+    function resetSim() {
+        sim.pend = [];
+        for (let k = 0; k < S.N; k++) {
+            const s = new Float64Array([S.th1 * D2R, (S.th2 + k * S.dth) * D2R, S.w1, S.w2, 0]);
+            sim.pend.push({ s, st: { h: S.dt } });
+        }
+        rebase();
+        sim.t = 0; sim.hist = []; sim.histT = []; sim.drift = []; sim.acc = 0; sim.viewIdx = -1; sim.done = false;
+        sim.recDt = Math.max(S.dt, 1 / 60, S.Tmax / 20000); sim.nextRec = sim.recDt;
+        record(); phase.dirty = true; phase.auto = true; drawPicker();
+    }
+    function record() {
+        const N = sim.pend.length, a = new Float64Array(N * 5); let dm = 0;
+        sim.pend.forEach((p, k) => { a.set(p.s, k * 5); dm = Math.max(dm, Math.abs(eTot(p.s) + p.s[4] - p.eRef) / p.esc); });
+        sim.hist.push(a); sim.histT.push(sim.t); sim.drift.push(dm);
+    }
+    function stepAll() {
+        for (const p of sim.pend) Core.step(p.s, S.dt, PP, S.method, p.st, S.tol);
+        sim.t += S.dt;
+        if (sim.t + 1e-9 >= sim.nextRec) { record(); sim.nextRec += sim.recDt; }
+        if (sim.t >= S.Tmax - 1e-9) {
+            sim.done = true; setPlaying(false);
+            if (sim.histT[sim.histT.length - 1] < sim.t - 1e-9) record();
+            toast('Reached T_max = ' + S.Tmax + ' s');
+        }
+    }
+    function advance(span) {
+        sim.acc += span; sim.slow = false;
+        const N = sim.pend.length, budget = 250000, t0 = performance.now(); let steps = 0;
+        while (sim.acc >= S.dt && !sim.done) {
+            if (steps * N > budget || performance.now() - t0 > 25) { sim.acc = 0; sim.slow = true; break; }
+            stepAll(); steps++; sim.acc -= S.dt;
+        }
+        sim.stepsPerSec = sim.stepsPerSec * 0.9 + 0.1 * steps * 60;
+    }
+    function resumeFromView() {
+        if (sim.viewIdx < 0) return;
+        const i = sim.viewIdx, a = sim.hist[i];
+        sim.hist.length = i + 1; sim.histT.length = i + 1; sim.drift.length = i + 1;
+        sim.pend.forEach((p, k) => { p.s.set(a.subarray(k * 5, k * 5 + 5)); p.st.h = S.dt; });
+        sim.t = sim.histT[i]; sim.nextRec = sim.t + sim.recDt; sim.done = sim.t >= S.Tmax - 1e-9; sim.viewIdx = -1; phase.dirty = true;
+    }
+    function setPlaying(on) {
+        if (on) { resumeFromView(); if (sim.done) { resetSim(); } }
+        sim.playing = on; $('bPlay').textContent = on ? '❚❚ Pause' : '▶ Play';
+    }
+    // states currently on screen (live, or a rewound sample)
+    function shownStates() { return sim.viewIdx >= 0 ? sim.hist[sim.viewIdx] : null; }
+    function stateOf(k) { const a = shownStates(); return a ? a.subarray(k * 5, k * 5 + 5) : sim.pend[k].s; }
+    function shownEnd() { return sim.viewIdx >= 0 ? sim.viewIdx : sim.hist.length - 1; }
+
+    function changed(group, key) {
+        if (group === 'phys') { PP = makeP(); rebase(); drawPicker(); }
+        else if (group === 'ic') { setPlaying(false); resetSim(); }
+        else if (group === 'solver') {
+            sim.pend.forEach(p => p.st.h = S.dt);
+            if (key === 'dt' || key === 'Tmax') { sim.recDt = Math.max(S.dt, 1 / 60, S.Tmax / 20000); sim.nextRec = sim.t + sim.recDt; }
+            if (key === 'Tmax') sim.done = sim.t >= S.Tmax - 1e-9;
+        }
+        else if (group === 'phase') { phase.dirty = true; phase.auto = true; }
+        else if (group === 'energy') { $('energyBox').style.display = S.energy ? '' : 'none'; }
+        else if (group === 'mapc') { recolor(maps.state); recolor(maps.flip); }
+        else if (group === 'map') { $('mStatus').textContent = 'settings changed: press Render'; $('mStatus').className = 'chip ok'; }
+    }
+
+    // ================= colours =================
+    const PAL = {
+        viridis: ['#440154', '#482878', '#3e4989', '#31688e', '#26828e', '#1f9e89', '#35b779', '#6ece58', '#b5de2b', '#fde725'],
+        magma: ['#000004', '#180f3d', '#440f76', '#721f81', '#9e2f7f', '#cd4071', '#f1605d', '#fd9668', '#feca8d', '#fcfdbf'],
+        inferno: ['#000004', '#1b0c41', '#4a0c6b', '#781c6d', '#a52c60', '#cf4446', '#ed6925', '#fb9b06', '#f7d13d', '#fcffa4'],
+        plasma: ['#0d0887', '#47039f', '#7301a8', '#9c179e', '#bd3786', '#d8576b', '#ed7953', '#fb9f3a', '#fdca26', '#f0f921'],
+        turbo: ['#30123b', '#4662d7', '#36aaf9', '#1ae4b6', '#72fe5e', '#c8ef34', '#faba39', '#f66b19', '#ca2a04', '#7a0403']
+    };
+    const hex = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+    function lut(stops) {
+        const c = stops.map(hex), out = new Uint8ClampedArray(256 * 3);
+        for (let i = 0; i < 256; i++) {
+            const x = i / 255 * (c.length - 1), j = Math.min(c.length - 2, Math.floor(x)), f = x - j;
+            for (let k = 0; k < 3; k++) out[i * 3 + k] = c[j][k] + (c[j + 1][k] - c[j][k]) * f;
+        }
         return out;
-      }
-
-      /* ------------------------- Canvas / DPR ---------------------------- */
-      const canvas = document.getElementById("view");
-      const ctx = canvas.getContext("2d");
-      let W = 0,
-        H = 0,
-        DPR = 1;
-      function resize() {
-        DPR = Math.min(window.devicePixelRatio || 1, 2);
-        W = window.innerWidth;
-        H = window.innerHeight;
-        canvas.width = Math.round(W * DPR);
-        canvas.height = Math.round(H * DPR);
-        canvas.style.width = W + "px";
-        canvas.style.height = H + "px";
-        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-        if (Game.current && Game.current.onResize) Game.current.onResize(W, H);
-      }
-      window.addEventListener("resize", resize);
-
-      /* ----------------------------- Input ------------------------------- */
-      const Input = {
-        down: new Set(), // codes currently held
-        _pressListeners: [],
-        onPress(fn) {
-          this._pressListeners.push(fn);
-        },
-      };
-      const NAV_KEYS = new Set([
-        "ArrowUp",
-        "ArrowDown",
-        "ArrowLeft",
-        "ArrowRight",
-        "Space",
-        "Tab",
-      ]);
-      window.addEventListener("keydown", (e) => {
-        if (NAV_KEYS.has(e.code)) e.preventDefault();
-        const repeat = e.repeat;
-        Input.down.add(e.code);
-        if (!repeat) Input._pressListeners.forEach((fn) => fn(e));
-      });
-      window.addEventListener("keyup", (e) => Input.down.delete(e.code));
-      window.addEventListener("blur", () => Input.down.clear());
-      const held = (code) => Input.down.has(code);
-
-      /* --------------------------- Draw helpers -------------------------- */
-      function line(x1, y1, x2, y2, color, width = 2, dash = null) {
-        ctx.save();
-        if (dash) ctx.setLineDash(dash);
-        ctx.strokeStyle = color;
-        ctx.lineWidth = width;
-        ctx.lineCap = "round";
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
-        ctx.restore();
-      }
-      function disc(x, y, r, color, glow = 0) {
-        ctx.save();
-        if (glow > 0) {
-          ctx.shadowColor = color;
-          ctx.shadowBlur = glow;
+    }
+    const LUT = {}; Object.keys(PAL).forEach(k => LUT[k] = lut(PAL[k]));
+    function hsv(h, s, v) {
+        const i = Math.floor(h * 6), f = h * 6 - i, p = v * (1 - s), q = v * (1 - f * s), t = v * (1 - (1 - f) * s);
+        return [[v, t, p], [q, v, p], [p, v, t], [p, q, v], [t, p, v], [v, p, q]][((i % 6) + 6) % 6];
+    }
+    function stateColor(a, b, out, o) {
+        let r, g, bl;
+        switch (S.statePal) {
+            case 'hsv': { let h = (wrap(a) + Math.PI) / TAU; [r, g, bl] = hsv(h, 0.85, 0.6 + 0.4 * Math.cos(b)); break; }
+            case 'vir1': case 'vir2': { const x = S.statePal === 'vir1' ? a : b, i = Math.round((1 - Math.cos(x)) / 2 * 255) * 3, L = LUT.viridis; out[o] = L[i]; out[o + 1] = L[i + 1]; out[o + 2] = L[i + 2]; out[o + 3] = 255; return; }
+            case 'cyc': { const t = (wrap(b) + Math.PI) / TAU; r = Math.sin(Math.PI * t) ** 2; g = Math.sin(Math.PI * (t + 1 / 3)) ** 2; bl = Math.sin(Math.PI * (t + 2 / 3)) ** 2; break; }
+            default: r = 0.5 + 0.5 * Math.sin(a); g = 0.5 + 0.5 * Math.sin(b); bl = 0.5 + 0.5 * Math.cos(a + b);
         }
-        ctx.fillStyle = color;
-        ctx.beginPath();
-        ctx.arc(x, y, r, 0, TAU);
-        ctx.fill();
-        ctx.restore();
-      }
-      function ring(x, y, r, color, width = 2) {
-        ctx.save();
-        ctx.strokeStyle = color;
-        ctx.lineWidth = width;
-        ctx.beginPath();
-        ctx.arc(x, y, r, 0, TAU);
-        ctx.stroke();
-        ctx.restore();
-      }
-      function label(text, x, y, color = "#e6edf6", size = 13, align = "center") {
-        ctx.save();
-        ctx.fillStyle = color;
-        ctx.font = `${size}px "Segoe UI", sans-serif`;
-        ctx.textAlign = align;
-        ctx.textBaseline = "middle";
-        ctx.fillText(text, x, y);
-        ctx.restore();
-      }
-      // Arrow from (x,y) along (dx,dy).
-      function arrow(x, y, dx, dy, color, width = 3) {
-        const len = Math.hypot(dx, dy);
-        if (len < 1) return;
-        const ux = dx / len,
-          uy = dy / len;
-        const ex = x + dx,
-          ey = y + dy;
-        line(x, y, ex, ey, color, width);
-        const head = Math.min(12, len * 0.4);
-        const a = Math.atan2(uy, ux);
-        line(ex, ey, ex - head * Math.cos(a - 0.4), ey - head * Math.sin(a - 0.4), color, width);
-        line(ex, ey, ex - head * Math.cos(a + 0.4), ey - head * Math.sin(a + 0.4), color, width);
-      }
-      function faintGrid() {
-        ctx.save();
-        ctx.strokeStyle = "rgba(120,160,220,0.06)";
-        ctx.lineWidth = 1;
-        const step = 50;
-        for (let x = 0; x < W; x += step) {
-          ctx.beginPath();
-          ctx.moveTo(x, 0);
-          ctx.lineTo(x, H);
-          ctx.stroke();
+        out[o] = r * 255; out[o + 1] = g * 255; out[o + 2] = bl * 255; out[o + 3] = 255;
+    }
+    function flipLUT() { return S.flipPal === 'custom' ? lut([S.cA, S.cB, S.cC]) : LUT[S.flipPal]; }
+    function flipNorm(v, T) { return S.flipLog ? Math.log1p(v) / Math.log1p(T) : v / T; }
+
+    // ================= maps =================
+    const maps = { state: newMap('state'), flip: newMap('flip') };
+    function newMap(kind) { return { kind, region: full(), dataRegion: full(), hist: [], N: 0, data: null, exact: null, img: null, pix: null, prev: null, cfg: null, done: 0, t0: 0, rendered: false }; }
+    function full() { return { x0: -Math.PI, x1: Math.PI, y0: -Math.PI, y1: Math.PI }; }
+    const W = clamp((navigator.hardwareConcurrency || 4) - 1, 1, 12);
+    let workerURL = null, pool = [], job = 0, activeMap = null;
+    try { workerURL = URL.createObjectURL(new Blob([coreSrc + '\n' + workerSrc], { type: 'text/javascript' })); } catch (e) { workerURL = null; }
+    function spawnPool() {
+        pool.forEach(w => w.terminate()); pool = [];
+        if (!workerURL) return;
+        try {
+            for (let i = 0; i < W; i++) { const w = new Worker(workerURL); w.onmessage = onRow; pool.push(w); }
+        } catch (e) { pool = []; }
+    }
+    spawnPool();
+    function order(N) {
+        const seen = new Uint8Array(N), out = [];
+        for (let s = 1 << Math.ceil(Math.log2(N)); s >= 1; s >>= 1) for (let r = 0; r < N; r += s) if (!seen[r]) { seen[r] = 1; out.push(r); }
+        return out;
+    }
+    function render(map) {
+        cancel(false);
+        const N = Math.round(S.mapN), kind = map.kind;
+        // keep the old picture as a backdrop while the new one fills in
+        if (map.img && map.rendered) { const c = document.createElement('canvas'); c.width = map.img.width; c.height = map.img.height; c.getContext('2d').drawImage(map.img, 0, 0); map.prev = { canvas: c, region: { ...map.dataRegion } }; }
+        map.N = N; map.data = new Float32Array(N * N * (kind === 'state' ? 2 : 1)).fill(NaN); map.exact = new Uint8Array(N);
+        map.img = document.createElement('canvas'); map.img.width = N; map.img.height = N;
+        map.pix = map.img.getContext('2d').createImageData(N, N);
+        map.dataRegion = { ...map.region }; map.done = 0; map.t0 = performance.now(); map.rendered = true;
+        map.cfg = { flipT: S.flipT };
+        const J = {
+            job: ++job, kind, N, x0: map.region.x0, x1: map.region.x1, y0: map.region.y0, y1: map.region.y1,
+            P: makeP(), w1: S.mapW ? S.w1 : 0, w2: S.mapW ? S.w2 : 0, method: S.method, dt: S.mapDt, tol: S.tol,
+            tEval: S.stateT, thr: S.flipThr * D2R, arm: S.flipArm, tmax: S.flipT
+        };
+        activeMap = map; map.job = J.job;
+        const rows = order(N);
+        if (pool.length) {
+            pool.forEach((w, i) => w.postMessage({ ...J, rows: rows.filter((_, j) => j % pool.length === i) }));
+        } else { // fallback: main thread, in small slices
+            let i = 0;
+            const slice = () => { if (map.job !== job) return; const t0 = performance.now(); while (i < rows.length && performance.now() - t0 < 30) { const r = rows[i++]; onRow({ data: { job: J.job, row: r, data: computeRowLocal(J, r) } }); } if (i < rows.length) setTimeout(slice, 0); };
+            setTimeout(slice, 0);
         }
-        for (let y = 0; y < H; y += step) {
-          ctx.beginPath();
-          ctx.moveTo(0, y);
-          ctx.lineTo(W, y);
-          ctx.stroke();
+        setStatus('computing…', 'ok');
+    }
+    function cancel(user) {
+        if (activeMap && activeMap.done < activeMap.N) { spawnPool(); job++; if (user) setStatus('cancelled', 'bad'); }
+        activeMap = null;
+    }
+    function onRow(e) {
+        const m = e.data, map = activeMap; if (!map || m.job !== map.job) return;
+        const N = map.N, w = map.kind === 'state' ? 2 : 1;
+        map.data.set(m.data, m.row * N * w); map.exact[m.row] = 1;
+        paintRow(map, m.row, flipLUT());
+        map.done++;
+        const p = map.done / N, el = (performance.now() - map.t0) / 1000;
+        $('mProg').style.width = (p * 100).toFixed(1) + '%';
+        if (map.done >= N) { setStatus('done in ' + fmt(el, 1) + ' s · ' + N + '×' + N, 'good'); activeMap = null; drawPicker(); }
+        else setStatus(Math.round(p * 100) + '% · ~' + fmt(el / p * (1 - p), 0) + ' s left', 'ok');
+    }
+    function setStatus(t, c) { $('mStatus').textContent = t; $('mStatus').className = 'chip ' + (c || ''); }
+    function colorCell(map, r, c, L, out, o) {
+        const N = map.N;
+        if (map.kind === 'state') { const i = (r * N + c) * 2; stateColor(map.data[i], map.data[i + 1], out, o); return; }
+        const v = map.data[r * N + c];
+        if (v < 0) { const nf = hex(S.noFlip); out[o] = nf[0]; out[o + 1] = nf[1]; out[o + 2] = nf[2]; out[o + 3] = 255; return; }
+        let x = clamp(flipNorm(v, map.cfg.flipT), 0, 1); if (S.flipRev) x = 1 - x;
+        const i = Math.round(x * 255) * 3; out[o] = L[i]; out[o + 1] = L[i + 1]; out[o + 2] = L[i + 2]; out[o + 3] = 255;
+    }
+    function paintRow(map, r, L) {
+        const N = map.N, px = map.pix.data, base = r * N * 4;
+        for (let c = 0; c < N; c++) colorCell(map, r, c, L, px, base + c * 4);
+        let rr = r + 1;
+        while (rr < N && !map.exact[rr]) { px.copyWithin(rr * N * 4, base, base + N * 4); rr++; }
+        map.img.getContext('2d').putImageData(map.pix, 0, 0, 0, r, N, rr - r);
+    }
+    function recolor(map) {
+        if (!map.img) return;
+        const L = flipLUT();
+        for (let r = 0; r < map.N; r++) if (map.exact[r]) paintRow(map, r, L);
+    }
+
+    // map view drawing
+    const mapUI = { panMode: false, drag: null, hover: null };
+    function mapGeom(w, h, legend) {
+        const L = 52, B = 38, T = 14, R = legend ? 96 : 14;
+        const s = Math.max(40, Math.min(w - L - R, h - T - B));
+        return { x: L + (w - L - R - s) / 2, y: T + (h - T - B - s) / 2, s };
+    }
+    function toScreen(G, R, x, y) { return [G.x + (x - R.x0) / (R.x1 - R.x0) * G.s, G.y + (R.y1 - y) / (R.y1 - R.y0) * G.s]; }
+    function toData(G, R, px, py) { return [R.x0 + (px - G.x) / G.s * (R.x1 - R.x0), R.y1 - (py - G.y) / G.s * (R.y1 - R.y0)]; }
+    function drawMap(cv, map) {
+        const { ctx, w, h } = fit(cv), G = mapGeom(w, h, true), R = map.region;
+        ctx.fillStyle = '#f8fafc'; ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = '#e2e8f0'; ctx.fillRect(G.x, G.y, G.s, G.s);
+        ctx.save(); ctx.beginPath(); ctx.rect(G.x, G.y, G.s, G.s); ctx.clip(); ctx.imageSmoothingEnabled = false;
+        const blit = (img, DR) => { const [ax, ay] = toScreen(G, R, DR.x0, DR.y1), [bx, by] = toScreen(G, R, DR.x1, DR.y0); ctx.drawImage(img, ax, ay, bx - ax, by - ay); };
+        if (map.prev && map.done < map.N) blit(map.prev.canvas, map.prev.region);
+        if (map.img) blit(map.img, map.dataRegion);
+        // picked initial condition
+        const [px, py] = toScreen(G, R, wrap(S.th1 * D2R), wrap(S.th2 * D2R));
+        ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(px, py, 7, 0, TAU); ctx.moveTo(px - 12, py); ctx.lineTo(px - 4, py); ctx.moveTo(px + 4, py); ctx.lineTo(px + 12, py); ctx.moveTo(px, py - 12); ctx.lineTo(px, py - 4); ctx.moveTo(px, py + 4); ctx.lineTo(px, py + 12); ctx.stroke();
+        ctx.strokeStyle = 'rgba(0,0,0,0.6)'; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.arc(px, py, 8.2, 0, TAU); ctx.stroke();
+        // zoom rectangle
+        const d = mapUI.drag;
+        if (d && d.cv === cv && d.mode === 'zoom' && d.moved) {
+            ctx.strokeStyle = '#fff'; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5; ctx.strokeRect(d.rx, d.ry, d.rs, d.rs);
+            ctx.fillStyle = 'rgba(29,78,216,0.12)'; ctx.fillRect(d.rx, d.ry, d.rs, d.rs); ctx.setLineDash([]);
         }
         ctx.restore();
-      }
-
-      /* ============================ GAME SHELL =========================== */
-      const Game = {
-        apps: [],
-        current: null,
-        paused: false,
-        timeScale: 1,
-        showEq: true,
-        _acc: 0,
-        _last: 0,
-
-        register(app) {
-          this.apps.push(app);
-        },
-        switchTo(app) {
-          this.current = app;
-          this.paused = false;
-          if (app.onResize) app.onResize(W, H);
-          app.reset();
-          this.rebuildTabs();
-          this.refreshHUD();
-          this.updateStatus();
-        },
-        togglePause() {
-          this.paused = !this.paused;
-          this.updateStatus();
-        },
-        reset() {
-          if (this.current) this.current.reset();
-          this.paused = false;
-          this.updateStatus();
-        },
-
-        /* ---- DOM: tabs ---- */
-        rebuildTabs() {
-          const host = document.getElementById("tabs");
-          host.innerHTML = "";
-          this.apps.forEach((app, i) => {
-            const b = document.createElement("button");
-            b.className = "tab" + (app === this.current ? " active" : "");
-            b.innerHTML = `<span>${app.icon} ${app.name}</span><span class="num">${i + 1}</span>`;
-            b.onclick = () => Game.switchTo(app);
-            host.appendChild(b);
-          });
-        },
-        /* ---- DOM: legend + stats titles + help ---- */
-        refreshHUD() {
-          const app = this.current;
-          document.getElementById("legend-title").textContent = app.name + " — Controls";
-          const lb = document.getElementById("legend-body");
-          lb.innerHTML = (app.legend() || [])
-            .map(
-              ([keys, desc]) =>
-                `<div class="keyrow"><span>${keys}</span><span class="desc">${desc}</span></div>`,
-            )
-            .join("");
-          document.getElementById("stats-title").textContent = app.name + " — Readouts";
-          // Equations panel for this app.
-          document.getElementById("equations-title").textContent = "📐 " + app.name + " — Physics";
-          document.getElementById("equations-body").innerHTML = app.equations ? app.equations() : "";
-          // Help section for this app.
-          const ha = document.getElementById("help-app");
-          ha.innerHTML =
-            `<h3>${app.icon} ${app.name}</h3><div class="grid">` +
-            (app.legend() || [])
-              .map(([keys, desc]) => `<div>${keys}</div><div class="desc">${desc}</div>`)
-              .join("") +
-            `</div>`;
-        },
-        toggleEq(show) {
-          this.showEq = show === undefined ? !this.showEq : show;
-          document.getElementById("equations").classList.toggle("hidden", !this.showEq);
-          document.getElementById("btn-eq").classList.toggle("on", this.showEq);
-        },
-        setPrompt(text, sub) {
-          const el = document.getElementById("prompt");
-          if (!text) {
-            el.classList.remove("show");
-            return;
-          }
-          el.innerHTML = text + (sub ? `<small>${sub}</small>` : "");
-          el.classList.add("show");
-        },
-        updateStatus() {
-          document.getElementById("status-app").innerHTML =
-            `<b>${this.current.icon} ${this.current.name}</b>` +
-            (this.paused ? ` · <span class="paused">PAUSED</span>` : "") +
-            (this.timeScale !== 1 ? ` · ${fmt(this.timeScale, 2)}× time` : "");
-          document.getElementById("status-extra").innerHTML = this.current.statusExtra
-            ? this.current.statusExtra()
-            : "";
-          document.getElementById("btn-pause").innerHTML = this.paused ? "▶ Play" : "⏸ Pause";
-        },
-        updateStats() {
-          const rows = (this.current.stats && this.current.stats()) || [];
-          document.getElementById("stats-body").innerHTML = rows
-            .map(([k, v]) => `<div class="stat"><span class="k">${k}</span><span class="v">${v}</span></div>`)
-            .join("");
-        },
-
-        /* ---- Main loop ---- */
-        start() {
-          this.rebuildTabs();
-          this._last = performance.now();
-          requestAnimationFrame(this._tick.bind(this));
-        },
-        _tick(now) {
-          let frame = (now - this._last) / 1000;
-          this._last = now;
-          if (frame > 0.05) frame = 0.05; // clamp after tab-out
-          const app = this.current;
-
-          // Fixed-timestep physics for stability (esp. the double pendulum).
-          if (!this.paused) {
-            this._acc += frame * this.timeScale;
-            const h = 1 / 240;
-            let steps = 0;
-            while (this._acc >= h && steps < 2000) {
-              app.step(h);
-              this._acc -= h;
-              steps++;
+        ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1; ctx.strokeRect(G.x, G.y, G.s, G.s);
+        // axes in degrees
+        ctx.fillStyle = '#475569'; ctx.font = '10px Inter, sans-serif';
+        const ax = (a0, a1, horiz) => {
+            const st = niceStep((a1 - a0) * R2D, 6);
+            for (let v = Math.ceil(a0 * R2D / st) * st; v <= a1 * R2D + 1e-9; v += st) {
+                const lab = fmt(v, Math.max(0, -Math.floor(Math.log10(st)) + (st < 1 ? 1 : 0)));
+                if (horiz) { const [x] = toScreen(G, R, v * D2R, R.y0); ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText(lab, x, G.y + G.s + 4); ctx.fillRect(x, G.y + G.s, 1, 3); }
+                else { const [, y] = toScreen(G, R, R.x0, v * D2R); ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.fillText(lab, G.x - 6, y); ctx.fillRect(G.x - 3, y, 3, 1); }
             }
-          }
-          // Per-frame input handling (held keys) even when paused → allows aiming.
-          if (app.frameInput) app.frameInput(frame);
-
-          // Render.
-          ctx.clearRect(0, 0, W, H);
-          app.render();
-
-          this.updateStats();
-          this.updateStatus();
-          requestAnimationFrame(this._tick.bind(this));
-        },
-      };
-
-      /* ===================================================================
-         APP 1 — SIMPLE PENDULUM
-         Multiple independent pendulums for comparison. Each is a rod of
-         length L with a bob; θ measured from straight-down. You push the
-         selected one incrementally with the arrow keys.
-      =================================================================== */
-      const SimplePendulum = {
-        id: "pendulum",
-        name: "Simple Pendulum",
-        icon: "🕐",
-        items: [],
-        sel: 0,
-        pivotY: 0,
-        pushed: false,
-
-        make(L, color) {
-          return {
-            L,
-            theta: 0.6, // start slightly displaced so it is visibly ready
-            omega: 0,
-            mass: 1,
-            damping: 0.0,
-            frozen: false,
-            color,
-            trail: [],
-          };
-        },
-        reset() {
-          this.items = [this.make(240, COLORS[0])];
-          this.sel = 0;
-          this.pushed = false;
-          this.pivotY = 130;
-          Game.setPrompt("Press ← or → to push the pendulum", "It will start swinging");
-        },
-        onResize() {
-          this.pivotY = 130;
-        },
-        addItem() {
-          if (this.items.length >= 6) return;
-          const L = 160 + this.items.length * 40;
-          this.items.push(this.make(L, COLORS[this.items.length % COLORS.length]));
-          this.sel = this.items.length - 1;
-        },
-        removeItem() {
-          if (this.items.length <= 1) return;
-          this.items.splice(this.sel, 1);
-          this.sel = clamp(this.sel, 0, this.items.length - 1);
-        },
-        pivotX(i) {
-          const n = this.items.length;
-          return (W * (i + 1)) / (n + 1);
-        },
-
-        step(dt) {
-          for (const p of this.items) {
-            if (p.frozen) continue;
-            const g = G;
-            const next = rk4([p.theta, p.omega], dt, (s) => [
-              s[1],
-              -(g / p.L) * Math.sin(s[0]) - p.damping * s[1],
-            ]);
-            p.theta = next[0];
-            p.omega = next[1];
-          }
-          // record trail for the selected bob
-          const p = this.items[this.sel];
-          const px = this.pivotX(this.sel);
-          const bx = px + p.L * Math.sin(p.theta);
-          const by = this.pivotY + p.L * Math.cos(p.theta);
-          p.trail.push([bx, by]);
-          if (p.trail.length > 120) p.trail.shift();
-        },
-        frameInput(dt) {
-          const p = this.items[this.sel];
-          if (!p) return;
-          // Push: incremental angular velocity kick while held.
-          if (held("ArrowLeft")) {
-            p.omega -= 2.2 * dt;
-            this._didPush();
-          }
-          if (held("ArrowRight")) {
-            p.omega += 2.2 * dt;
-            this._didPush();
-          }
-          // Length adjust.
-          if (held("ArrowUp")) p.L = clamp(p.L - 90 * dt, 60, Math.min(H - this.pivotY - 30, 520));
-          if (held("ArrowDown")) p.L = clamp(p.L + 90 * dt, 60, Math.min(H - this.pivotY - 30, 520));
-        },
-        _didPush() {
-          if (!this.pushed) {
-            this.pushed = true;
-            Game.setPrompt(null);
-          }
-        },
-        keydown(e) {
-          const p = this.items[this.sel];
-          switch (e.code) {
-            case "KeyN":
-              this.addItem();
-              break;
-            case "Backspace":
-            case "Delete":
-              this.removeItem();
-              break;
-            case "Tab":
-              this.sel = (this.sel + 1) % this.items.length;
-              break;
-            case "KeyF":
-              if (p) p.frozen = !p.frozen;
-              break;
-            case "BracketLeft":
-              if (p) p.mass = clamp(p.mass - 0.5, 0.5, 20);
-              break;
-            case "BracketRight":
-              if (p) p.mass = clamp(p.mass + 0.5, 0.5, 20);
-              break;
-            case "KeyD":
-              if (p) p.damping = p.damping > 0 ? 0 : 0.6;
-              break;
-          }
-        },
-
-        render() {
-          faintGrid();
-          // support beam
-          line(0, this.pivotY, W, this.pivotY, "rgba(120,160,220,0.25)", 3);
-          this.items.forEach((p, i) => {
-            const px = this.pivotX(i);
-            const bx = px + p.L * Math.sin(p.theta);
-            const by = this.pivotY + p.L * Math.cos(p.theta);
-            const isSel = i === this.sel;
-            // trail
-            if (isSel && p.trail.length > 1) {
-              ctx.save();
-              ctx.strokeStyle = p.color + "55";
-              ctx.lineWidth = 2;
-              ctx.beginPath();
-              ctx.moveTo(p.trail[0][0], p.trail[0][1]);
-              for (const t of p.trail) ctx.lineTo(t[0], t[1]);
-              ctx.stroke();
-              ctx.restore();
+        };
+        ax(R.x0, R.x1, true); ax(R.y0, R.y1, false);
+        ctx.font = '600 11px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.textBaseline = 'top'; ctx.fillText('initial θ₁ (°)', G.x + G.s / 2, G.y + G.s + 20);
+        ctx.save(); ctx.translate(Math.max(12, G.x - 46), G.y + G.s / 2); ctx.rotate(-Math.PI / 2); ctx.textBaseline = 'top'; ctx.fillText('initial θ₂ (°)', 0, 0); ctx.restore();
+        drawLegend(ctx, map, G.x + G.s + 18, G.y, Math.min(G.s, 260));
+        if (!map.img) { ctx.fillStyle = '#475569'; ctx.font = '600 13px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('Press Render to compute this map', G.x + G.s / 2, G.y + G.s / 2); }
+        cv._G = G;
+    }
+    const keyCache = {};
+    function drawLegend(ctx, map, x, y, hgt) {
+        ctx.font = '600 10px Inter, sans-serif'; ctx.fillStyle = '#334155'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        if (map.kind === 'flip') {
+            const T = map.cfg ? map.cfg.flipT : S.flipT, L = flipLUT();
+            ctx.fillText('t_flip', x, y);
+            const bh = hgt - 60;
+            for (let i = 0; i < bh; i++) {
+                let f = i / (bh - 1); if (S.flipRev) f = 1 - f;
+                const j = Math.round(f * 255) * 3; ctx.fillStyle = 'rgb(' + L[j] + ',' + L[j + 1] + ',' + L[j + 2] + ')'; ctx.fillRect(x, y + 16 + i, 16, 1);
             }
-            // rod + bob
-            line(px, this.pivotY, bx, by, p.frozen ? "#5a6b82" : "rgba(230,237,246,0.8)", 3);
-            disc(px, this.pivotY, 5, "#8fa3bd");
-            const r = 10 + p.mass * 2.2;
-            if (isSel) ring(bx, by, r + 6, "#ffffff", 2);
-            disc(bx, by, r, p.color, isSel ? 24 : 10);
-            if (p.frozen) label("❄", bx, by, "#04121c", 14);
-            label("P" + (i + 1), px, this.pivotY - 14, isSel ? "#fff" : "#8fa3bd", 12);
-          });
-        },
-        legend() {
-          return [
-            ["<kbd>←</kbd><kbd>→</kbd>", "Push selected pendulum"],
-            ["<kbd>↑</kbd><kbd>↓</kbd>", "Shorten / lengthen rod"],
-            ["<kbd>[</kbd><kbd>]</kbd>", "Bob mass − / +"],
-            ["<kbd>F</kbd>", "Freeze / unfreeze selected"],
-            ["<kbd>D</kbd>", "Toggle air damping"],
-            ["<kbd>N</kbd>", "Add a pendulum (compare)"],
-            ["<kbd>Tab</kbd>", "Select next pendulum"],
-            ["<kbd>Del</kbd>", "Remove selected"],
-          ];
-        },
-        stats() {
-          const p = this.items[this.sel];
-          if (!p) return [];
-          const T = TAU * Math.sqrt(p.L / G);
-          const KE = 0.5 * p.mass * (p.L / PPM) ** 2 * p.omega ** 2;
-          const PE = p.mass * (G / PPM) * (p.L / PPM) * (1 - Math.cos(p.theta));
-          return [
-            ["Selected", "P" + (this.sel + 1) + " / " + this.items.length],
-            ["Angle", fmt(deg(p.theta), 1) + "°"],
-            ["Ang. vel.", fmt(p.omega, 2) + " rad/s"],
-            ["Length", fmt(p.L / PPM, 2) + " m"],
-            ["Mass", fmt(p.mass, 1) + " kg"],
-            ["Period T", fmt(T, 2) + " s"],
-            ["Energy", fmt(KE + PE, 2) + " J"],
-            ["State", p.frozen ? "❄ frozen" : "swinging"],
-          ];
-        },
-        statusExtra() {
-          return `${this.items.length} pendulum${this.items.length > 1 ? "s" : ""} · damping ${
-            this.items[this.sel] && this.items[this.sel].damping > 0 ? "on" : "off"
-          }`;
-        },
-        equations() {
-          return `
-            <div class="eq-block">
-              <div class="eq-title">Equation of motion (Newton / Lagrange)</div>
-              <div class="formula">α = −(g / L) · sin θ</div>
-              <div class="eq-note">with air damping: α = −(g/L)·sin θ − b·ω</div>
-            </div>
-            <div class="eq-block">
-              <div class="eq-title">Small-angle approximation (θ ≲ 15°)</div>
-              <div class="formula">α ≈ −(g / L) · θ &nbsp;→&nbsp; simple harmonic motion</div>
-            </div>
-            <div class="eq-block">
-              <div class="eq-title">Period (small angle)</div>
-              <div class="formula">T = 2π · √(L / g)</div>
-              <div class="eq-note">independent of mass and amplitude</div>
-            </div>
-            <div class="eq-block">
-              <div class="eq-title">Total mechanical energy</div>
-              <div class="formula">E = ½·m·L²·ω² + m·g·L·(1 − cos θ)</div>
-            </div>
-            <div class="eq-note">ω = dθ/dt, α = d²θ/dt². Integrated with RK4.
-              <span class="eq-ok">✔ validated</span></div>`;
-        },
-      };
-
-      /* ===================================================================
-         APP 2 — DOUBLE PENDULUM
-         Full chaotic double pendulum (RK4). Push it to start; freeze the
-         upper arm to turn it into a simple pendulum on the lower arm.
-         Add more for side-by-side chaos comparison, each independent.
-      =================================================================== */
-      const DoublePendulum = {
-        id: "double",
-        name: "Double Pendulum",
-        icon: "🎢",
-        items: [],
-        sel: 0,
-        pivotY: 0,
-        pushed: false,
-
-        make(color) {
-          return {
-            L1: 130,
-            L2: 130,
-            m1: 1,
-            m2: 1,
-            th1: Math.PI / 2,
-            w1: 0,
-            th2: Math.PI / 2,
-            w2: 0,
-            upperFrozen: false,
-            color,
-            trail: [],
-          };
-        },
-        reset() {
-          this.items = [this.make(COLORS[0])];
-          this.sel = 0;
-          this.pushed = false;
-          this.pivotY = 170;
-          Game.setPrompt(
-            "Press ← or → to apply a force push",
-            "Then watch the chaos · press U to freeze the upper arm",
-          );
-        },
-        onResize() {
-          this.pivotY = Math.min(200, H * 0.28);
-        },
-        addItem() {
-          if (this.items.length >= 4) return;
-          const d = this.make(COLORS[this.items.length % COLORS.length]);
-          // Tiny perturbation so copies visibly diverge (butterfly effect).
-          d.th2 += 0.001 * this.items.length;
-          this.items.push(d);
-          this.sel = this.items.length - 1;
-        },
-        removeItem() {
-          if (this.items.length <= 1) return;
-          this.items.splice(this.sel, 1);
-          this.sel = clamp(this.sel, 0, this.items.length - 1);
-        },
-        pivotX(i) {
-          const n = this.items.length;
-          return (W * (i + 1)) / (n + 1);
-        },
-
-        deriv(d, s) {
-          // s = [th1, w1, th2, w2]
-          const [t1, o1, t2, o2] = s;
-          const { L1, L2, m1, m2 } = d;
-          const dt = t1 - t2;
-          const sinD = Math.sin(dt),
-            cosD = Math.cos(dt);
-          const cos2D = Math.cos(2 * dt);
-          const den = 2 * m1 + m2 - m2 * cos2D;
-          const num1 =
-            -G * (2 * m1 + m2) * Math.sin(t1) -
-            m2 * G * Math.sin(t1 - 2 * t2) -
-            2 * sinD * m2 * (o2 * o2 * L2 + o1 * o1 * L1 * cosD);
-          const num2 =
-            2 *
-            sinD *
-            (o1 * o1 * L1 * (m1 + m2) + G * (m1 + m2) * Math.cos(t1) + o2 * o2 * L2 * m2 * cosD);
-          return [o1, num1 / (L1 * den), o2, num2 / (L2 * den)];
-        },
-        step(dt) {
-          for (const d of this.items) {
-            if (d.upperFrozen) {
-              // Upper arm locked → lower bob is a simple pendulum about bob1.
-              const next = rk4([d.th2, d.w2], dt, (s) => [s[1], -(G / d.L2) * Math.sin(s[0])]);
-              d.th2 = next[0];
-              d.w2 = next[1];
-            } else {
-              const next = rk4([d.th1, d.w1, d.th2, d.w2], dt, (s) => this.deriv(d, s));
-              d.th1 = next[0];
-              d.w1 = next[1];
-              d.th2 = next[2];
-              d.w2 = next[3];
+            ctx.strokeStyle = '#94a3b8'; ctx.strokeRect(x, y + 16, 16, bh);
+            ctx.fillStyle = '#475569'; ctx.font = '10px Inter, sans-serif'; ctx.textBaseline = 'middle';
+            const ticks = S.flipLog ? [0, 1, 3, 10, 30, 100, 300].filter(t => t <= T).concat(T) : [0, T / 4, T / 2, 3 * T / 4, T];
+            [...new Set(ticks)].forEach(t => { const yy = y + 16 + flipNorm(t, T) * (bh - 1); ctx.fillText(fmt(t, 1) + ' s', x + 21, yy); });
+            ctx.fillStyle = S.noFlip; ctx.fillRect(x, y + bh + 24, 16, 12); ctx.strokeRect(x, y + bh + 24, 16, 12);
+            ctx.fillStyle = '#475569'; ctx.fillText('no flip', x + 21, y + bh + 30);
+        } else {
+            ctx.fillText('final state', x, y);
+            const k = S.statePal + '';
+            if (!keyCache[k]) {
+                const c = document.createElement('canvas'); c.width = c.height = 64; const cx = c.getContext('2d'), im = cx.createImageData(64, 64);
+                for (let r = 0; r < 64; r++) for (let q = 0; q < 64; q++) stateColor(-Math.PI + (q + 0.5) / 64 * TAU, Math.PI - (r + 0.5) / 64 * TAU, im.data, (r * 64 + q) * 4);
+                cx.putImageData(im, 0, 0); keyCache[k] = c;
             }
-          }
-          // trail of the selected lower bob
-          const d = this.items[this.sel];
-          const px = this.pivotX(this.sel);
-          const x1 = px + d.L1 * Math.sin(d.th1);
-          const y1 = this.pivotY + d.L1 * Math.cos(d.th1);
-          const x2 = x1 + d.L2 * Math.sin(d.th2);
-          const y2 = y1 + d.L2 * Math.cos(d.th2);
-          d.trail.push([x2, y2]);
-          if (d.trail.length > 260) d.trail.shift();
-        },
-        frameInput(dt) {
-          const d = this.items[this.sel];
-          if (!d) return;
-          const target = d.upperFrozen ? "w2" : "w1";
-          if (held("ArrowLeft")) {
-            d[target] -= 2.4 * dt;
-            this._didPush();
-          }
-          if (held("ArrowRight")) {
-            d[target] += 2.4 * dt;
-            this._didPush();
-          }
-          if (held("ArrowUp")) {
-            d.L1 = clamp(d.L1 - 70 * dt, 60, 240);
-          }
-          if (held("ArrowDown")) {
-            d.L1 = clamp(d.L1 + 70 * dt, 60, 240);
-          }
-        },
-        _didPush() {
-          if (!this.pushed) {
-            this.pushed = true;
-            Game.setPrompt(null);
-          }
-        },
-        keydown(e) {
-          const d = this.items[this.sel];
-          switch (e.code) {
-            case "KeyU":
-              if (d) d.upperFrozen = !d.upperFrozen;
-              break;
-            case "KeyN":
-              this.addItem();
-              break;
-            case "Backspace":
-            case "Delete":
-              this.removeItem();
-              break;
-            case "Tab":
-              this.sel = (this.sel + 1) % this.items.length;
-              break;
-            case "BracketLeft":
-              if (d) d.L2 = clamp(d.L2 - 20, 60, 240);
-              break;
-            case "BracketRight":
-              if (d) d.L2 = clamp(d.L2 + 20, 60, 240);
-              break;
-          }
-        },
-        render() {
-          faintGrid();
-          line(0, this.pivotY, W, this.pivotY, "rgba(120,160,220,0.25)", 3);
-          this.items.forEach((d, i) => {
-            const px = this.pivotX(i);
-            const x1 = px + d.L1 * Math.sin(d.th1);
-            const y1 = this.pivotY + d.L1 * Math.cos(d.th1);
-            const x2 = x1 + d.L2 * Math.sin(d.th2);
-            const y2 = y1 + d.L2 * Math.cos(d.th2);
-            const isSel = i === this.sel;
-            if (isSel && d.trail.length > 1) {
-              ctx.save();
-              ctx.lineWidth = 2;
-              ctx.beginPath();
-              for (let k = 1; k < d.trail.length; k++) {
-                const a = k / d.trail.length;
-                ctx.strokeStyle =
-                  d.color +
-                  Math.round(a * 160)
-                    .toString(16)
-                    .padStart(2, "0");
-                ctx.beginPath();
-                ctx.moveTo(d.trail[k - 1][0], d.trail[k - 1][1]);
-                ctx.lineTo(d.trail[k][0], d.trail[k][1]);
-                ctx.stroke();
-              }
-              ctx.restore();
-            }
-            // upper arm
-            line(px, this.pivotY, x1, y1, d.upperFrozen ? "#5a6b82" : "rgba(230,237,246,0.75)", 4);
-            // lower arm
-            line(x1, y1, x2, y2, "rgba(230,237,246,0.6)", 3);
-            disc(px, this.pivotY, 5, "#8fa3bd");
-            disc(x1, y1, 10 + d.m1 * 2, d.upperFrozen ? "#5a6b82" : "#9fb3cc", 8);
-            if (d.upperFrozen) label("❄", x1, y1, "#04121c", 12);
-            if (isSel) ring(x2, y2, 18, "#ffffff", 2);
-            disc(x2, y2, 12 + d.m2 * 2, d.color, isSel ? 26 : 10);
-            label("D" + (i + 1), px, this.pivotY - 14, isSel ? "#fff" : "#8fa3bd", 12);
-          });
-        },
-        legend() {
-          return [
-            ["<kbd>←</kbd><kbd>→</kbd>", "Force push (upper, or lower if frozen)"],
-            ["<kbd>U</kbd>", "Freeze upper arm → simple pendulum"],
-            ["<kbd>↑</kbd><kbd>↓</kbd>", "Upper arm length"],
-            ["<kbd>[</kbd><kbd>]</kbd>", "Lower arm length"],
-            ["<kbd>N</kbd>", "Add a copy (compare chaos)"],
-            ["<kbd>Tab</kbd>", "Select next"],
-            ["<kbd>Del</kbd>", "Remove selected"],
-          ];
-        },
-        stats() {
-          const d = this.items[this.sel];
-          if (!d) return [];
-          return [
-            ["Selected", "D" + (this.sel + 1) + " / " + this.items.length],
-            ["θ₁ (upper)", fmt(deg(d.th1) % 360, 0) + "°"],
-            ["θ₂ (lower)", fmt(deg(d.th2) % 360, 0) + "°"],
-            ["ω₁", fmt(d.w1, 2)],
-            ["ω₂", fmt(d.w2, 2)],
-            ["L₁ / L₂", fmt(d.L1 / PPM, 2) + " / " + fmt(d.L2 / PPM, 2) + " m"],
-            ["Upper arm", d.upperFrozen ? "❄ frozen (simple)" : "free"],
-          ];
-        },
-        statusExtra() {
-          const d = this.items[this.sel];
-          return d && d.upperFrozen ? "upper frozen → acting as simple pendulum" : "chaotic mode";
-        },
-        equations() {
-          return `
-            <div class="eq-block">
-              <div class="eq-title">Angular accelerations — point masses, rigid massless rods</div>
-              <div class="formula small">α₁ = [ −g(2m₁+m₂)sin θ₁ − m₂g·sin(θ₁−2θ₂)
-                − 2·sin(θ₁−θ₂)·m₂·(ω₂²L₂ + ω₁²L₁cos(θ₁−θ₂)) ]
-                &nbsp;÷&nbsp; [ L₁·(2m₁+m₂ − m₂cos(2θ₁−2θ₂)) ]</div>
-              <div class="formula small">α₂ = [ 2·sin(θ₁−θ₂)·( ω₁²L₁(m₁+m₂)
-                + g(m₁+m₂)cos θ₁ + ω₂²L₂m₂cos(θ₁−θ₂) ) ]
-                &nbsp;÷&nbsp; [ L₂·(2m₁+m₂ − m₂cos(2θ₁−2θ₂)) ]</div>
-            </div>
-            <div class="eq-block">
-              <div class="eq-title">Upper arm frozen → the lower arm is a simple pendulum</div>
-              <div class="formula">α₂ = −(g / L₂) · sin θ₂</div>
-            </div>
-            <div class="eq-note">Deterministic but <b>chaotic</b>: a tiny change in θ grows
-              exponentially in time (positive Lyapunov exponent) — the reason the copies you add
-              drift apart. Derived from the Lagrangian; integrated with RK4.
-              <span class="eq-ok">✔ validated</span></div>`;
-        },
-      };
-
-      /* ===================================================================
-         APP 3 — PROJECTILE
-         Aim a launcher, set power, fire. Predicted arc shown live. Hit the
-         moving target for points. Ground bounces with restitution.
-      =================================================================== */
-      const Projectile = {
-        id: "projectile",
-        name: "Projectile",
-        icon: "🎯",
-        angle: Math.PI / 4, // launch angle from horizontal
-        speed: 900, // launch speed, px/s
-        shots: [],
-        target: null, // stationary ground target
-        score: 0,
-        launched: 0,
-        groundY: 0,
-        origin: { x: 90, y: 0 },
-
-        reset() {
-          this.angle = Math.PI / 4;
-          this.speed = 900;
-          this.shots = [];
-          this.score = 0;
-          this.launched = 0;
-          this.onResize();
-          this.placeTarget();
-          Game.setPrompt(
-            "Aim with ↑ ↓ · set power with ← → · Space to fire",
-            "Velocity vector vₓ, v_y is drawn on the ball in flight",
-          );
-        },
-        onResize() {
-          this.groundY = H - 70;
-          this.origin = { x: 90, y: this.groundY };
-        },
-        // A stationary target sitting on the ground (no vertical drift).
-        placeTarget() {
-          this.target = {
-            x: W * (0.45 + Math.random() * 0.48),
-            y: this.groundY - 16,
-            r: 22,
-          };
-        },
-        fire() {
-          this.shots.push({
-            x: this.origin.x,
-            y: this.origin.y,
-            vx: this.speed * Math.cos(this.angle),
-            vy: -this.speed * Math.sin(this.angle),
-            trail: [],
-            bounces: 0,
-            t: 0,
-            alive: true,
-          });
-          this.launched++;
-          Game.setPrompt(null);
-        },
-        step(dt) {
-          for (const s of this.shots) {
-            if (!s.alive) continue;
-            s.vy += G * dt; // gravity only — vₓ stays constant
-            s.x += s.vx * dt;
-            s.y += s.vy * dt;
-            s.t += dt;
-            s.trail.push([s.x, s.y]);
-            if (s.trail.length > 220) s.trail.shift();
-            if (s.y > this.groundY) {
-              s.y = this.groundY;
-              s.vy = -s.vy * 0.5; // restitution
-              s.vx *= 0.72;
-              s.bounces++;
-              if (Math.abs(s.vy) < 40 && s.bounces > 1) s.alive = false;
-            }
-            if (s.x > W + 60 || s.x < -60) s.alive = false;
-            if (
-              this.target &&
-              Math.hypot(s.x - this.target.x, s.y - this.target.y) < this.target.r + 6
-            ) {
-              this.score++;
-              s.alive = false;
-              this.placeTarget();
-            }
-          }
-          // keep dead shots only while their trail fades out
-          this.shots.forEach((s) => {
-            if (!s.alive && s.trail.length) s.trail.shift();
-          });
-          this.shots = this.shots.filter((s) => s.alive || s.trail.length);
-        },
-        frameInput(dt) {
-          if (held("ArrowUp")) this.angle = clamp(this.angle + 0.9 * dt, 0.02, Math.PI / 2 - 0.02);
-          if (held("ArrowDown")) this.angle = clamp(this.angle - 0.9 * dt, 0.02, Math.PI / 2 - 0.02);
-          if (held("ArrowLeft")) this.speed = clamp(this.speed - 520 * dt, 150, 1800);
-          if (held("ArrowRight")) this.speed = clamp(this.speed + 520 * dt, 150, 1800);
-        },
-        keydown(e) {
-          if (e.code === "Space" || e.code === "Enter") this.fire();
-          if (e.code === "KeyT") this.placeTarget();
-        },
-        // Predicted path + apex from the current aim/power (drawn dashed).
-        _predict() {
-          const pts = [];
-          let x = this.origin.x,
-            y = this.origin.y;
-          let vx = this.speed * Math.cos(this.angle),
-            vy = -this.speed * Math.sin(this.angle);
-          const dt = 1 / 120;
-          let apex = { x, y };
-          for (let i = 0; i < 1200; i++) {
-            vy += G * dt;
-            x += vx * dt;
-            y += vy * dt;
-            if (y < apex.y) apex = { x, y };
-            pts.push([x, y]);
-            if (y > this.groundY || x > W || x < 0) break;
-          }
-          return { pts, apex };
-        },
-        // Draw a labelled velocity arrow.
-        _vec(x, y, vx, vy, color, txt) {
-          arrow(x, y, vx, vy, color, 3);
-          if (txt) label(txt, x + vx + (vx >= 0 ? 12 : -12), y + vy, color, 12);
-        },
-        render() {
-          faintGrid();
-          // ground
-          ctx.save();
-          ctx.fillStyle = "rgba(124,252,152,0.08)";
-          ctx.fillRect(0, this.groundY, W, H - this.groundY);
-          ctx.restore();
-          line(0, this.groundY, W, this.groundY, "rgba(124,252,152,0.5)", 2);
-
-          // predicted arc + apex
-          const { pts, apex } = this._predict();
-          ctx.save();
-          ctx.setLineDash([4, 7]);
-          ctx.strokeStyle = "rgba(255,255,255,0.35)";
-          ctx.lineWidth = 1.5;
-          ctx.beginPath();
-          ctx.moveTo(this.origin.x, this.origin.y);
-          for (const p of pts) ctx.lineTo(p[0], p[1]);
-          ctx.stroke();
-          ctx.restore();
-          ring(apex.x, apex.y, 4, "rgba(255,255,255,0.6)", 1.5);
-          label("apex", apex.x, apex.y - 12, "rgba(255,255,255,0.6)", 11);
-
-          // launch velocity vector on the muzzle (decomposition preview)
-          const S = 0.12;
-          const vx0 = this.speed * Math.cos(this.angle) * S;
-          const vy0 = -this.speed * Math.sin(this.angle) * S;
-          this._vec(this.origin.x, this.origin.y, vx0, 0, "#4fc3f7", "vₓ");
-          this._vec(this.origin.x, this.origin.y, 0, vy0, "#ff9f43", "v_y");
-          this._vec(this.origin.x, this.origin.y, vx0, vy0, "#f7dc6f", "v₀");
-
-          // launcher barrel
-          const bl = 46;
-          line(
-            this.origin.x,
-            this.origin.y,
-            this.origin.x + bl * Math.cos(this.angle),
-            this.origin.y - bl * Math.sin(this.angle),
-            "#4fc3f7",
-            8,
-          );
-          disc(this.origin.x, this.origin.y, 16, "#274156");
-          ring(this.origin.x, this.origin.y, 16, "#4fc3f7", 2);
-          label(fmt(deg(this.angle), 0) + "°", this.origin.x, this.origin.y - 30, "#8fa3bd", 12);
-
-          // power gauge
-          const pw = (this.speed - 150) / (1800 - 150);
-          ctx.save();
-          ctx.fillStyle = "rgba(255,255,255,0.08)";
-          ctx.fillRect(this.origin.x - 20, this.origin.y + 26, 120, 8);
-          ctx.fillStyle = pw > 0.75 ? "#ff6b6b" : "#7cfc98";
-          ctx.fillRect(this.origin.x - 20, this.origin.y + 26, 120 * pw, 8);
-          ctx.restore();
-
-          // stationary target
-          if (this.target) {
-            const t = this.target;
-            ring(t.x, t.y, t.r, "#ff6b6b", 3);
-            ring(t.x, t.y, t.r * 0.6, "#ff6b6b", 2);
-            disc(t.x, t.y, 4, "#ff6b6b");
-          }
-
-          // shots + live velocity vectors on the most recent one
-          const lastAlive = [...this.shots].reverse().find((s) => s.alive);
-          for (const s of this.shots) {
-            if (s.trail.length > 1) {
-              ctx.save();
-              ctx.strokeStyle = "rgba(247,220,111,0.5)";
-              ctx.lineWidth = 2;
-              ctx.beginPath();
-              ctx.moveTo(s.trail[0][0], s.trail[0][1]);
-              for (const p of s.trail) ctx.lineTo(p[0], p[1]);
-              ctx.stroke();
-              ctx.restore();
-            }
-            if (!s.alive) continue;
-            disc(s.x, s.y, 7, "#f7dc6f", 16);
-            if (s === lastAlive) {
-              // decompose the velocity so students see v = vₓ + v_y
-              const ax = s.vx * S,
-                ay = s.vy * S;
-              this._vec(s.x, s.y, ax, 0, "#4fc3f7", "vₓ");
-              this._vec(s.x, s.y, 0, ay, "#ff9f43", "v_y");
-              this._vec(s.x, s.y, ax, ay, "#ffffff", "v");
-              // parallelogram guides
-              line(s.x + ax, s.y, s.x + ax, s.y + ay, "rgba(255,159,67,0.4)", 1, [3, 4]);
-              line(s.x, s.y + ay, s.x + ax, s.y + ay, "rgba(79,195,247,0.4)", 1, [3, 4]);
-            }
-          }
-        },
-        legend() {
-          return [
-            ["<kbd>↑</kbd><kbd>↓</kbd>", "Aim angle"],
-            ["<kbd>←</kbd><kbd>→</kbd>", "Power − / +"],
-            ["<kbd>Space</kbd>", "Fire projectile"],
-            ["<kbd>T</kbd>", "Move the target"],
-          ];
-        },
-        stats() {
-          const v0 = this.speed;
-          const T = (2 * v0 * Math.sin(this.angle)) / G;
-          const R = (v0 * v0 * Math.sin(2 * this.angle)) / G;
-          const Hm = (v0 * v0 * Math.sin(this.angle) ** 2) / (2 * G);
-          const s = [...this.shots].reverse().find((x) => x.alive);
-          const rows = [
-            ["Launch angle", fmt(deg(this.angle), 1) + "°"],
-            ["Launch speed", fmt(v0 / PPM, 1) + " m/s"],
-            ["Flight time", fmt(T, 2) + " s"],
-            ["Range", fmt(R / PPM, 2) + " m"],
-            ["Max height", fmt(Hm / PPM, 2) + " m"],
-          ];
-          if (s) {
-            rows.push(["— live vₓ", fmt(s.vx / PPM, 1) + " m/s"]);
-            rows.push(["— live v_y", fmt(-s.vy / PPM, 1) + " m/s"]);
-            rows.push(["— height", fmt((this.groundY - s.y) / PPM, 2) + " m"]);
-          }
-          rows.push(["Hits / shots", this.score + " / " + this.launched]);
-          return rows;
-        },
-        statusExtra() {
-          return `score ${this.score} · ${this.launched} launched`;
-        },
-        equations() {
-          return `
-            <div class="eq-block">
-              <div class="eq-title">Position (x₀, y₀ = launch point)</div>
-              <div class="formula">x(t) = x₀ + v₀·cos θ · t</div>
-              <div class="formula">y(t) = y₀ + v₀·sin θ · t − ½·g·t²</div>
-            </div>
-            <div class="eq-block">
-              <div class="eq-title">Velocity — horizontal stays constant, vertical changes</div>
-              <div class="formula">vₓ = v₀·cos θ &nbsp;(constant)</div>
-              <div class="formula">v_y = v₀·sin θ − g·t</div>
-            </div>
-            <div class="eq-block">
-              <div class="eq-title">Flight time · Range · Max height (level ground)</div>
-              <div class="formula">T = 2·v₀·sin θ / g</div>
-              <div class="formula">R = v₀²·sin(2θ) / g</div>
-              <div class="formula">H = v₀²·sin²θ / (2g)</div>
-            </div>
-            <div class="eq-note">Range is maximised at θ = 45°. The yellow/white arrow is the
-              velocity v; blue = vₓ, orange = v_y, and v² = vₓ² + v_y².
-              <span class="eq-ok">✔ validated</span></div>`;
-        },
-      };
-
-      /* ===================================================================
-         APP 4 — BILLIARDS
-         Aim the cue, set power, strike. Equal-mass elastic collisions,
-         cushion bounces, rolling friction, corner + side pockets.
-      =================================================================== */
-      const Billiards = {
-        id: "billiards",
-        name: "Billiards",
-        icon: "🎱",
-        table: null,
-        balls: [],
-        pockets: [],
-        aim: 0,
-        power: 0.55,
-        potted: 0,
-        R: 13,
-
-        reset() {
-          this.onResize();
-          this.aim = 0;
-          this.power = 0.55;
-          this.potted = 0;
-          this.rack();
-          Game.setPrompt("Aim with ← →, power with ↑ ↓, Space to strike", "Sink the balls in the pockets");
-        },
-        onResize() {
-          const m = Math.min(90, W * 0.08);
-          const top = 110,
-            bot = H - 110;
-          this.table = { x: m, y: top, w: W - 2 * m, h: bot - top };
-          const t = this.table;
-          const pr = 22;
-          this.pockets = [
-            { x: t.x, y: t.y, r: pr },
-            { x: t.x + t.w / 2, y: t.y, r: pr },
-            { x: t.x + t.w, y: t.y, r: pr },
-            { x: t.x, y: t.y + t.h, r: pr },
-            { x: t.x + t.w / 2, y: t.y + t.h, r: pr },
-            { x: t.x + t.w, y: t.y + t.h, r: pr },
-          ];
-        },
-        rack() {
-          const t = this.table;
-          const R = this.R;
-          this.balls = [];
-          // cue ball
-          this.balls.push({
-            x: t.x + t.w * 0.25,
-            y: t.y + t.h / 2,
-            vx: 0,
-            vy: 0,
-            color: "#f5f5f5",
-            cue: true,
-            alive: true,
-          });
-          // triangle rack of 10
-          const apex = { x: t.x + t.w * 0.68, y: t.y + t.h / 2 };
-          const dx = R * 2 * 0.9,
-            dy = R * 2 * 1.02;
-          let idx = 0;
-          const cols = [1, 2, 3, 4];
-          for (let c = 0; c < cols.length; c++) {
-            for (let r = 0; r < cols[c]; r++) {
-              const x = apex.x + c * dx;
-              const y = apex.y + (r - c / 2) * dy;
-              this.balls.push({
-                x,
-                y,
-                vx: 0,
-                vy: 0,
-                color: COLORS[idx % COLORS.length],
-                cue: false,
-                alive: true,
-              });
-              idx++;
-            }
-          }
-        },
-        allStopped() {
-          return this.balls.every((b) => !b.alive || Math.hypot(b.vx, b.vy) < 3);
-        },
-        cueBall() {
-          return this.balls.find((b) => b.cue && b.alive);
-        },
-        strike() {
-          if (!this.allStopped()) return;
-          const cue = this.cueBall();
-          if (!cue) return;
-          const v = 200 + this.power * 1400;
-          cue.vx = v * Math.cos(this.aim);
-          cue.vy = v * Math.sin(this.aim);
-          Game.setPrompt(null);
-        },
-        step(dt) {
-          const R = this.R;
-          const t = this.table;
-          const friction = 0.6; // per second linear damping factor
-          for (const b of this.balls) {
-            if (!b.alive) continue;
-            b.x += b.vx * dt;
-            b.y += b.vy * dt;
-            const damp = Math.exp(-friction * dt);
-            b.vx *= damp;
-            b.vy *= damp;
-            if (Math.hypot(b.vx, b.vy) < 3) {
-              b.vx = 0;
-              b.vy = 0;
-            }
-            // cushions
-            if (b.x - R < t.x) {
-              b.x = t.x + R;
-              b.vx = -b.vx * 0.9;
-            }
-            if (b.x + R > t.x + t.w) {
-              b.x = t.x + t.w - R;
-              b.vx = -b.vx * 0.9;
-            }
-            if (b.y - R < t.y) {
-              b.y = t.y + R;
-              b.vy = -b.vy * 0.9;
-            }
-            if (b.y + R > t.y + t.h) {
-              b.y = t.y + t.h - R;
-              b.vy = -b.vy * 0.9;
-            }
-          }
-          // ball-ball collisions (equal mass, elastic)
-          for (let i = 0; i < this.balls.length; i++) {
-            const a = this.balls[i];
-            if (!a.alive) continue;
-            for (let j = i + 1; j < this.balls.length; j++) {
-              const b = this.balls[j];
-              if (!b.alive) continue;
-              let nx = b.x - a.x,
-                ny = b.y - a.y;
-              const dist = Math.hypot(nx, ny);
-              if (dist > 0 && dist < 2 * R) {
-                nx /= dist;
-                ny /= dist;
-                // separate
-                const overlap = 2 * R - dist;
-                a.x -= (nx * overlap) / 2;
-                a.y -= (ny * overlap) / 2;
-                b.x += (nx * overlap) / 2;
-                b.y += (ny * overlap) / 2;
-                // relative velocity along normal
-                const rvn = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;
-                if (rvn < 0) {
-                  const imp = -(1 + 0.96) * rvn * 0.5; // equal masses
-                  a.vx -= imp * nx;
-                  a.vy -= imp * ny;
-                  b.vx += imp * nx;
-                  b.vy += imp * ny;
+            ctx.drawImage(keyCache[k], x, y + 16, 64, 64); ctx.strokeStyle = '#94a3b8'; ctx.strokeRect(x, y + 16, 64, 64);
+            ctx.fillStyle = '#475569'; ctx.font = '10px Inter, sans-serif';
+            ctx.fillText('x: θ₁ at t', x, y + 86); ctx.fillText('y: θ₂ at t', x, y + 99);
+            ctx.fillText('t = ' + fmt(S.stateT, 1) + ' s', x, y + 116);
+        }
+    }
+    function bindMap(cv, getMap) {
+        cv.addEventListener('pointerdown', e => {
+            const map = getMap(), G = cv._G; if (!G) return;
+            const b = cv.getBoundingClientRect(), x = e.clientX - b.left, y = e.clientY - b.top;
+            mapUI.drag = { cv, map, sx: x, sy: y, moved: false, mode: (e.shiftKey || mapUI.panMode) ? 'pan' : 'zoom', R0: { ...map.region } };
+            cv.setPointerCapture(e.pointerId);
+        });
+        cv.addEventListener('pointermove', e => {
+            const b = cv.getBoundingClientRect(), x = e.clientX - b.left, y = e.clientY - b.top, d = mapUI.drag, map = getMap(), G = cv._G;
+            if (G) {
+                const [tx, ty] = toData(G, map.region, x, y);
+                let val = '';
+                if (map.img && x >= G.x && x <= G.x + G.s && y >= G.y && y <= G.y + G.s) {
+                    const DR = map.dataRegion, c = Math.floor((tx - DR.x0) / (DR.x1 - DR.x0) * map.N), r = Math.floor((DR.y1 - ty) / (DR.y1 - DR.y0) * map.N);
+                    if (c >= 0 && r >= 0 && c < map.N && r < map.N && map.exact[r]) {
+                        if (map.kind === 'flip') { const v = map.data[r * map.N + c]; val = v < 0 ? ' · no flip' : ' · flips at ' + fmt(v, 2) + ' s'; }
+                        else { const i = (r * map.N + c) * 2; val = ' · at t: θ₁ ' + fmt(wrap(map.data[i]) * R2D, 1) + '°, θ₂ ' + fmt(wrap(map.data[i + 1]) * R2D, 1) + '°'; }
+                    }
                 }
-              }
+                $('mapInfo').textContent = 'θ₁ ' + fmt(tx * R2D, 4) + '°, θ₂ ' + fmt(ty * R2D, 4) + '°' + val;
             }
-          }
-          // pockets
-          for (const b of this.balls) {
-            if (!b.alive) continue;
-            for (const p of this.pockets) {
-              if (Math.hypot(b.x - p.x, b.y - p.y) < p.r) {
-                if (b.cue) {
-                  // scratch → respot cue
-                  b.x = t.x + t.w * 0.25;
-                  b.y = t.y + t.h / 2;
-                  b.vx = b.vy = 0;
-                } else {
-                  b.alive = false;
-                  this.potted++;
-                }
-              }
-            }
-          }
-        },
-        frameInput(dt) {
-          if (held("ArrowLeft")) this.aim -= 1.4 * dt;
-          if (held("ArrowRight")) this.aim += 1.4 * dt;
-          if (held("ArrowUp")) this.power = clamp(this.power + 0.6 * dt, 0.05, 1);
-          if (held("ArrowDown")) this.power = clamp(this.power - 0.6 * dt, 0.05, 1);
-        },
-        keydown(e) {
-          if (e.code === "Space" || e.code === "Enter") this.strike();
-        },
-        render() {
-          const t = this.table;
-          // felt
-          ctx.save();
-          ctx.fillStyle = "#123222";
-          ctx.strokeStyle = "#7a5230";
-          ctx.lineWidth = 12;
-          ctx.beginPath();
-          ctx.rect(t.x, t.y, t.w, t.h);
-          ctx.fill();
-          ctx.stroke();
-          ctx.restore();
-          // pockets
-          for (const p of this.pockets) disc(p.x, p.y, p.r, "#05100a");
-          // aiming guide from cue
-          const cue = this.cueBall();
-          if (cue && this.allStopped()) {
-            const gx = cue.x + Math.cos(this.aim) * 900;
-            const gy = cue.y + Math.sin(this.aim) * 900;
-            line(cue.x, cue.y, gx, gy, "rgba(255,255,255,0.25)", 1.5, [5, 6]);
-            arrow(
-              cue.x,
-              cue.y,
-              Math.cos(this.aim) * (40 + this.power * 90),
-              Math.sin(this.aim) * (40 + this.power * 90),
-              "#f7dc6f",
-              3,
-            );
-          }
-          // balls
-          for (const b of this.balls) {
-            if (!b.alive) continue;
-            disc(b.x, b.y, this.R, b.color, b.cue ? 10 : 0);
-            ring(b.x, b.y, this.R, "rgba(0,0,0,0.35)", 1.5);
-            if (b.cue) disc(b.x - 3, b.y - 3, 3, "rgba(0,0,0,0.15)");
-          }
-          // power gauge
-          ctx.save();
-          ctx.fillStyle = "rgba(255,255,255,0.08)";
-          ctx.fillRect(t.x, t.y + t.h + 22, 160, 8);
-          ctx.fillStyle = this.power > 0.8 ? "#ff6b6b" : "#7cfc98";
-          ctx.fillRect(t.x, t.y + t.h + 22, 160 * this.power, 8);
-          ctx.restore();
-          label("power", t.x + 80, t.y + t.h + 44, "#8fa3bd", 11);
-        },
-        legend() {
-          return [
-            ["<kbd>←</kbd><kbd>→</kbd>", "Aim the cue"],
-            ["<kbd>↑</kbd><kbd>↓</kbd>", "Power − / +"],
-            ["<kbd>Space</kbd>", "Strike (when balls stop)"],
-            ["<kbd>R</kbd>", "Re-rack"],
-          ];
-        },
-        stats() {
-          const live = this.balls.filter((b) => b.alive && !b.cue).length;
-          return [
-            ["Aim", fmt(((deg(this.aim) % 360) + 360) % 360, 0) + "°"],
-            ["Power", fmt(this.power * 100, 0) + "%"],
-            ["Balls left", String(live)],
-            ["Potted", String(this.potted)],
-            ["Table", this.allStopped() ? "ready" : "rolling…"],
-          ];
-        },
-        statusExtra() {
-          return `${this.potted} potted`;
-        },
-        equations() {
-          return `
-            <div class="eq-block">
-              <div class="eq-title">Elastic collision — two equal masses</div>
-              <div class="formula">m·v₁ + m·v₂ = m·v₁′ + m·v₂′ <span class="eq-note">(momentum)</span></div>
-              <div class="formula">½m·v₁² + ½m·v₂² = ½m·v₁′² + ½m·v₂′² <span class="eq-note">(kinetic energy)</span></div>
-            </div>
-            <div class="eq-block">
-              <div class="eq-title">Result along the line of impact (normal n̂)</div>
-              <div class="formula">v₁′·n̂ = v₂·n̂ , &nbsp; v₂′·n̂ = v₁·n̂</div>
-              <div class="eq-note">normal components swap; tangential components are unchanged</div>
-            </div>
-            <div class="eq-block">
-              <div class="eq-title">Coefficient of restitution</div>
-              <div class="formula">e = (v₂′ − v₁′) / (v₁ − v₂) &nbsp; (e = 1 fully elastic)</div>
-            </div>
-            <div class="eq-note">Rolling friction decays speed as v ← v·e^(−k·t). Cushions reflect with
-              e ≈ 0.9. <span class="eq-ok">✔ validated</span></div>`;
-        },
-      };
-
-      /* ===================================================================
-         APP 5 — NEWTON'S CRADLE
-         Choose how many balls to lift and the release angle. Equal-mass
-         elastic collisions transfer momentum across the line.
-      =================================================================== */
-      const Cradle = {
-        id: "cradle",
-        name: "Newton's Cradle",
-        icon: "⚖️",
-        n: 5,
-        lift: 1,
-        amp: 0.9,
-        L: 260,
-        R: 20,
-        balls: [],
-        pivotY: 0,
-        released: false,
-
-        reset() {
-          this.n = 5;
-          this.lift = 1;
-          this.amp = 0.9;
-          this.released = false;
-          this.onResize();
-          this.build();
-          Game.setPrompt(
-            "← → choose how many balls to lift · ↑ ↓ set angle · Space to release",
-            "Only the balls you lift swing out the far side — the middle stays still",
-          );
-        },
-        onResize() {
-          this.pivotY = 120;
-          this.L = Math.min(300, H - this.pivotY - 130);
-        },
-        build() {
-          this.balls = [];
-          // Pivots spaced exactly one diameter apart, so at rest the bobs just
-          // touch (this is what makes the momentum transfer clean).
-          const spacing = this.R * 2;
-          const startX = W / 2 - ((this.n - 1) * spacing) / 2;
-          for (let i = 0; i < this.n; i++) {
-            this.balls.push({
-              pivotX: startX + i * spacing,
-              theta: 0,
-              omega: 0,
-              color: COLORS[i % COLORS.length],
-            });
-          }
-          this.applyLift();
-        },
-        applyLift() {
-          // Lift the leftmost `lift` balls out to the left by `amp`.
-          for (let i = 0; i < this.balls.length; i++) {
-            this.balls[i].theta = i < this.lift ? -this.amp : 0;
-            this.balls[i].omega = 0;
-          }
-          this.released = false;
-        },
-        release() {
-          this.released = true;
-          Game.setPrompt(null);
-        },
-        bob(b) {
-          return {
-            x: b.pivotX + this.L * Math.sin(b.theta),
-            y: this.pivotY + this.L * Math.cos(b.theta),
-          };
-        },
-        step(dt) {
-          if (!this.released) return;
-          // 1) Advance every ball as an independent simple pendulum.
-          for (const b of this.balls) {
-            const next = rk4([b.theta, b.omega], dt, (s) => [s[1], -(G / this.L) * Math.sin(s[0])]);
-            b.theta = next[0];
-            b.omega = next[1];
-          }
-          // 2) Resolve contacts. Equal-mass elastic collisions exchange the
-          //    colliding balls' velocities. We iterate left-to-right until no
-          //    pair is still closing, so an impulse propagates through a whole
-          //    line of touching balls within a single step and leaves the
-          //    middle ones at rest — exactly the real cradle behaviour.
-          //    Crucially we DO NOT reposition resting balls (that was the old
-          //    bug that made the middle jitter): balls at rest have equal
-          //    velocities, so no swap fires and they stay perfectly still.
-          const contact = 2 * this.R + 1; // touch tolerance in px
-          for (let pass = 0; pass < this.n; pass++) {
-            let swapped = false;
-            for (let i = 0; i < this.balls.length - 1; i++) {
-              const a = this.balls[i],
-                c = this.balls[i + 1];
-              const pa = this.bob(a),
-                pc = this.bob(c);
-              const dist = Math.hypot(pc.x - pa.x, pc.y - pa.y);
-              // touching AND left ball gaining on the right ball → collide
-              if (dist <= contact && a.omega - c.omega > 1e-4) {
-                const tmp = a.omega;
-                a.omega = c.omega;
-                c.omega = tmp;
-                swapped = true;
-              }
-            }
-            if (!swapped) break;
-          }
-        },
-        frameInput() {},
-        keydown(e) {
-          switch (e.code) {
-            case "ArrowLeft":
-              if (!this.released) {
-                this.lift = clamp(this.lift - 1, 1, this.n - 1);
-                this.applyLift();
-              }
-              break;
-            case "ArrowRight":
-              if (!this.released) {
-                this.lift = clamp(this.lift + 1, 1, this.n - 1);
-                this.applyLift();
-              }
-              break;
-            case "ArrowUp":
-              if (!this.released) {
-                this.amp = clamp(this.amp + 0.1, 0.2, 1.3);
-                this.applyLift();
-              }
-              break;
-            case "ArrowDown":
-              if (!this.released) {
-                this.amp = clamp(this.amp - 0.1, 0.2, 1.3);
-                this.applyLift();
-              }
-              break;
-            case "Space":
-            case "Enter":
-              this.release();
-              break;
-            case "BracketRight":
-              if (this.n < 8) {
-                this.n++;
-                this.build();
-              }
-              break;
-            case "BracketLeft":
-              if (this.n > 2) {
-                this.n--;
-                this.lift = clamp(this.lift, 1, this.n - 1);
-                this.build();
-              }
-              break;
-          }
-        },
-        render() {
-          faintGrid();
-          // support frame
-          line(0, this.pivotY, W, this.pivotY, "rgba(120,160,220,0.3)", 4);
-          for (const b of this.balls) {
-            const p = this.bob(b);
-            const moving = Math.abs(b.omega) > 0.05;
-            line(b.pivotX, this.pivotY, p.x, p.y, "rgba(230,237,246,0.5)", 2);
-            disc(b.pivotX, this.pivotY, 4, "#8fa3bd");
-            disc(p.x, p.y, this.R, b.color, moving ? 18 : 6);
-            ring(p.x, p.y, this.R, "rgba(0,0,0,0.3)", 1.5);
-          }
-          if (!this.released) {
-            label(
-              `Lifting ${this.lift} ball${this.lift > 1 ? "s" : ""} — press Space to release`,
-              W / 2,
-              this.pivotY + this.L + 60,
-              "#8fa3bd",
-              14,
-            );
-          }
-        },
-        legend() {
-          return [
-            ["<kbd>←</kbd><kbd>→</kbd>", "How many balls to lift"],
-            ["<kbd>↑</kbd><kbd>↓</kbd>", "Release angle"],
-            ["<kbd>Space</kbd>", "Release"],
-            ["<kbd>[</kbd><kbd>]</kbd>", "Fewer / more balls"],
-            ["<kbd>R</kbd>", "Reset cradle"],
-          ];
-        },
-        stats() {
-          const moving = this.balls.filter((b) => Math.abs(b.omega) > 0.05).length;
-          const p = this.balls.reduce((s, b) => s + this.L * b.omega, 0); // ∝ total momentum
-          return [
-            ["Balls", String(this.n)],
-            ["Lifting", String(this.lift)],
-            ["Release angle", fmt(deg(this.amp), 0) + "°"],
-            ["State", this.released ? "swinging" : "ready"],
-            ["Balls moving", String(moving)],
-            ["Σ momentum", fmt(p / PPM, 2)],
-          ];
-        },
-        statusExtra() {
-          return this.released ? "released" : `lift ${this.lift} of ${this.n}`;
-        },
-        equations() {
-          return `
-            <div class="eq-block">
-              <div class="eq-title">Each ball is a simple pendulum</div>
-              <div class="formula">α = −(g / L) · sin θ</div>
-            </div>
-            <div class="eq-block">
-              <div class="eq-title">Impact — elastic, equal masses</div>
-              <div class="formula">Σ m·vᵢ = constant <span class="eq-note">(momentum)</span></div>
-              <div class="formula">Σ ½·m·vᵢ² = constant <span class="eq-note">(kinetic energy)</span></div>
-            </div>
-            <div class="eq-block">
-              <div class="eq-title">Consequence</div>
-              <div class="formula">lift n balls &nbsp;⇒&nbsp; n balls swing out, same speed</div>
-              <div class="eq-note">Both conservation laws can only hold together if the momentum passes
-                straight <b>through</b> the stationary middle balls — which is why they don't move.
-                Equal-mass collision ⇒ the two balls swap velocities.
-                <span class="eq-ok">✔ validated</span></div>
-            </div>`;
-        },
-      };
-
-      /* ============================ WIRE-UP ============================== */
-      Game.register(SimplePendulum);
-      Game.register(DoublePendulum);
-      Game.register(Projectile);
-      Game.register(Billiards);
-      Game.register(Cradle);
-
-      // Global key handling (routes app-specific keys to the active app).
-      Input.onPress((e) => {
-        // Help overlay open? Only Esc/H closes.
-        const helpEl = document.getElementById("help");
-        if (helpEl.classList.contains("show")) {
-          if (e.code === "Escape" || e.code === "KeyH") toggleHelp(false);
-          return;
-        }
-        switch (e.code) {
-          case "Digit1":
-          case "Digit2":
-          case "Digit3":
-          case "Digit4":
-          case "Digit5": {
-            const idx = Number(e.code.slice(5)) - 1;
-            if (Game.apps[idx]) Game.switchTo(Game.apps[idx]);
-            return;
-          }
-          case "Space":
-            // Apps that use Space as an action get it; otherwise it pauses.
-            if (["projectile", "billiards", "cradle"].includes(Game.current.id)) {
-              Game.current.keydown(e);
+            if (!d || d.cv !== cv) return;
+            if (Math.hypot(x - d.sx, y - d.sy) > 4) d.moved = true;
+            if (d.mode === 'zoom') {
+                const s = Math.max(Math.abs(x - d.sx), Math.abs(y - d.sy));
+                d.rx = x < d.sx ? d.sx - s : d.sx; d.ry = y < d.sy ? d.sy - s : d.sy; d.rs = s;
             } else {
-              Game.togglePause();
+                const R = d.R0, kx = (R.x1 - R.x0) / G.s, ky = (R.y1 - R.y0) / G.s, dx = -(x - d.sx) * kx, dy = (y - d.sy) * ky;
+                map.region = { x0: R.x0 + dx, x1: R.x1 + dx, y0: R.y0 + dy, y1: R.y1 + dy };
             }
-            return;
-          case "KeyR":
-            Game.reset();
-            return;
-          case "Comma":
-            Game.timeScale = clamp(Game.timeScale / 1.25, 0.1, 4);
-            return;
-          case "Period":
-            Game.timeScale = clamp(Game.timeScale * 1.25, 0.1, 4);
-            return;
-          case "KeyE":
-            Game.toggleEq();
-            return;
-          case "KeyH":
-            toggleHelp(true);
-            return;
-          case "Escape":
-            toggleHelp(false);
-            return;
+        });
+        cv.addEventListener('pointerup', e => {
+            const d = mapUI.drag; mapUI.drag = null; if (!d || d.cv !== cv) return;
+            const map = d.map, G = cv._G;
+            if (!d.moved) { // pick a cell
+                const [tx, ty] = toData(G, map.region, d.sx, d.sy);
+                if (Math.abs(tx) > Math.PI + 1e-9 || Math.abs(ty) > Math.PI + 1e-9) { toast('Outside [−180°, 180°]'); return; }
+                S.th1 = +(tx * R2D).toFixed(8); S.th2 = +(ty * R2D).toFixed(8); refreshUI(); resetSim(); setPlaying(true);
+                toast('Launched θ₁ = ' + fmt(S.th1, 4) + '°, θ₂ = ' + fmt(S.th2, 4) + '°' + (view === 'explore' ? '' : ' (see Motion or Explorer)'));
+                return;
+            }
+            map.hist.push(d.R0);
+            if (d.mode === 'zoom' && d.rs > 6) {
+                const [x0, y1] = toData(G, d.R0, d.rx, d.ry), [x1, y0] = toData(G, d.R0, d.rx + d.rs, d.ry + d.rs);
+                map.region = { x0, x1, y0, y1 };
+            }
+            render(map);
+        });
+        let wheelT;
+        cv.addEventListener('wheel', e => {
+            e.preventDefault();
+            const map = getMap(), G = cv._G; if (!G) return;
+            const b = cv.getBoundingClientRect(), [cx, cy] = toData(G, map.region, e.clientX - b.left, e.clientY - b.top);
+            const f = e.deltaY < 0 ? 0.8 : 1.25, R = map.region;
+            if (!wheelT) map.hist.push({ ...R });
+            map.region = { x0: cx + (R.x0 - cx) * f, x1: cx + (R.x1 - cx) * f, y0: cy + (R.y0 - cy) * f, y1: cy + (R.y1 - cy) * f };
+            clearTimeout(wheelT); wheelT = setTimeout(() => { wheelT = null; render(map); }, 450);
+        }, { passive: false });
+    }
+    bindMap($('cState'), () => maps.state);
+    bindMap($('cFlip'), () => maps.flip);
+    bindMap($('cExMap'), () => maps[$('exKind').value]);
+    const curMap = () => view === 'explore' ? maps[$('exKind').value] : maps[view];
+    $('mRender').onclick = () => render(curMap());
+    $('mCancel').onclick = () => cancel(true);
+    $('mBack').onclick = () => { const m = curMap(); if (!m.hist.length) return toast('No earlier view'); m.region = m.hist.pop(); render(m); };
+    $('mReset').onclick = () => { const m = curMap(); m.hist.push({ ...m.region }); m.region = full(); render(m); };
+    $('mPan').onclick = () => { mapUI.panMode = !mapUI.panMode; $('mPan').classList.toggle('on', mapUI.panMode); };
+    $('exKind').onchange = () => { const m = curMap(); if (!m.rendered) render(m); };
+
+    // ================= motion view =================
+    const pan = { x: 0, y: 0 };
+    let motionDrag = null;
+    function camera(w, h) {
+        const sc = Math.min(w, h) * 0.44 / (S.L1 + S.L2) * S.zoom, ox = w / 2 + pan.x, oy = h / 2 + pan.y;
+        const r = S.rot * D2R, cr = Math.cos(r), sr = Math.sin(r), mi = S.mirror ? -1 : 1;
+        return {
+            to: (x, y) => { x *= mi; return [ox + (x * cr - y * sr) * sc, oy + (x * sr + y * cr) * sc]; },
+            from: (px, py) => { const a = (px - ox) / sc, b = (py - oy) / sc; return [(a * cr + b * sr) * mi, -a * sr + b * cr]; },
+            sc
+        };
+    }
+    const pcol = (k, N) => S.rainbow && N > 1 ? 'hsl(' + (k / N * 300) + ',85%,60%)' : S.bob;
+    function drawMotion(cv, small) {
+        const { ctx, w, h } = fit(cv), cam = camera(w, h), N = sim.pend.length;
+        ctx.fillStyle = '#0b1220'; ctx.fillRect(0, 0, w, h);
+        // reach circle & pivot
+        const [px0, py0] = cam.to(0, 0);
+        ctx.strokeStyle = 'rgba(148,163,184,0.12)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(px0, py0, (S.L1 + S.L2) * cam.sc, 0, TAU); ctx.stroke();
+        ctx.beginPath(); ctx.arc(px0, py0, S.L1 * cam.sc, 0, TAU); ctx.stroke();
+        const [gx, gy] = cam.to(0, (S.L1 + S.L2) * 1.08), [gx0, gy0] = cam.to(0, (S.L1 + S.L2) * 0.9);
+        if (S.g > 0) { ctx.strokeStyle = 'rgba(148,163,184,0.35)'; ctx.beginPath(); ctx.moveTo(gx0, gy0); ctx.lineTo(gx, gy); ctx.stroke(); ctx.fillStyle = 'rgba(148,163,184,0.5)'; ctx.font = '10px Inter'; ctx.textAlign = 'center'; ctx.fillText('g', gx + 8, gy); }
+        // trails from the recorded history
+        const end = shownEnd(), H = sim.hist;
+        if (S.trail > 0 && H.length > 1) {
+            const i0 = Math.max(0, end - Math.round(S.trail)), segs = 6;
+            for (let k = 0; k < N; k++) {
+                const col = pcol(k, N);
+                for (let part = 0; part < 2; part++) {
+                    if (part === 1 && !S.upper) continue;
+                    ctx.strokeStyle = col; ctx.lineWidth = N > 10 ? 1 : 1.6;
+                    for (let sg = 0; sg < segs; sg++) {
+                        const a = i0 + Math.floor((end - i0) * sg / segs), b = i0 + Math.floor((end - i0) * (sg + 1) / segs);
+                        ctx.globalAlpha = part ? 0.35 * (sg + 1) / segs : 0.85 * (sg + 1) / segs;
+                        ctx.beginPath();
+                        for (let i = a; i <= b; i++) {
+                            const s = H[i], t1 = s[k * 5], t2 = s[k * 5 + 1];
+                            const x1 = S.L1 * Math.sin(t1), y1 = S.L1 * Math.cos(t1);
+                            const [X, Y] = part ? cam.to(x1, y1) : cam.to(x1 + S.L2 * Math.sin(t2), y1 + S.L2 * Math.cos(t2));
+                            i === a ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y);
+                        }
+                        ctx.stroke();
+                    }
+                }
+            }
+            ctx.globalAlpha = 1;
         }
-        // Delegate everything else to the current app.
-        if (Game.current.keydown) Game.current.keydown(e);
-      });
+        // rods & bobs
+        const r1 = 4 + 4 * Math.cbrt(S.m1) * (N > 10 ? 0.6 : 1), r2 = 4 + 4 * Math.cbrt(S.m2) * (N > 10 ? 0.6 : 1);
+        for (let k = N - 1; k >= 0; k--) {
+            const s = stateOf(k), x1 = S.L1 * Math.sin(s[0]), y1 = S.L1 * Math.cos(s[0]);
+            const [A, B] = cam.to(x1, y1), [C, D] = cam.to(x1 + S.L2 * Math.sin(s[1]), y1 + S.L2 * Math.cos(s[1]));
+            ctx.strokeStyle = S.rod; ctx.globalAlpha = N > 1 ? 0.55 : 1; ctx.lineWidth = N > 10 ? 1.2 : 2.5;
+            ctx.beginPath(); ctx.moveTo(px0, py0); ctx.lineTo(A, B); ctx.lineTo(C, D); ctx.stroke();
+            ctx.globalAlpha = 1; ctx.fillStyle = pcol(k, N);
+            ctx.beginPath(); ctx.arc(A, B, r1, 0, TAU); ctx.fill();
+            ctx.beginPath(); ctx.arc(C, D, r2, 0, TAU); ctx.fill();
+        }
+        ctx.fillStyle = '#e2e8f0'; ctx.beginPath(); ctx.arc(px0, py0, 4, 0, TAU); ctx.fill();
+        if (!small) {
+            const s = stateOf(0), e = Core.energy(s, PP);
+            ctx.fillStyle = 'rgba(226,232,240,0.85)'; ctx.font = '11px JetBrains Mono, monospace'; ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+            [['θ₁', fmt(s[0] * R2D, 2) + '°'], ['θ₂', fmt(s[1] * R2D, 2) + '°'], ['ω₁', fmt(s[2], 3) + ' rad/s'], ['ω₂', fmt(s[3], 3) + ' rad/s'],
+             ['T', fmt(e[0], 4) + ' J'], ['V', fmt(e[1], 4) + ' J'], ['E', fmt(e[0] + e[1], 4) + ' J'], ['lost to γ', fmt(s[4], 4) + ' J']]
+                .forEach(([a, b], i) => ctx.fillText(a + '  ' + b, w - 12, 12 + i * 15));
+            if (N > 1) ctx.fillText('showing pendulum 1 of ' + N, w - 12, 12 + 8 * 15);
+        }
+        cv._cam = cam;
+    }
+    function bindMotion(cv) {
+        cv.addEventListener('pointerdown', e => {
+            const b = cv.getBoundingClientRect(), x = e.clientX - b.left, y = e.clientY - b.top, cam = cv._cam; if (!cam) return;
+            const s = stateOf(0), x1 = S.L1 * Math.sin(s[0]), y1 = S.L1 * Math.cos(s[0]);
+            const [A, B] = cam.to(x1, y1), [C, D] = cam.to(x1 + S.L2 * Math.sin(s[1]), y1 + S.L2 * Math.cos(s[1]));
+            const which = Math.hypot(x - C, y - D) < 18 ? 2 : Math.hypot(x - A, y - B) < 18 ? 1 : 0;
+            motionDrag = { which, sx: x, sy: y, px: pan.x, py: pan.y, cv };
+            if (which) { setPlaying(false); }
+            cv.setPointerCapture(e.pointerId);
+        });
+        cv.addEventListener('pointermove', e => {
+            if (!motionDrag || motionDrag.cv !== cv) return;
+            const b = cv.getBoundingClientRect(), x = e.clientX - b.left, y = e.clientY - b.top, cam = cv._cam;
+            if (!motionDrag.which) { pan.x = motionDrag.px + x - motionDrag.sx; pan.y = motionDrag.py + y - motionDrag.sy; return; }
+            const [wx, wy] = cam.from(x, y);
+            if (motionDrag.which === 1) S.th1 = +(Math.atan2(wx, wy) * R2D).toFixed(2);
+            else { const t1 = S.th1 * D2R; S.th2 = +(Math.atan2(wx - S.L1 * Math.sin(t1), wy - S.L1 * Math.cos(t1)) * R2D).toFixed(2); }
+            ui.th1(); ui.th2(); resetSim();
+        });
+        cv.addEventListener('pointerup', () => { motionDrag = null; });
+        cv.addEventListener('wheel', e => { e.preventDefault(); S.zoom = clamp(S.zoom * (e.deltaY < 0 ? 1.1 : 0.9), 0.2, 5); ui.zoom(); }, { passive: false });
+    }
+    bindMotion($('cMotion')); bindMotion($('cExMotion'));
 
-      /* ---- Top-bar buttons ---- */
-      document.getElementById("btn-pause").onclick = () => Game.togglePause();
-      document.getElementById("btn-reset").onclick = () => Game.reset();
-      document.getElementById("btn-help").onclick = () => toggleHelp(true);
-      document.getElementById("btn-eq").onclick = () => Game.toggleEq();
-      document.getElementById("help-close").onclick = () => toggleHelp(false);
-      function toggleHelp(show) {
-        document.getElementById("help").classList.toggle("show", show);
-      }
+    // ================= phase view =================
+    const phase = { layer: document.createElement('canvas'), drawn: 0, dirty: true, auto: true, R: { x0: -Math.PI, x1: Math.PI, y0: -Math.PI, y1: Math.PI }, key: '' };
+    function pxy(a, k) {
+        const s0 = a[k * 5], s1 = a[k * 5 + 1], f = S.pwrap ? wrap : (v => v);
+        switch (S.paxes) {
+            case 't1w1': return [f(s0), a[k * 5 + 2]];
+            case 't2w2': return [f(s1), a[k * 5 + 3]];
+            case 'w1w2': return [a[k * 5 + 2], a[k * 5 + 3]];
+            default: return [f(s0), f(s1)];
+        }
+    }
+    const isAng = ax => S.paxes === 't1t2' || (ax === 0 && S.paxes !== 'w1w2');
+    function autoFit(end) {
+        let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity; const N = sim.pend.length, st = Math.max(1, Math.floor(end / 3000));
+        for (let i = 0; i <= end; i += st) for (let k = 0; k < N; k++) { const [x, y] = pxy(sim.hist[i], k); x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+        const pad = (a, b) => { const m = Math.max((b - a) * 0.1, 0.1); return [a - m, b + m]; };
+        [x0, x1] = isAng(0) && S.pwrap ? [-Math.PI, Math.PI] : pad(x0, x1);
+        [y0, y1] = isAng(1) && S.pwrap ? [-Math.PI, Math.PI] : pad(y0, y1);
+        phase.R = { x0, x1, y0, y1 };
+    }
+    function phaseGeom(w, h) { return { x: 56, y: 14, w: w - 70, h: h - 50 }; }
+    function drawPhase(cv) {
+        const { ctx, w, h } = fit(cv), G = phaseGeom(w, h), end = shownEnd(), N = sim.pend.length, dpr = window.devicePixelRatio || 1;
+        const lay = phase.layer;
+        const key = w + 'x' + h + S.paxes + S.pwrap + S.rainbow + S.bob;
+        if (lay.width !== Math.round(w * dpr) || lay.height !== Math.round(h * dpr) || key !== phase.key) { lay.width = Math.round(w * dpr); lay.height = Math.round(h * dpr); phase.key = key; phase.dirty = true; }
+        if (end < phase.drawn) phase.dirty = true;
+        if (phase.auto && !phase.dirty) { // grow the window when the curve leaves it
+            const R = phase.R, a = sim.hist[end];
+            for (let k = 0; k < N && a; k++) { const [x, y] = pxy(a, k); if (x < R.x0 || x > R.x1 || y < R.y0 || y > R.y1) { phase.dirty = true; break; } }
+        }
+        if (phase.dirty && phase.auto) autoFit(end);
+        const R = phase.R, X = v => G.x + (v - R.x0) / (R.x1 - R.x0) * G.w, Y = v => G.y + (R.y1 - v) / (R.y1 - R.y0) * G.h;
+        const lc = lay.getContext('2d');
+        let from = phase.drawn;
+        if (phase.dirty) { lc.setTransform(1, 0, 0, 1, 0, 0); lc.clearRect(0, 0, lay.width, lay.height); from = 0; phase.dirty = false; }
+        lc.setTransform(dpr, 0, 0, dpr, 0, 0);
+        lc.save(); lc.beginPath(); lc.rect(G.x, G.y, G.w, G.h); lc.clip();
+        lc.lineWidth = N > 10 ? 0.8 : 1.2; lc.globalAlpha = N > 10 ? 0.6 : 0.85;
+        const jump0 = isAng(0) && S.pwrap, jump1 = isAng(1) && S.pwrap;
+        for (let k = 0; k < N; k++) {
+            lc.strokeStyle = pcol(k, N); lc.beginPath();
+            let px = null, py = null;
+            for (let i = Math.max(0, from - 1); i <= end; i++) {
+                const [x, y] = pxy(sim.hist[i], k);
+                if (px === null || (jump0 && Math.abs(x - px) > Math.PI) || (jump1 && Math.abs(y - py) > Math.PI)) lc.moveTo(X(x), Y(y)); else lc.lineTo(X(x), Y(y));
+                px = x; py = y;
+            }
+            lc.stroke();
+        }
+        lc.restore(); phase.drawn = end;
+        // frame
+        ctx.fillStyle = '#0b1220'; ctx.fillRect(0, 0, w, h);
+        ctx.strokeStyle = 'rgba(148,163,184,0.15)'; ctx.fillStyle = '#94a3b8'; ctx.font = '10px Inter, sans-serif'; ctx.lineWidth = 1;
+        const grid = (a0, a1, horiz, ang) => {
+            const sc = ang ? R2D : 1, st = niceStep((a1 - a0) * sc, 8);
+            for (let v = Math.ceil(a0 * sc / st) * st; v <= a1 * sc + 1e-9; v += st) {
+                const lab = fmt(v, Math.max(0, -Math.floor(Math.log10(st)))) + (ang ? '°' : '');
+                if (horiz) { const x = X(v / sc); ctx.beginPath(); ctx.moveTo(x, G.y); ctx.lineTo(x, G.y + G.h); ctx.stroke(); ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText(lab, x, G.y + G.h + 4); }
+                else { const y = Y(v / sc); ctx.beginPath(); ctx.moveTo(G.x, y); ctx.lineTo(G.x + G.w, y); ctx.stroke(); ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.fillText(lab, G.x - 5, y); }
+            }
+        };
+        grid(R.x0, R.x1, true, isAng(0)); grid(R.y0, R.y1, false, isAng(1));
+        ctx.strokeStyle = 'rgba(148,163,184,0.4)'; ctx.strokeRect(G.x, G.y, G.w, G.h);
+        ctx.drawImage(lay, 0, 0, w, h);
+        const names = { t1t2: ['θ₁', 'θ₂'], t1w1: ['θ₁', 'ω₁ (rad/s)'], t2w2: ['θ₂', 'ω₂ (rad/s)'], w1w2: ['ω₁ (rad/s)', 'ω₂ (rad/s)'] }[S.paxes];
+        ctx.fillStyle = '#cbd5e1'; ctx.font = '600 11px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText(names[0], G.x + G.w / 2, h - 2);
+        ctx.save(); ctx.translate(12, G.y + G.h / 2); ctx.rotate(-Math.PI / 2); ctx.textBaseline = 'top'; ctx.fillText(names[1], 0, 0); ctx.restore();
+        const a = shownStates() || null;
+        for (let k = 0; k < N; k++) {
+            const [x, y] = pxy(a || sim.hist[end], k);
+            ctx.fillStyle = pcol(k, N); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.arc(X(x), Y(y), N > 10 ? 2.5 : 4, 0, TAU); ctx.fill(); if (N <= 10) ctx.stroke();
+        }
+        cv._G = G;
+    }
+    (function bindPhase(cv) {
+        let d = null;
+        cv.addEventListener('pointerdown', e => { d = { x: e.clientX, y: e.clientY, R: { ...phase.R } }; cv.setPointerCapture(e.pointerId); });
+        cv.addEventListener('pointermove', e => {
+            if (!d) return; const G = cv._G, R = d.R;
+            const dx = -(e.clientX - d.x) / G.w * (R.x1 - R.x0), dy = (e.clientY - d.y) / G.h * (R.y1 - R.y0);
+            phase.R = { x0: R.x0 + dx, x1: R.x1 + dx, y0: R.y0 + dy, y1: R.y1 + dy }; phase.auto = false; phase.dirty = true;
+        });
+        cv.addEventListener('pointerup', () => d = null);
+        cv.addEventListener('dblclick', () => { phase.auto = true; phase.dirty = true; });
+        cv.addEventListener('wheel', e => {
+            e.preventDefault(); const G = cv._G, b = cv.getBoundingClientRect(), R = phase.R;
+            const cx = R.x0 + (e.clientX - b.left - G.x) / G.w * (R.x1 - R.x0), cy = R.y1 - (e.clientY - b.top - G.y) / G.h * (R.y1 - R.y0), f = e.deltaY < 0 ? 0.8 : 1.25;
+            phase.R = { x0: cx + (R.x0 - cx) * f, x1: cx + (R.x1 - cx) * f, y0: cy + (R.y0 - cy) * f, y1: cy + (R.y1 - cy) * f }; phase.auto = false; phase.dirty = true;
+        }, { passive: false });
+    })($('cPhase'));
 
-      /* ---- Boot ---- */
-      resize();
-      Game.switchTo(SimplePendulum);
-      Game.toggleEq(true);
-      Game.start();
-    </script>
-  </body>
+    // ================= energy strip =================
+    function drawEnergy() {
+        const cv = $('cEnergy'), { ctx, w, h } = fit(cv), end = shownEnd(), D = sim.drift;
+        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
+        const G = { x: 56, y: 16, w: w - 70, h: h - 26 };
+        let mx = 1e-9; for (let i = 0; i <= end; i++) mx = Math.max(mx, D[i]);
+        const top = Math.pow(10, Math.ceil(Math.log10(mx * 100))) / 100;
+        const T = Math.max(sim.histT[end] || 0, 1e-6);
+        ctx.strokeStyle = '#e2e8f0'; ctx.strokeRect(G.x, G.y, G.w, G.h);
+        [[0.001, '#d97706'], [0.01, '#dc2626']].forEach(([v, c]) => { if (v <= top) { const y = G.y + G.h - v / top * G.h; ctx.strokeStyle = c; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(G.x, y); ctx.lineTo(G.x + G.w, y); ctx.stroke(); ctx.setLineDash([]); } });
+        ctx.strokeStyle = '#1d4ed8'; ctx.lineWidth = 1.4; ctx.beginPath();
+        const st = Math.max(1, Math.floor(end / G.w));
+        for (let i = 0; i <= end; i += st) { const x = G.x + sim.histT[i] / T * G.w, y = G.y + G.h - D[i] / top * G.h; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+        ctx.stroke();
+        ctx.fillStyle = '#475569'; ctx.font = '10px Inter, sans-serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillText((top * 100 < 1e-3 ? (top * 100).toExponential(0) : fmt(top * 100, 3)) + '%', G.x - 4, G.y); ctx.fillText('0', G.x - 4, G.y + G.h);
+        ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.font = '600 10px Inter, sans-serif';
+        ctx.fillText('Energy drift |E + lost − E₀| / E_scale  (worst pendulum in the batch)', G.x, 2);
+        const cur = D[end] || 0, chip = $('eChip');
+        const pc = cur * 100; chip.textContent = 'ΔE ' + (pc === 0 ? '0' : pc < 1e-4 ? pc.toExponential(1) : fmt(pc, 4)) + '%';
+        chip.className = 'chip ' + (cur < 1e-4 ? 'good' : cur < 1e-2 ? 'ok' : 'bad');
+        chip.title = cur < 1e-4 ? 'Energy conserved' : cur < 1e-2 ? 'Minor numerical drift' : 'Large drift: reduce Δt or use RK4/RK45';
+    }
+
+    // ================= angle picker =================
+    function drawPicker() {
+        const cv = $('picker'), { ctx, w, h } = fit(cv);
+        const mf = maps.flip, ms = maps.state;
+        const src = [mf, ms].find(m => m.img && m.done >= m.N && m.dataRegion.x1 - m.dataRegion.x0 > 6.28);
+        ctx.fillStyle = '#f8fafc'; ctx.fillRect(0, 0, w, h);
+        if (src) { ctx.globalAlpha = 0.55; ctx.imageSmoothingEnabled = true; ctx.drawImage(src.img, 0, 0, w, h); ctx.globalAlpha = 1; }
+        ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1;
+        for (let v = -180; v <= 180; v += 90) { const x = (v + 180) / 360 * w, y = (180 - v) / 360 * h; ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+        ctx.fillStyle = '#64748b'; ctx.font = '9px Inter, sans-serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom'; ctx.fillText('θ₁ →', w - 3, h / 2 - 2);
+        ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText('↑ θ₂', w / 2 + 3, 3);
+        const x = (wrap(S.th1 * D2R) * R2D + 180) / 360 * w, y = (180 - wrap(S.th2 * D2R) * R2D) / 360 * h;
+        if (S.N > 1) { const y2 = (180 - (S.th2 + (S.N - 1) * S.dth)) / 360 * h; ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y2); ctx.stroke(); }
+        ctx.fillStyle = '#1d4ed8'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, 6, 0, TAU); ctx.fill(); ctx.stroke();
+    }
+    (function () {
+        const cv = $('picker'); let on = false;
+        const set = e => { const b = cv.getBoundingClientRect(); S.th1 = +clamp(((e.clientX - b.left) / b.width) * 360 - 180, -180, 180).toFixed(1); S.th2 = +clamp(180 - ((e.clientY - b.top) / b.height) * 360, -180, 180).toFixed(1); ui.th1(); ui.th2(); setPlaying(false); resetSim(); };
+        cv.addEventListener('pointerdown', e => { on = true; cv.setPointerCapture(e.pointerId); set(e); });
+        cv.addEventListener('pointermove', e => { if (on) set(e); });
+        cv.addEventListener('pointerup', () => on = false);
+    })();
+
+    // ================= tabs, playback, export =================
+    let view = 'motion';
+    document.querySelectorAll('#tabs .tab').forEach(b => b.addEventListener('click', () => {
+        view = b.dataset.view;
+        document.querySelectorAll('#tabs .tab').forEach(x => x.classList.toggle('on', x === b));
+        document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === 'v-' + view));
+        const tools = $('mapTools'), isMap = ['state', 'flip', 'explore'].includes(view);
+        tools.style.display = isMap ? '' : 'none';
+        if (isMap) { $('v-' + view).prepend(tools); $('exKind').style.display = view === 'explore' ? '' : 'none'; const m = curMap(); if (!m.rendered) render(m); }
+        $('energyBox').style.display = S.energy && !isMap ? '' : 'none';
+        phase.dirty = true;
+    }));
+    $('mapTools').style.display = 'none';
+    $('bPlay').onclick = () => setPlaying(!sim.playing);
+    $('bReset').onclick = () => { setPlaying(false); resetSim(); };
+    $('bStep').onclick = () => { setPlaying(false); resumeFromView(); if (sim.done) return toast('At T_max: press Reset'); stepAll(); if (sim.histT[sim.histT.length - 1] < sim.t - 1e-12) record(); };
+    $('timeline').addEventListener('input', e => { if (sim.playing) setPlaying(false); const v = +e.target.value; sim.viewIdx = v >= sim.hist.length - 1 ? -1 : v; phase.dirty = true; });
+    $('speed').addEventListener('input', e => { S.speed = +Math.pow(10, +e.target.value).toPrecision(3); $('speedV').textContent = fmt(S.speed, 2) + '×'; });
+    document.addEventListener('keydown', e => {
+        if (/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) return;
+        if (e.code === 'Space') { e.preventDefault(); setPlaying(!sim.playing); }
+        else if (e.key === 'r' || e.key === 'R') { setPlaying(false); resetSim(); }
+        else if (e.key === 'ArrowRight') $('bStep').click();
+    });
+    function download(name, blob) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); }
+    $('exCSV').onclick = () => {
+        const N = sim.pend.length, head = ['t']; for (let k = 1; k <= N; k++) head.push('theta1_' + k, 'theta2_' + k, 'omega1_' + k, 'omega2_' + k, 'energy_' + k);
+        const lines = [head.join(',')];
+        sim.hist.forEach((a, i) => { const r = [sim.histT[i].toFixed(6)]; for (let k = 0; k < N; k++) { const s = a.subarray(k * 5, k * 5 + 5); r.push(s[0], s[1], s[2], s[3], eTot(s)); } lines.push(r.join(',')); });
+        download('double-pendulum.csv', new Blob([lines.join('\n')], { type: 'text/csv' }));
+    };
+    $('exJSON').onclick = () => {
+        const N = sim.pend.length;
+        const out = { units: { angle: 'rad', omega: 'rad/s', energy: 'J', time: 's' }, params: makeP(), initial: { theta1_deg: S.th1, theta2_deg: S.th2, omega1: S.w1, omega2: S.w2, N, delta_theta2_deg: S.dth },
+            solver: { method: S.method, dt: S.dt, tol: S.tol, Tmax: S.Tmax },
+            samples: sim.hist.map((a, i) => ({ t: sim.histT[i], pendulums: Array.from({ length: N }, (_, k) => Array.from(a.subarray(k * 5, k * 5 + 4))) })) };
+        download('double-pendulum.json', new Blob([JSON.stringify(out)], { type: 'application/json' }));
+    };
+    $('exView').onclick = () => {
+        const id = { motion: 'cMotion', phase: 'cPhase', state: 'cState', flip: 'cFlip', explore: 'cExMap' }[view];
+        $(id).toBlob(b => download('double-pendulum-' + view + '.png', b));
+    };
+    $('exMap').onclick = () => {
+        const m = curMapOr();
+        if (!m || !m.img) return toast('Render a map first');
+        m.img.toBlob(b => download((m.kind === 'flip' ? 'time-to-flip' : 'state-grid') + '-' + m.N + 'x' + m.N + '.png', b));
+    };
+    const curMapOr = () => (['state', 'flip', 'explore'].includes(view) ? curMap() : [maps.flip, maps.state].find(m => m.img));
+
+    // ================= main loop =================
+    let last = performance.now();
+    function tick(now) {
+        const dt = Math.min(0.1, (now - last) / 1000); last = now;
+        if (sim.playing) advance(dt * S.speed);
+        const end = sim.hist.length - 1, tl = $('timeline');
+        tl.max = end; if (sim.viewIdx < 0) tl.value = end;
+        const tShow = sim.viewIdx >= 0 ? sim.histT[sim.viewIdx] : sim.t;
+        $('tDisp').textContent = 't = ' + tShow.toFixed(2) + ' / ' + S.Tmax + ' s';
+        const pc = $('perfChip');
+        pc.textContent = sim.slow ? 'slower than real time' : sim.playing ? Math.round(sim.stepsPerSec * sim.pend.length).toLocaleString() + ' steps/s' : (sim.viewIdx >= 0 ? 'rewound: Play continues from here' : 'paused');
+        pc.className = 'chip ' + (sim.slow ? 'ok' : '');
+        if (view === 'motion') drawMotion($('cMotion'));
+        else if (view === 'phase') drawPhase($('cPhase'));
+        else if (view === 'state') drawMap($('cState'), maps.state);
+        else if (view === 'flip') drawMap($('cFlip'), maps.flip);
+        else { drawMap($('cExMap'), maps[$('exKind').value]); drawMotion($('cExMotion'), true); }
+        if (S.energy && $('energyBox').style.display !== 'none') drawEnergy();
+        requestAnimationFrame(tick);
+    }
+    window.addEventListener('resize', drawPicker);
+    resetSim(); drawPicker(); requestAnimationFrame(tick);
+})();
+</script>
+</body>
 </html>

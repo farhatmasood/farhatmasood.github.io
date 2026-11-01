@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rao Farhat Masood — Portfolio</title>
+
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- MathJax for LaTeX Rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Academic Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;1,8..60,400&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+    <!-- Mobile top bar -->
+    <nav class="md:hidden p-4 border-b bg-white flex justify-between items-center sticky top-0 z-50 shadow-sm">
+        <span class="font-bold text-lg">Rao Farhat Masood</span>
+        <button id="mobile-menu-btn" class="text-xl text-gray-700"><i class="fas fa-bars"></i></button>
+    </nav>
+
+    <!-- Mobile dropdown menu -->
+    <div id="mobile-menu" class="md:hidden hidden bg-white border-b shadow-sm sticky top-[57px] z-40">
+        <div class="px-5 py-3">
+            <div class="mode-toggle mb-3">
+                <a class="mode-btn" data-mode="academic" href="../index.html">Academic</a>
+                <a class="mode-btn mode-active" data-mode="professional" href="profile.html">Professional</a>
+            </div>
+            <div class="nav-group hidden" data-mode="academic">
+                <div class="space-y-1 text-sm uppercase tracking-wider font-semibold">
+                    <a class="tab-link" href="../index.html">About</a>
+                    <a class="tab-link" href="../academic/featured.html">Featured</a>
+                    <a class="tab-link" href="../academic/publications.html">Publications</a>
+                    <a class="tab-link" href="../academic/repositories.html">Repositories</a>
+                    <a class="tab-link" href="../academic/research.html">Research</a>
+                    <a class="tab-link" href="../academic/hobbies.html">Hobbies</a>
+                    <a class="tab-link" href="../academic/service.html">Service</a>
+                </div>
+            </div>
+            <div class="nav-group" data-mode="professional">
+                <div class="space-y-1 text-sm uppercase tracking-wider font-semibold">
+                    <a class="tab-link" href="profile.html">Profile</a>
+                    <a class="tab-link" href="career-path.html">Career Path</a>
+                    <a class="tab-link" href="experience.html">Experience</a>
+                    <a class="tab-link tab-active" href="competencies.html">Competencies</a>
+                    <a class="tab-link" href="education.html">Education &amp; Skills</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-12">
+
+            <!-- SIDEBAR (Profile) -->
+            <div class="md:col-span-4 lg:col-span-3">
+                <div class="sidebar text-center md:text-right">
+                    <!-- Profile Image Placeholder -->
+                    <div class="w-40 h-40 mx-auto md:ml-auto md:mr-0 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden mb-5 shadow-sm ring-1 ring-slate-200 flex items-center justify-center">
+                        <i class="fas fa-user text-6xl text-slate-400"></i>
+                    </div>
+
+                    <h1 class="text-2xl font-bold mb-1 tracking-tight">Rao Farhat Masood</h1>
+                    <p id="role-line" class="text-xs text-slate-500 mb-5 leading-relaxed">Electrical Engineer · PhD</p>
+
+                    <div class="flex justify-center md:justify-end gap-4 text-xl text-slate-600 mb-6">
+                        <a href="https://github.com/farhatmasood" title="GitHub" class="hover:text-black transition"><i class="fab fa-github"></i></a>
+                        <a href="https://www.linkedin.com/in/rao-farhat-masood-829966118/" title="LinkedIn" class="hover:text-blue-600 transition"><i class="fab fa-linkedin"></i></a>
+                        <a href="https://scholar.google.com/citations?user=G_uCi0UAAAAJ&hl=en" title="Google Scholar" class="hover:text-blue-800 transition"><i class="fas fa-graduation-cap"></i></a>
+                        <a href="https://orcid.org/0000-0001-9054-9192" title="ORCiD" class="hover:text-green-600 transition"><i class="fab fa-orcid"></i></a>
+                    </div>
+
+                    <!-- Mode toggle -->
+                    <div class="hidden md:flex justify-end mb-6">
+                        <div class="mode-toggle">
+                            <a class="mode-btn" data-mode="academic" href="../index.html">Academic</a>
+                            <a class="mode-btn mode-active" data-mode="professional" href="profile.html">Professional</a>
+                        </div>
+                    </div>
+
+                    <!-- Desktop Tab Nav -->
+                    <nav class="hidden md:block text-sm uppercase tracking-wider font-semibold">
+                        <div class="nav-group hidden flex-col items-end" data-mode="academic">
+                            <a class="tab-link" href="../index.html">About</a>
+                            <a class="tab-link" href="../academic/featured.html">Featured</a>
+                            <a class="tab-link" href="../academic/publications.html">Publications</a>
+                            <a class="tab-link" href="../academic/repositories.html">Repositories</a>
+                            <a class="tab-link" href="../academic/research.html">Research</a>
+                            <a class="tab-link" href="../academic/hobbies.html">Hobbies</a>
+                            <a class="tab-link" href="../academic/service.html">Service</a>
+                        </div>
+                        <div class="nav-group flex flex-col items-end" data-mode="professional">
+                            <a class="tab-link" href="profile.html">Profile</a>
+                            <a class="tab-link" href="career-path.html">Career Path</a>
+                            <a class="tab-link" href="experience.html">Experience</a>
+                            <a class="tab-link tab-active" href="competencies.html">Competencies</a>
+                            <a class="tab-link" href="education.html">Education &amp; Skills</a>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- MAIN CONTENT -->
+            <div class="md:col-span-8 lg:col-span-9 min-h-[60vh]">
+
+                <!-- COMPETENCY HIGHLIGHTS -->
+                <section id="prof-competencies" class="tab-section" data-mode="professional">
+                    <h2 class="section-title">Competency Highlights (Selected)</h2>
+                    <!-- <p class="text-sm text-gray-500 mb-6">Selected engineering competencies demonstrated through real project work, mapped to professional engineering competency areas. Click a section to expand.</p> -->
+
+                    <div class="space-y-3">
+
+                        <!-- 1. Design & Planning -->
+                        <div class="accordion-item open">
+                            <div class="accordion-header"><span><i class="fas fa-drafting-compass text-blue-600 mr-2"></i> 1. Design &amp; Planning</span><i class="fas fa-chevron-right chev"></i></div>
+                            <div class="accordion-body">
+                                <!-- <div class="comp-standard">Standard: Independently and dependently lead project design; comprehend and apply advanced knowledge of principles.</div> -->
+
+                                <div class="comp-sub">3 Tesla MRI Infrastructure (AFIC, 2016–2018)</div>
+                                <ul class="list-disc list-outside ml-5 text-sm text-gray-600 space-y-1 mt-1">
+                                    <li><strong>RF Shielding:</strong> Vetted the design of a copper Faraday cage achieving adequate RF shielding; specified waveguide penetrations for all electrical/gas entries to maintain RF integrity.</li>
+                                    <li><strong>Power Quality:</strong> Engineered an integrated power solution (Mains, UPS, Generator) with K-13 rated isolation transformers to handle high gradient switching currents.</li>
+                                </ul>
+
+                                <div class="comp-sub">Smart Hospital Digital Transformation (CMH, 2019–2021)</div>
+                                <ul class="list-disc list-outside ml-5 text-sm text-gray-600 space-y-1 mt-1">
+                                    <li><strong>IoT Network:</strong> Architected an IEEE 802.15.4 mesh for 500+ medical assets using MQTT over segmented VLANs to isolate medical telemetry from public traffic (IEC 80001-1 aligned).</li>
+                                    <li><strong>OPD Flow:</strong> Designed a token-based OPD workflow integrating HIS, RFID patient IDs and SMS alerts to reduce waiting time and prevent crowding.</li>
+                                    <li><strong>Queue Analytics:</strong> Proposed real-time OPD load dashboards enabling dynamic slot reallocation and overflow routing.</li>
+                                    <li><strong>Self-Service:</strong> Planned kiosks for registration, e-token issuance and bill payment with identity verification and insurance eligibility checks.</li>
+                                    <li><strong>Vitals Monitoring:</strong> Designed networking of bedside and triage vital-signs monitors to a central server with alarm forwarding to nurse handhelds.</li>
+                                </ul>
+
+                                <div class="comp-sub">COVID-19 Critical Care Facility (CMH, 2020)</div>
+                                <ul class="list-disc list-outside ml-5 text-sm text-gray-600 space-y-1 mt-1">
+                                    <li><strong>Infection-Control HVAC:</strong> Designed 12 negative-pressure isolation rooms with appropriate air changes per hour using HEPA H14 filtration.</li>
+                                    <li><strong>Medical Gas:</strong> Sized Vacuum Insulated Evaporator (VIE) manifolds to support high-flow oxygen therapy (60 LPM/patient).</li>
+                                    <li><strong>Indigenous Ventilator ATP:</strong> Participated in review of acceptance-testing protocols aligned with PEC/DRAP emergency guidance for locally developed ICU ventilators.</li>
+                                    <li><strong>Live O₂ Cell Change:</strong> Defined a procedure for oxygen-cell replacement on ventilators with the patient connected, including FiO₂ backup and post-change calibration.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 2. Execution & Management -->
+                        <div class="accordion-item">
+                            <div class="accordion-header"><span><i class="fas fa-tasks text-blue-600 mr-2"></i> 2. Execution of Project &amp; Management</span><i class="fas fa-chevron-right chev"></i></div>
+                            <div class="accordion-body">
+                                <!-- <div class="comp-standard">Standard: Apply advanced knowledge of widely-applied principles underpinning good practices specific to the jurisdiction.</div> -->
+
+                                <div class="comp-sub">Regulatory Compliance &amp; Commissioning</div>
+                                <ul class="list-disc list-outside ml-5 text-sm text-gray-600 space-y-1 mt-1">
+                                    <li><strong>Boiler Inspection:</strong> Conducted acceptance testing for hospital-grade boiler licensing.</li>
+                                    <li><strong>ISO Audit:</strong> Successfully defended the ISO audit for equipment repair and maintenance best practices in a healthcare setup.</li>
+                                    <li><strong>Electrical Standardization:</strong> Standardized electrical outlets with medical equipment compliant to IEC 60601 at AFIC &amp; NIHD and the UN Level-III field hospital in Darfur, Sudan.</li>
+                                </ul>
+
+                                <div class="comp-sub">JCI Accreditation Implementation (FMS.8)</div>
+                                <ul class="list-disc list-outside ml-5 text-sm text-gray-600 space-y-1 mt-1">
+                                    <li><strong>Asset Management:</strong> Led the Medical Equipment Management program, establishing a risk-based inventory (IEC 60601-1-6) and preventive-maintenance schedule.</li>
+                                    <li><strong>Outcome:</strong> Conducted awareness trainings for seamless engineer–doctor integration toward JCI standard implementation.</li>
+                                </ul>
+
+                                <div class="comp-sub">Procurement Management ($5M+ Annual Budget)</div>
+                                <ul class="list-disc list-outside ml-5 text-sm text-gray-600 space-y-1 mt-1">
+                                    <li><strong>Regulated Procurement:</strong> Executed competitive bidding in line with PPRA rules for capital and critical-care equipment.</li>
+                                    <li><strong>Framework:</strong> Applied a multi-criteria decision matrix — clinical efficacy (30%), OEM (25%), technical scrutiny (20%), support SLA (15%), interoperability/deployability (10%).</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 3. Operation & Maintenance -->
+                        <div class="accordion-item">
+                            <div class="accordion-header"><span><i class="fas fa-wrench text-blue-600 mr-2"></i> 3. Operation &amp; Maintenance</span><i class="fas fa-chevron-right chev"></i></div>
+                            <div class="accordion-body">
+                                <!-- <div class="comp-standard">Standard: Complexity of analysis — define, investigate and analyze complex problems.</div> -->
+
+                                <div class="comp-sub">Interventional Radiology Failure Analysis (CMH)</div>
+                                <ul class="list-disc list-outside ml-5 text-sm text-gray-600 space-y-1 mt-1">
+                                    <li><strong>Problem:</strong> Angiography system experiencing HV generator arcing during monsoon season, causing procedure cancellations.</li>
+                                    <li><strong>Root Cause:</strong> Data loggers revealed relative-humidity spikes &gt;75% (spec &lt;60%).</li>
+                                    <li><strong>Solution &amp; Result:</strong> Calculated latent heat load and installed a desiccant dehumidifier (15 L/day), stabilizing RH at 45% (±5%); uptime rose from 78% to <strong>98%</strong> over three months.</li>
+                                </ul>
+
+                                <div class="comp-sub">MRI Helium Optimization</div>
+                                <ul class="list-disc list-outside ml-5 text-sm text-gray-600 space-y-1 mt-1">
+                                    <li><strong>Problem &amp; Cause:</strong> Excessive helium boil-off; thermal audit identified elevated chiller supply temperature (18 °C vs 15 °C spec) and insufficient loop cooling.</li>
+                                    <li><strong>Solution &amp; Result:</strong> Coupled a dedicated backup process chiller in parallel with automatic switchover and redundant pumps, stabilizing boil-off and reducing unplanned downtime and operating cost.</li>
+                                </ul>
+
+                                <div class="comp-sub">Accidental MRI Quench (CMH)</div>
+                                <ul class="list-disc list-outside ml-5 text-sm text-gray-600 space-y-1 mt-1">
+                                    <li><strong>Problem &amp; Cause:</strong> Accidental magnet quench during a high-volume shift; human-factor issues including console layout, single-step quench access and operator fatigue.</li>
+                                    <li><strong>Solution &amp; Result:</strong> Implemented lock-out covers, two-step authorization, CCTV monitoring and structured fatigue/refresher training — <strong>zero inadvertent quench events over the following 5 years</strong>.</li>
+                                </ul>
+
+                                <div class="comp-sub">Predictive Maintenance Strategy</div>
+                                <ul class="list-disc list-outside ml-5 text-sm text-gray-600 space-y-1 mt-1">
+                                    <li><strong>Problem &amp; Cause:</strong> High frequency of breakdown-based interventions; review of 5 years of CMMS data showed recurring failure and age-related wear unaddressed by calendar-based intervals.</li>
+                                    <li><strong>Solution &amp; Result:</strong> Implemented a condition-based maintenance program with evidence-based PM intervals and fault-tree modeling for spares, reducing downtime, emergency call-outs and inventory holding cost.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 4. Communication & Engineering Skills -->
+                        <div class="accordion-item">
+                            <div class="accordion-header"><span><i class="fas fa-comments text-blue-600 mr-2"></i> 4. Communication &amp; Engineering Skills</span><i class="fas fa-chevron-right chev"></i></div>
+                            <div class="accordion-body">
+                                <!-- <div class="comp-standard">Standard: Nature of problem and uniqueness of solution — design or develop solutions to complex problems.</div> -->
+
+                                <div class="comp-sub">Field Engineering (UN Mission, Darfur)</div>
+                                <p class="comp-context">Context: 45 °C ambient, unreliable power, broken supply chain.</p>
+                                <ul class="list-disc list-outside ml-5 text-sm text-gray-600 space-y-1 mt-1">
+                                    <li><strong>Resource-Limited Operations:</strong> Maintained critical medical equipment using locally available materials and informal supply channels in the absence of an active spare-parts supply chain.</li>
+                                    <li><strong>System Relocation:</strong> Planned and executed the relocation of a digital radiography system from Nyala to Kabkabiya without OEM support, including site readiness, reinstallation and QA.</li>
+                                    <li><strong>Technical Leadership:</strong> As the only engineer on site, managed the vehicle fleet and a grid of diesel generator sets, ensuring power availability for clinical services.</li>
+                                </ul>
+
+                                <div class="comp-sub">Safety Culture &amp; User Training (AFIC &amp; NIHD)</div>
+                                <ul class="list-disc list-outside ml-5 text-sm text-gray-600 space-y-1 mt-1">
+                                    <li><strong>Problem:</strong> Inconsistent user practices in emergency areas led to avoidable device alarms, battery failures and delayed response.</li>
+                                    <li><strong>Solution &amp; Result:</strong> Delivered targeted awareness programs on ventilators, ECG machines and defibrillators — emphasizing correct handling, battery management and operator roles — improving interdisciplinary communication and reducing user-related incidents.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 5. Evaluation -->
+                        <div class="accordion-item">
+                            <div class="accordion-header"><span><i class="fas fa-chart-line text-blue-600 mr-2"></i> 5. Evaluation</span><i class="fas fa-chevron-right chev"></i></div>
+                            <div class="accordion-body">
+                                <!-- <div class="comp-standard">Standard: Type of activity — evaluate the outcomes and impacts of complex activities.</div> -->
+                                <div class="comp-sub">Operational Performance KPIs</div>
+                                <p class="text-sm text-gray-600 mt-1">Implemented a metric-monitoring and contract-performance dashboard:</p>
+                                <div class="grid grid-cols-2 gap-3 mt-3">
+                                    <div class="stat-tile"><div class="stat-num">96.8%</div><div class="stat-label">Availability (Target &gt;95%)</div></div>
+                                    <div class="stat-tile"><div class="stat-num">98.4%</div><div class="stat-label">PM Compliance (&gt;98%)</div></div>
+                                    <div class="stat-tile"><div class="stat-num">1.5 hrs</div><div class="stat-label">Mean Time To Repair (&lt;2)</div></div>
+                                    <div class="stat-tile"><div class="stat-num">87%</div><div class="stat-label">First-Time Fix (&gt;85%)</div></div>
+                                </div>
+                                <ul class="list-disc list-outside ml-5 text-sm text-gray-600 space-y-1 mt-3">
+                                    <li><strong>SLA Compliance:</strong> Achieved 100% adherence to vendor SLAs and contractual response times through strict monitoring.</li>
+                                    <li><strong>Spares Policy:</strong> Implemented a dedicated spares provisioning and forecasting policy, reducing lead time to repair and increasing operational availability above 95%.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 6. Management -->
+                        <div class="accordion-item">
+                            <div class="accordion-header"><span><i class="fas fa-sitemap text-blue-600 mr-2"></i> 6. Management</span><i class="fas fa-chevron-right chev"></i></div>
+                            <div class="accordion-body">
+                                <!-- <div class="comp-standard">Standard: Assess alternatives in light of competing requirements and incomplete knowledge.</div> -->
+
+                                <div class="comp-sub">Strategic Decision: COVID-19 Ventilator Procurement</div>
+                                <ul class="list-disc list-outside ml-5 text-sm text-gray-600 space-y-1 mt-1">
+                                    <li><strong>Decision Under Uncertainty:</strong> Faced with incomplete vendor data, enforced a strict rapid-validation protocol — recommending procurement only for platforms with demonstrable tidal-volume accuracy (±10%) and PEEP stability.</li>
+                                    <li><strong>Risk-Based Deployment:</strong> Directed clinical segmentation of devices, assigning non-standard units to sub-acute wards while reserving high-performance ventilators for ARDS patients, ensuring zero patient-safety incidents.</li>
+                                </ul>
+
+                                <div class="comp-sub">Workforce Leadership &amp; Operations Management</div>
+                                <ul class="list-disc list-outside ml-5 text-sm text-gray-600 space-y-1 mt-1">
+                                    <li><strong>Technical Team Leadership:</strong> Managed a hierarchical workforce of 50+ biomedical engineers and technicians; implemented a skill-matrix rostering system for 24/7 coverage with competency-based task delegation.</li>
+                                    <li><strong>Support Staff Supervision:</strong> Established strict safety protocols for non-technical staff operating in high-risk zones (MRI static fields, high-voltage sub-stations).</li>
+                                    <li><strong>Financial Stewardship:</strong> Managed an annual portfolio exceeding $5M, re-allocating budget priorities based on real-time risk analysis.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 7. Leadership -->
+                        <div class="accordion-item">
+                            <div class="accordion-header"><span><i class="fas fa-flag text-blue-600 mr-2"></i> 7. Leadership</span><i class="fas fa-chevron-right chev"></i></div>
+                            <div class="accordion-body">
+                                <!-- <div class="comp-standard">Standard: Meet all legal and regulatory requirements and protect public health and safety.</div> -->
+
+                                <div class="comp-sub">Leading from the Front: Crisis Response</div>
+                                <ul class="list-disc list-outside ml-5 text-sm text-gray-600 space-y-1 mt-1">
+                                    <li><strong>Active-Ward Intervention:</strong> During the pandemic peak, personally donned full PPE and entered the active ward to replace a failing oxygen cell on a ventilator supporting a critical patient — restoring team confidence and establishing the protocol for hazardous interventions.</li>
+                                    <li><strong>Safety Standards:</strong> Enforced a safety-first culture, mandating capacitor-discharge protocols before board-level repairs with zero occupational accidents under supervision.</li>
+                                </ul>
+
+                                <div class="comp-sub">Technical Mentorship &amp; Innovation</div>
+                                <ul class="list-disc list-outside ml-5 text-sm text-gray-600 space-y-1 mt-1">
+                                    <li><strong>Innovation Without OEM Support:</strong> Diagnosed a faulty variable resistor in a digital radiography detector bias circuit and guided the team to retrofit a local industrial equivalent, restoring the unit within 4 hours.</li>
+                                    <li><strong>Preparing for the Unseen:</strong> Led troubleshooting workshops using a cardiac angiography simulator, training technicians to remain analytical during unseen failure modes.</li>
+                                    <li><strong>Legacy System Restoration:</strong> Recovered an echocardiography system from catastrophic OS corruption via bit-level cloning of a donor drive, teaching disaster-recovery techniques.</li>
+                                </ul>
+
+                                <div class="comp-sub">Regulatory Compliance Leadership</div>
+                                <ul class="list-disc list-outside ml-5 text-sm text-gray-600 space-y-1 mt-1">
+                                    <li><strong>Patient-Safety Outcomes:</strong> Mandated annual IEC 62353 electrical-safety testing — zero electrical-shock incidents in 5+ years, with 142 devices proactively retired due to failed insulation tests.</li>
+                                    <li><strong>Infection-Control Engineering:</strong> Validated operating theaters to ISO Class 7 standards and verified HEPA filter integrity (DOP testing).</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 8. Professional Training -->
+                        <div class="accordion-item">
+                            <div class="accordion-header"><span><i class="fas fa-graduation-cap text-blue-600 mr-2"></i> 8. Professional Training &amp; CPD</span><i class="fas fa-chevron-right chev"></i></div>
+                            <div class="accordion-body">
+                                <!-- <div class="comp-standard">Standard: Preparation for and depth of continuing learning — undertake CPD activities.</div> -->
+
+                                <div class="comp-sub">Academic Distinction</div>
+                                <ul class="list-disc list-outside ml-5 text-sm text-gray-600 space-y-1 mt-1">
+                                    <li><strong>PhD:</strong> Computer Vision &amp; Medical Imaging — DL network architectures, ViT &amp; knowledge distillation, NLP (coursework CGPA 4.0).</li>
+                                    <li><strong>MS Electrical Engineering (2021):</strong> Gold Medalist (CGPA 3.93).</li>
+                                </ul>
+
+                                <div class="comp-sub">Continuous Professional Development</div>
+                                <ul class="list-disc list-outside ml-5 text-sm text-gray-600 space-y-1 mt-1">
+                                    <li><strong>Research:</strong> Peer-reviewed publications in biomedical signal processing, IEEE and MDPI venues.</li>
+                                    <li><strong>Peer Review:</strong> Reviewer for Elsevier and Springer Nature journals.</li>
+                                    <li><strong>Instruction:</strong> Visiting Faculty at NUST (College of E&amp;ME).</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- FOOTER -->
+                <footer class="border-t mt-16 pt-8 text-sm text-gray-500 flex justify-between items-center">
+                    <div>&copy; 2026 Rao Farhat Masood.</div>
+                    <div class="text-xs">Last updated: Oct, 2026</div>
+                </footer>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

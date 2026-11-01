@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rao Farhat Masood — Portfolio</title>
+
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- MathJax for LaTeX Rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Academic Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;1,8..60,400&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+    <!-- Mobile top bar -->
+    <nav class="md:hidden p-4 border-b bg-white flex justify-between items-center sticky top-0 z-50 shadow-sm">
+        <span class="font-bold text-lg">Rao Farhat Masood</span>
+        <button id="mobile-menu-btn" class="text-xl text-gray-700"><i class="fas fa-bars"></i></button>
+    </nav>
+
+    <!-- Mobile dropdown menu -->
+    <div id="mobile-menu" class="md:hidden hidden bg-white border-b shadow-sm sticky top-[57px] z-40">
+        <div class="px-5 py-3">
+            <div class="mode-toggle mb-3">
+                <a class="mode-btn mode-active" data-mode="academic" href="../index.html">Academic</a>
+                <a class="mode-btn" data-mode="professional" href="../professional/profile.html">Professional</a>
+            </div>
+            <div class="nav-group" data-mode="academic">
+                <div class="space-y-1 text-sm uppercase tracking-wider font-semibold">
+                    <a class="tab-link" href="../index.html">About</a>
+                    <a class="tab-link" href="featured.html">Featured</a>
+                    <a class="tab-link" href="publications.html">Publications</a>
+                    <a class="tab-link" href="repositories.html">Repositories</a>
+                    <a class="tab-link" href="research.html">Research</a>
+                    <a class="tab-link tab-active" href="hobbies.html">Hobbies</a>
+                    <a class="tab-link" href="service.html">Service</a>
+                </div>
+            </div>
+            <div class="nav-group hidden" data-mode="professional">
+                <div class="space-y-1 text-sm uppercase tracking-wider font-semibold">
+                    <a class="tab-link" href="../professional/profile.html">Profile</a>
+                    <a class="tab-link" href="../professional/career-path.html">Career Path</a>
+                    <a class="tab-link" href="../professional/experience.html">Experience</a>
+                    <a class="tab-link" href="../professional/competencies.html">Competencies</a>
+                    <a class="tab-link" href="../professional/education.html">Education &amp; Skills</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-12">
+
+            <!-- SIDEBAR (Profile) -->
+            <div class="md:col-span-4 lg:col-span-3">
+                <div class="sidebar text-center md:text-right">
+                    <!-- Profile Image Placeholder -->
+                    <div class="w-40 h-40 mx-auto md:ml-auto md:mr-0 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden mb-5 shadow-sm ring-1 ring-slate-200 flex items-center justify-center">
+                        <i class="fas fa-user text-6xl text-slate-400"></i>
+                    </div>
+
+                    <h1 class="text-2xl font-bold mb-1 tracking-tight">Rao Farhat Masood</h1>
+                    <p id="role-line" class="text-xs text-slate-500 mb-5 leading-relaxed">PhD · Computer Vision &amp; Medical Imaging</p>
+
+                    <div class="flex justify-center md:justify-end gap-4 text-xl text-slate-600 mb-6">
+                        <a href="https://github.com/farhatmasood" title="GitHub" class="hover:text-black transition"><i class="fab fa-github"></i></a>
+                        <a href="https://www.linkedin.com/in/rao-farhat-masood-829966118/" title="LinkedIn" class="hover:text-blue-600 transition"><i class="fab fa-linkedin"></i></a>
+                        <a href="https://scholar.google.com/citations?user=G_uCi0UAAAAJ&hl=en" title="Google Scholar" class="hover:text-blue-800 transition"><i class="fas fa-graduation-cap"></i></a>
+                        <a href="https://orcid.org/0000-0001-9054-9192" title="ORCiD" class="hover:text-green-600 transition"><i class="fab fa-orcid"></i></a>
+                    </div>
+
+                    <!-- Mode toggle -->
+                    <div class="hidden md:flex justify-end mb-6">
+                        <div class="mode-toggle">
+                            <a class="mode-btn mode-active" data-mode="academic" href="../index.html">Academic</a>
+                            <a class="mode-btn" data-mode="professional" href="../professional/profile.html">Professional</a>
+                        </div>
+                    </div>
+
+                    <!-- Desktop Tab Nav -->
+                    <nav class="hidden md:block text-sm uppercase tracking-wider font-semibold">
+                        <div class="nav-group flex flex-col items-end" data-mode="academic">
+                            <a class="tab-link" href="../index.html">About</a>
+                            <a class="tab-link" href="featured.html">Featured</a>
+                            <a class="tab-link" href="publications.html">Publications</a>
+                            <a class="tab-link" href="repositories.html">Repositories</a>
+                            <a class="tab-link" href="research.html">Research</a>
+                            <a class="tab-link tab-active" href="hobbies.html">Hobbies</a>
+                            <a class="tab-link" href="service.html">Service</a>
+                        </div>
+                        <div class="nav-group hidden flex-col items-end" data-mode="professional">
+                            <a class="tab-link" href="../professional/profile.html">Profile</a>
+                            <a class="tab-link" href="../professional/career-path.html">Career Path</a>
+                            <a class="tab-link" href="../professional/experience.html">Experience</a>
+                            <a class="tab-link" href="../professional/competencies.html">Competencies</a>
+                            <a class="tab-link" href="../professional/education.html">Education &amp; Skills</a>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- MAIN CONTENT -->
+            <div class="md:col-span-8 lg:col-span-9 min-h-[60vh]">
+
+                                <!-- HOBBIES SECTION -->
+                <section id="hobbies" class="tab-section" data-mode="academic">
+                    <div class="flex items-end justify-between mb-6">
+                        <h2 class="section-title mb-0">Hobby Projects</h2>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-8">Small tools, physics engines, and prototypes built for learning and utility.</p>
+
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center"><span class="w-8 h-8 rounded bg-blue-100 text-blue-600 flex items-center justify-center mr-3 text-sm"><i class="fas fa-wrench"></i></span> Interactive Applications</h3>
+                    
+                    <!-- Tools grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
+                        <div class="card p-0 flex flex-col overflow-hidden border-t-4 border-blue-500 hover:shadow-xl transition-shadow">
+                            <div class="p-5 flex flex-col h-full">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="citation-title text-lg leading-tight font-bold">Visual Heat Load Calculator</div>
+                                    <span class="px-2 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider rounded">Engineering</span>
+                                </div>
+                                <div class="citation-author text-gray-700 mb-2">Interactive room visualizer &amp; HVAC sizing</div>
+                                <p class="text-sm text-gray-600 flex-1 mb-3">A 3D interactive tool built to estimate room cooling loads visually. Uses a simple room model and heuristic BTU calculations.</p>
+                                <div class="flex gap-2 mb-4">
+                                    <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded font-mono">Three.js</span>
+                                    <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded font-mono">HVAC</span>
+                                </div>
+                                <div class="mt-auto">
+                                    <a href="../hobbies/visual-heat-load.html" class="btn-academic w-full text-center hover:bg-blue-50"><i class="fas fa-external-link-alt mr-1"></i> Open Project</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card p-0 flex flex-col overflow-hidden border-t-4 border-blue-500 hover:shadow-xl transition-shadow">
+                            <div class="p-5 flex flex-col h-full">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="citation-title text-lg leading-tight font-bold">Tactical Recovery Analysis</div>
+                                    <span class="px-2 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider rounded">Engineering</span>
+                                </div>
+                                <div class="citation-author text-gray-700 mb-2">Vehicle recovery force calculator</div>
+                                <p class="text-sm text-gray-600 flex-1 mb-3">Estimates vehicle recovery forces with real-time mechanical advantage calculations and interactive tackle system visualization.</p>
+                                <div class="flex gap-2 mb-4">
+                                    <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded font-mono">React</span>
+                                    <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded font-mono">Physics</span>
+                                </div>
+                                <div class="mt-auto">
+                                    <a href="../hobbies/recovery-calculation.html" class="btn-academic w-full text-center hover:bg-blue-50"><i class="fas fa-external-link-alt mr-1"></i> Open Project</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card p-0 flex flex-col overflow-hidden border-t-4 border-emerald-500 hover:shadow-xl transition-shadow">
+                            <div class="p-5 flex flex-col h-full">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="citation-title text-lg leading-tight font-bold">Medical ECG Simulator</div>
+                                    <span class="px-2 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold uppercase tracking-wider rounded">Medical</span>
+                                </div>
+                                <div class="citation-author text-gray-700 mb-2">Cardiac rhythm visualization &amp; analysis</div>
+                                <p class="text-sm text-gray-600 flex-1 mb-3">Educational simulator supporting NSR, AFIB, VTACH, and Bradycardia with customizable clinical color schemes.</p>
+                                <div class="flex gap-2 mb-4">
+                                    <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded font-mono">Canvas API</span>
+                                    <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded font-mono">Signal Proc</span>
+                                </div>
+                                <div class="mt-auto">
+                                    <a href="../hobbies/ecg-simulator.html" class="btn-academic w-full text-center hover:bg-emerald-50"><i class="fas fa-external-link-alt mr-1"></i> Open Project</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card p-0 flex flex-col overflow-hidden border-t-4 border-amber-500 hover:shadow-xl transition-shadow">
+                            <div class="p-5 flex flex-col h-full">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="citation-title text-lg leading-tight font-bold">File Name Lister</div>
+                                    <span class="px-2 py-1 bg-amber-50 text-amber-600 text-[10px] font-bold uppercase tracking-wider rounded">Utility</span>
+                                </div>
+                                <div class="citation-author text-gray-700 mb-2">Batch directory processing utility</div>
+                                <p class="text-sm text-gray-600 flex-1 mb-3">A secure, browser-based utility for extracting and copying file names from local directories instantly.</p>
+                                <div class="flex gap-2 mb-4">
+                                    <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded font-mono">JavaScript</span>
+                                    <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded font-mono">DOM</span>
+                                </div>
+                                <div class="mt-auto">
+                                    <a href="../hobbies/filename-copier.html" class="btn-academic w-full text-center hover:bg-amber-50"><i class="fas fa-external-link-alt mr-1"></i> Open Project</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interactive explainers -->
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 pt-6 border-t flex items-center"><span class="w-8 h-8 rounded bg-indigo-100 text-indigo-600 flex items-center justify-center mr-3 text-sm"><i class="fas fa-chalkboard-teacher"></i></span> Interactive Explainers</h3>
+                    <p class="text-sm text-gray-500 mb-6 border-l-2 border-indigo-300 pl-3">Classic engineering charts explained from scratch in plain language, with hands-on visualizations at every step.</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
+                        <div class="card p-0 flex flex-col overflow-hidden border-t-4 border-indigo-500 hover:shadow-xl transition-shadow">
+                            <div class="p-5 flex flex-col h-full">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="citation-title text-lg leading-tight font-bold">Smith Chart, Simply</div>
+                                    <span class="px-2 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-bold uppercase tracking-wider rounded">RF</span>
+                                </div>
+                                <div class="citation-author text-gray-700 mb-2">Reflection, impedance &amp; matching</div>
+                                <p class="text-sm text-gray-600 flex-1 mb-3">From a bouncing wave to a full matching network: Γ, VSWR, return loss, transmission-line rotation and L-network matching, in five interactive labs.</p>
+                                <div class="flex gap-2 mb-4">
+                                    <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded font-mono">Canvas API</span>
+                                    <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded font-mono">RF Design</span>
+                                </div>
+                                <div class="mt-auto">
+                                    <a href="../hobbies/smith-chart.html" class="btn-academic w-full text-center hover:bg-indigo-50"><i class="fas fa-external-link-alt mr-1"></i> Open Project</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card p-0 flex flex-col overflow-hidden border-t-4 border-indigo-500 hover:shadow-xl transition-shadow">
+                            <div class="p-5 flex flex-col h-full">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="citation-title text-lg leading-tight font-bold">Bode Plot, Simply</div>
+                                    <span class="px-2 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-bold uppercase tracking-wider rounded">Control</span>
+                                </div>
+                                <div class="citation-author text-gray-700 mb-2">Gain, phase, resonance &amp; stability</div>
+                                <p class="text-sm text-gray-600 flex-1 mb-3">Sine in, sine out: decibels, poles and zeros, a block-by-block Bode builder, resonance vs ringing, and gain/phase margins on a live feedback loop.</p>
+                                <div class="flex gap-2 mb-4">
+                                    <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded font-mono">Canvas API</span>
+                                    <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded font-mono">Signals</span>
+                                </div>
+                                <div class="mt-auto">
+                                    <a href="../hobbies/bode-plot.html" class="btn-academic w-full text-center hover:bg-indigo-50"><i class="fas fa-external-link-alt mr-1"></i> Open Project</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chaos simulator -->
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 pt-6 border-t flex items-center"><span class="w-8 h-8 rounded bg-rose-100 text-rose-600 flex items-center justify-center mr-3 text-sm"><i class="fas fa-infinity"></i></span> Chaos Simulator</h3>
+                    <div class="card p-0 flex flex-col overflow-hidden border-t-4 border-rose-500 hover:shadow-xl transition-shadow mb-10">
+                        <div class="p-5 flex flex-col h-full">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="citation-title text-lg leading-tight font-bold">Double Pendulum Chaos Lab</div>
+                                <span class="px-2 py-1 bg-rose-50 text-rose-600 text-[10px] font-bold uppercase tracking-wider rounded">Physics</span>
+                            </div>
+                            <div class="citation-author text-gray-700 mb-2">Real-time chaos, phase space &amp; fractal maps</div>
+                            <p class="text-sm text-gray-600 flex-1 mb-3">Full control over lengths, masses, gravity, damping and initial conditions; RK4, Verlet and adaptive RK45 solvers with a live energy-conservation check; batches of up to 45 pendulums for butterfly-effect tests; phase-space plots; and multi-core state-grid and time-to-flip fractal maps up to 2000 × 2000 with drag-to-zoom.</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded font-mono">Web Workers</span>
+                                <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded font-mono">Numerical ODEs</span>
+                                <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded font-mono">Canvas API</span>
+                            </div>
+                            <div class="mt-auto">
+                                <a href="../hobbies/simulator/index.html" class="btn-academic w-full text-center hover:bg-rose-50"><i class="fas fa-external-link-alt mr-1"></i> Open Project</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Physics simulations -->
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 pt-6 border-t flex items-center"><span class="w-8 h-8 rounded bg-purple-100 text-purple-600 flex items-center justify-center mr-3 text-sm"><i class="fas fa-atom"></i></span> Physics Engine Sandbox</h3>
+                    <p class="text-sm text-gray-500 mb-6 border-l-2 border-purple-300 pl-3">Interactive 2D Newtonian mechanics sandbox built from scratch. Demonstrates real-time impulse-based collision response, Coulomb friction, and rotational inertia. <a href="../hobbies/simulator/physics-sandbox.html" class="text-purple-600 font-medium hover:underline">View all 9 simulations →</a></p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Sim 1: Free Fall -->
+                        <div class="bg-white border border-gray-200 rounded-xl p-4 hover:border-purple-300 hover:shadow-md transition-all group">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="citation-title text-base font-bold text-gray-800 group-hover:text-purple-700 transition-colors">🍎 Free Fall</div>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-3">Galilean acceleration under uniform gravity \( g = 9.81 \, 	ext{m/s}^2 \).</p>
+                            <div class="flex gap-2">
+                                <a href="../hobbies/simulator/physics-sandbox.html?preset=freeFall&embed=1" target="_blank" class="text-xs bg-purple-50 text-purple-700 px-3 py-1.5 rounded font-semibold hover:bg-purple-100 transition-colors flex-1 text-center"><i class="fas fa-play mr-1"></i> Run</a>
+                                <a href="../hobbies/simulator/physics-sandbox.html?preset=freeFall" target="_blank" class="text-xs bg-gray-50 text-gray-600 px-3 py-1.5 rounded hover:bg-gray-100 transition-colors border border-gray-200"><i class="fas fa-sliders-h"></i></a>
+                            </div>
+                        </div>
+
+                        <!-- Sim 2: Projectile Motion -->
+                        <div class="bg-white border border-gray-200 rounded-xl p-4 hover:border-purple-300 hover:shadow-md transition-all group">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="citation-title text-base font-bold text-gray-800 group-hover:text-purple-700 transition-colors">🎯 Projectile Motion</div>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-3">Parabolic trajectories at 30°, 45°, and 60° comparing horizontal range.</p>
+                            <div class="flex gap-2">
+                                <a href="../hobbies/simulator/physics-sandbox.html?preset=projectile&embed=1" target="_blank" class="text-xs bg-purple-50 text-purple-700 px-3 py-1.5 rounded font-semibold hover:bg-purple-100 transition-colors flex-1 text-center"><i class="fas fa-play mr-1"></i> Run</a>
+                                <a href="../hobbies/simulator/physics-sandbox.html?preset=projectile" target="_blank" class="text-xs bg-gray-50 text-gray-600 px-3 py-1.5 rounded hover:bg-gray-100 transition-colors border border-gray-200"><i class="fas fa-sliders-h"></i></a>
+                            </div>
+                        </div>
+
+                        <!-- Sim 3: Simple Pendulum -->
+                        <div class="bg-white border border-gray-200 rounded-xl p-4 hover:border-purple-300 hover:shadow-md transition-all group">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="citation-title text-base font-bold text-gray-800 group-hover:text-purple-700 transition-colors">🕐 Simple Pendulum</div>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-3">Harmonic oscillation demonstrating continuous kinetic/potential energy exchange.</p>
+                            <div class="flex gap-2">
+                                <a href="../hobbies/simulator/physics-sandbox.html?preset=pendulum&embed=1" target="_blank" class="text-xs bg-purple-50 text-purple-700 px-3 py-1.5 rounded font-semibold hover:bg-purple-100 transition-colors flex-1 text-center"><i class="fas fa-play mr-1"></i> Run</a>
+                                <a href="../hobbies/simulator/physics-sandbox.html?preset=pendulum" target="_blank" class="text-xs bg-gray-50 text-gray-600 px-3 py-1.5 rounded hover:bg-gray-100 transition-colors border border-gray-200"><i class="fas fa-sliders-h"></i></a>
+                            </div>
+                        </div>
+
+                        <!-- Sim 4: Newton's Cradle -->
+                        <div class="bg-white border border-gray-200 rounded-xl p-4 hover:border-purple-300 hover:shadow-md transition-all group">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="citation-title text-base font-bold text-gray-800 group-hover:text-purple-700 transition-colors">⚖️ Newton's Cradle</div>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-3">Conservation of momentum and kinetic energy in 1D elastic collisions.</p>
+                            <div class="flex gap-2">
+                                <a href="../hobbies/simulator/physics-sandbox.html?preset=cradle&embed=1" target="_blank" class="text-xs bg-purple-50 text-purple-700 px-3 py-1.5 rounded font-semibold hover:bg-purple-100 transition-colors flex-1 text-center"><i class="fas fa-play mr-1"></i> Run</a>
+                                <a href="../hobbies/simulator/physics-sandbox.html?preset=cradle" target="_blank" class="text-xs bg-gray-50 text-gray-600 px-3 py-1.5 rounded hover:bg-gray-100 transition-colors border border-gray-200"><i class="fas fa-sliders-h"></i></a>
+                            </div>
+                        </div>
+
+                        <!-- Sim 5: Billiards -->
+                        <div class="bg-white border border-gray-200 rounded-xl p-4 hover:border-purple-300 hover:shadow-md transition-all group">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="citation-title text-base font-bold text-gray-800 group-hover:text-purple-700 transition-colors">🎱 Billiards</div>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-3">Zero-gravity elastic 2D collisions resolved with Coulomb friction.</p>
+                            <div class="flex gap-2">
+                                <a href="../hobbies/simulator/physics-sandbox.html?preset=billiards&embed=1" target="_blank" class="text-xs bg-purple-50 text-purple-700 px-3 py-1.5 rounded font-semibold hover:bg-purple-100 transition-colors flex-1 text-center"><i class="fas fa-play mr-1"></i> Run</a>
+                                <a href="../hobbies/simulator/physics-sandbox.html?preset=billiards" target="_blank" class="text-xs bg-gray-50 text-gray-600 px-3 py-1.5 rounded hover:bg-gray-100 transition-colors border border-gray-200"><i class="fas fa-sliders-h"></i></a>
+                            </div>
+                        </div>
+
+                        <!-- Sim 6: Stacking -->
+                        <div class="bg-white border border-gray-200 rounded-xl p-4 hover:border-purple-300 hover:shadow-md transition-all group">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="citation-title text-base font-bold text-gray-800 group-hover:text-purple-700 transition-colors">🧱 Stacking</div>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-3">SAT-based OBB collision with sub-stepped sequential impulses.</p>
+                            <div class="flex gap-2">
+                                <a href="../hobbies/simulator/physics-sandbox.html?preset=stacking&embed=1" target="_blank" class="text-xs bg-purple-50 text-purple-700 px-3 py-1.5 rounded font-semibold hover:bg-purple-100 transition-colors flex-1 text-center"><i class="fas fa-play mr-1"></i> Run</a>
+                                <a href="../hobbies/simulator/physics-sandbox.html?preset=stacking" target="_blank" class="text-xs bg-gray-50 text-gray-600 px-3 py-1.5 rounded hover:bg-gray-100 transition-colors border border-gray-200"><i class="fas fa-sliders-h"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- FOOTER -->
+                <footer class="border-t mt-16 pt-8 text-sm text-gray-500 flex justify-between items-center">
+                    <div>&copy; 2026 Rao Farhat Masood.</div>
+                    <div class="text-xs">Last updated: Oct, 2026</div>
+                </footer>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

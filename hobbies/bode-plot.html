@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bode Plot, Simply</title>
+    <meta name="description" content="An interactive, plain-language explanation of Bode plots: gain, phase, decibels, poles and zeros, resonance, and stability margins.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;1,8..60,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="explainer.css">
+    <style>
+        .blocks { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.6rem; }
+        .block { border: 1px solid var(--border); border-left: 4px solid var(--bc, var(--accent)); border-radius: 8px; padding: 0.5rem 0.7rem; background: #fcfdff; }
+        .block-head { display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; font-weight: 700; }
+        .block-head button { border: none; background: none; color: var(--faint); cursor: pointer; font-size: 1rem; line-height: 1; }
+        .block-head button:hover { color: var(--bad); }
+        .block .ctrl { margin: 0.3rem 0 0; }
+        .checks { display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.8rem; color: #334155; margin: 0.3rem 0 0.6rem; }
+        .checks input { accent-color: var(--accent); }
+        .stack canvas + canvas { margin-top: 0.5rem; }
+    </style>
+</head>
+<body>
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <nav class="crumbs">
+            <a href="../index.html">Portfolio</a><span>/</span>
+            <a href="../academic/hobbies.html">Hobby Projects</a><span>/</span>
+            <strong>Bode Plot</strong>
+        </nav>
+        <nav class="sib">
+            <a href="smith-chart.html">← Smith Chart</a>
+        </nav>
+    </div>
+</header>
+
+<main class="page">
+
+    <div class="hero">
+        <span class="tag">Interactive explainer · Signals &amp; control</span>
+        <h1>The Bode Plot, explained simply</h1>
+        <p class="lede">Feed a system a pure tone and it gives back the same tone, only louder or quieter, and a little late. A Bode plot is two graphs that record exactly that for every frequency: <b>how much louder</b> (gain) and <b>how late</b> (phase). That's all it is.</p>
+        <nav class="toc">
+            <a href="#sine">1 · Sine in, sine out</a>
+            <a href="#db">2 · Decibels &amp; decades</a>
+            <a href="#alphabet">3 · The Bode alphabet</a>
+            <a href="#build">4 · Build any system</a>
+            <a href="#resonance">5 · Resonance</a>
+            <a href="#stability">6 · Will it oscillate?</a>
+            <a href="#cheat">7 · Cheat sheet</a>
+        </nav>
+    </div>
+
+    <!-- 1 -->
+    <section class="step" id="sine">
+        <div class="step-head"><span class="step-num">1</span><h2>Sine in, sine out</h2></div>
+        <div class="key analogy"><strong>Think of a car's suspension.</strong> Drive slowly over a long, gentle hill and the car body follows the road exactly. Drive fast over small, rapid bumps and the body hardly moves; the springs swallow them. Same car, different frequency, different result. A Bode plot draws that behaviour for every frequency at once.</div>
+        <p>For a huge class of systems (filters, amplifiers, speakers, motors, feedback controllers) a sine wave going in always comes out as a sine wave <b>of the same frequency</b>. Only two things can change:</p>
+        <ul>
+            <li><b>Size</b>: the output can be bigger or smaller. That's the <b>gain</b> (magnitude), drawn on the top graph.</li>
+            <li><b>Timing</b>: the output can be shifted earlier or later. That's the <b>phase</b>, measured in degrees of one cycle (360° = one full cycle) and drawn on the bottom graph.</li>
+        </ul>
+        <div class="lab" id="lab1">
+            <div class="lab-title">Lab 1 · Play a tone through a filter</div>
+            <p class="lab-hint">Slide the frequency. Watch the output (red) shrink and slip behind the input (blue), and watch the dot trace out the Bode plot on the right.</p>
+            <div class="lab-grid even">
+                <div>
+                    <canvas id="c1s" class="plot"></canvas>
+                    <div class="legend"><span><i style="background:var(--c1)"></i>Input</span><span><i style="background:var(--c2)"></i>Output</span></div>
+                </div>
+                <div class="stack"><canvas id="c1m" class="plot"></canvas><canvas id="c1p" class="plot"></canvas></div>
+            </div>
+            <div class="lab-grid even" style="margin-top:0.8rem">
+                <div>
+                    <div class="ctrl"><label><span>Filter</span>
+                        <select id="l1type"><option value="lp">Low-pass (RC): passes low tones</option><option value="hp">High-pass (CR): passes high tones</option></select></label></div>
+                    <div class="ctrl"><label><span>Tone frequency</span> <span class="val" id="l1fv"></span></label><input type="range" id="l1f" min="1" max="5" step="0.005" value="2.5"></div>
+                    <div class="btn-row"><button class="btn primary" id="l1sweep">▶ Sweep 10 Hz → 100 kHz</button><button class="btn" id="l1corner">Jump to the corner (1 kHz)</button></div>
+                </div>
+                <div>
+                    <div class="readout">
+                        <div><b>Output size</b><span id="l1g"></span></div>
+                        <div><b>Gain in dB</b><span id="l1db"></span></div>
+                        <div><b>Phase shift</b><span id="l1ph"></span></div>
+                        <div><b>Time shift</b><span id="l1dt"></span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="key"><strong>Notice the corner.</strong> Far below 1 kHz the low-pass filter does nothing. Far above, it cuts hard. At exactly 1 kHz, the <b>corner frequency</b>, the output is 0.707× (−3 dB) and 45° behind. Every simple filter has a corner like this.</div>
+    </section>
+
+    <!-- 2 -->
+    <section class="step" id="db">
+        <div class="step-head"><span class="step-num">2</span><h2>Speaking in decibels and decades</h2></div>
+        <p>Bode plots use two tricks that make them easy to read:</p>
+        <ul>
+            <li>The frequency axis is <b>logarithmic</b>: each grid step is ×10, called a <b>decade</b>. 10 Hz → 100 Hz → 1 kHz are equal steps, so very low and very high frequencies fit on one page.</li>
+            <li>Gain is in <b>decibels</b>: dB = 20·log₁₀(output/input). That turns "multiply" into "add".</li>
+        </ul>
+        <div class="lab-grid even">
+            <div class="table-wrap box" style="padding:0.3rem 0.6rem;margin:0">
+                <table>
+                    <tr><th>Output is…</th><th>dB</th></tr>
+                    <tr><td>100× bigger</td><td class="mono">+40 dB</td></tr>
+                    <tr><td>10× bigger</td><td class="mono">+20 dB</td></tr>
+                    <tr><td>2× bigger</td><td class="mono">+6 dB</td></tr>
+                    <tr><td>the same</td><td class="mono">0 dB</td></tr>
+                    <tr><td>0.707× (half the power)</td><td class="mono">−3 dB</td></tr>
+                    <tr><td>half</td><td class="mono">−6 dB</td></tr>
+                    <tr><td>10× smaller</td><td class="mono">−20 dB</td></tr>
+                    <tr><td>100× smaller</td><td class="mono">−40 dB</td></tr>
+                </table>
+            </div>
+            <div class="lab" style="margin:0">
+                <div class="lab-title">Mini-lab · dB converter</div>
+                <div class="ctrl"><label><span>Output ÷ input</span> <span class="val" id="dbv"></span></label><input type="range" id="dbs" min="-2" max="2" step="0.01" value="0.3"></div>
+                <div class="readout"><div><b>Decibels</b><span id="dbo"></span></div><div><b>Power ratio</b><span id="dbp"></span></div></div>
+                <p class="small muted" style="margin-top:0.8rem">Why bother? Chain two stages, ×10 then ×0.5, and the total is ×5. In dB that's just +20 dB − 6 dB = +14 dB. <b>Stacking systems becomes adding their Bode plots.</b> That is the superpower of section 4.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3 -->
+    <section class="step" id="alphabet">
+        <div class="step-head"><span class="step-num">3</span><h2>The Bode alphabet: seven building blocks</h2></div>
+        <p>Almost every linear system is built from a few simple pieces. Learn each one's shape and you can sketch any Bode plot by hand. The <b>slope</b> is how fast the gain line climbs or falls, in dB per decade.</p>
+        <div class="table-wrap box" style="padding:0.3rem 0.6rem">
+            <table>
+                <tr><th>Block</th><th>Gain shape</th><th>Phase shape</th><th>Real example</th><th></th></tr>
+                <tr><td><b>Constant gain</b> K</td><td>Flat line at 20·log₁₀K</td><td>0° (flat)</td><td>Amplifier, volume knob</td><td><button class="btn" data-try="gain">Try</button></td></tr>
+                <tr><td><b>Pole</b> (corner f<sub>p</sub>)</td><td>Flat, then <b>falls 20 dB/decade</b> after f<sub>p</sub></td><td>0° → −90°, −45° at f<sub>p</sub></td><td>RC low-pass filter</td><td><button class="btn" data-try="pole">Try</button></td></tr>
+                <tr><td><b>Zero</b> (corner f<sub>z</sub>)</td><td>Flat, then <b>rises 20 dB/decade</b> after f<sub>z</sub></td><td>0° → +90°, +45° at f<sub>z</sub></td><td>Lead compensator, tone control</td><td><button class="btn" data-try="zero">Try</button></td></tr>
+                <tr><td><b>Integrator</b> 1/s</td><td>Falls 20 dB/decade everywhere</td><td>−90° everywhere</td><td>Motor angle from speed, a tank filling</td><td><button class="btn" data-try="integ">Try</button></td></tr>
+                <tr><td><b>Differentiator</b> s</td><td>Rises 20 dB/decade everywhere</td><td>+90° everywhere</td><td>Inductor voltage, D-term of a PID</td><td><button class="btn" data-try="diff">Try</button></td></tr>
+                <tr><td><b>Resonance</b> (f<sub>n</sub>, ζ)</td><td>Flat, <b>peak</b> near f<sub>n</sub> if ζ is small, then falls 40 dB/decade</td><td>0° → −180°, sharp if ζ is small</td><td>Mass on a spring, RLC circuit, guitar string</td><td><button class="btn" data-try="res">Try</button></td></tr>
+                <tr><td><b>Time delay</b> T</td><td>Flat 0 dB (doesn't change size)</td><td>Falls without limit: −360°·f·T</td><td>Network lag, conveyor belt, slow sensor</td><td><button class="btn" data-try="delay">Try</button></td></tr>
+            </table>
+        </div>
+        <div class="key"><strong>Rule of thumb:</strong> each pole bends the gain line <b>down</b> by 20 dB/decade and adds up to −90°. Each zero bends it <b>up</b> by 20 dB/decade and adds up to +90°. Count the poles and zeros and you know the slopes.</div>
+    </section>
+
+    <!-- 4 -->
+    <section class="step" id="build">
+        <div class="step-head"><span class="step-num">4</span><h2>Build any system by adding blocks</h2></div>
+        <p>When systems are chained, their gains <b>multiply</b>, which in dB means they <b>add</b>. Their phases add too. So the Bode plot of a complicated system is just the sum of its blocks' plots. Engineers sketch the <b>straight-line approximation</b> (the asymptotes) first, then round off the corners.</p>
+        <div class="lab" id="lab2">
+            <div class="lab-title">Lab 2 · Bode plot builder</div>
+            <p class="lab-hint">Add blocks and move their sliders. Thin coloured lines are the individual blocks; the thick black line is their sum. Hover over the plot to read values.</p>
+            <div class="lab-grid">
+                <div class="stack">
+                    <canvas id="c2m" class="plot"></canvas>
+                    <canvas id="c2p" class="plot"></canvas>
+                    <div class="checks">
+                        <label><input type="checkbox" id="l2parts" checked> Show each block</label>
+                        <label><input type="checkbox" id="l2asym" checked> Straight-line approximation</label>
+                    </div>
+                    <div class="readout" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+                        <div><b>At frequency</b><span id="l2f">—</span></div>
+                        <div><b>Gain</b><span id="l2g">—</span></div>
+                        <div><b>Phase</b><span id="l2p">—</span></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="ctrl"><label><span>Start from a preset</span>
+                        <select id="l2preset">
+                            <option value="lp">RC low-pass filter</option>
+                            <option value="hp">RC high-pass filter</option>
+                            <option value="bp">Band-pass filter</option>
+                            <option value="amp">Amplifier with two poles</option>
+                            <option value="lead">Lead compensator</option>
+                            <option value="res">Resonant system</option>
+                            <option value="motor">Motor (integrator + pole)</option>
+                        </select></label></div>
+                    <div class="blocks" id="l2blocks"></div>
+                    <div class="btn-row" id="l2add">
+                        <button class="btn" data-add="gain">+ Gain</button>
+                        <button class="btn" data-add="pole">+ Pole</button>
+                        <button class="btn" data-add="zero">+ Zero</button>
+                        <button class="btn" data-add="integ">+ Integrator</button>
+                        <button class="btn" data-add="diff">+ Differentiator</button>
+                        <button class="btn" data-add="res">+ Resonance</button>
+                        <button class="btn" data-add="delay">+ Delay</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="key"><strong>Things to try:</strong> pick the high-pass preset and notice it is just a differentiator (rising line) plus a pole that flattens it. Add two poles at the same frequency and watch the slope become −40 dB/decade. Put a zero on top of a pole and they cancel.</div>
+    </section>
+
+    <!-- 5 -->
+    <section class="step" id="resonance">
+        <div class="step-head"><span class="step-num">5</span><h2>Resonance: a peak in frequency is ringing in time</h2></div>
+        <p>A mass on a spring, a swing, an RLC circuit: anything that stores energy in two ways can <b>resonate</b>. Its <b>damping ratio ζ</b> (zeta) says how much friction there is. Low damping gives a tall, sharp peak on the Bode plot, and the same system <b>rings</b> when you give it a sudden kick (a step). Both pictures show the same physics.</p>
+        <div class="lab" id="lab3">
+            <div class="lab-title">Lab 3 · Damping: frequency view vs time view</div>
+            <p class="lab-hint">Lower the damping and compare the peak (left) with the overshoot and ringing (right).</p>
+            <div class="lab-grid even">
+                <div class="stack"><canvas id="c3m" class="plot"></canvas><canvas id="c3p" class="plot"></canvas></div>
+                <div>
+                    <canvas id="c3t" class="plot"></canvas>
+                    <p class="small muted" style="text-align:center;margin:0.3rem 0 0.6rem">Step response: what happens after a sudden push</p>
+                    <div class="ctrl"><label><span>Damping ratio ζ</span> <span class="val" id="l3zv"></span></label><input type="range" id="l3z" min="0.03" max="2" step="0.01" value="0.2"></div>
+                    <div class="readout">
+                        <div><b>Resonant peak</b><span id="l3pk"></span></div>
+                        <div><b>Overshoot</b><span id="l3os"></span></div>
+                    </div>
+                    <div class="verdict" id="l3V"></div>
+                </div>
+            </div>
+        </div>
+        <div class="table-wrap box" style="padding:0.3rem 0.6rem">
+            <table>
+                <tr><th>Damping ζ</th><th>Bode plot</th><th>Step response</th></tr>
+                <tr><td>Below 0.3</td><td>Tall, sharp peak</td><td>Big overshoot, rings for a long time</td></tr>
+                <tr><td>About 0.7</td><td>No peak, flattest response</td><td>Tiny overshoot (4%), quick to settle: often the target</td></tr>
+                <tr><td>1 or more</td><td>Smooth roll-off, no peak</td><td>No overshoot, but slower</td></tr>
+            </table>
+        </div>
+    </section>
+
+    <!-- 6 -->
+    <section class="step" id="stability">
+        <div class="step-head"><span class="step-num">6</span><h2>Will it oscillate? Gain and phase margin</h2></div>
+        <p>This is the most important practical use of Bode plots. In a <b>feedback loop</b> (cruise control, a thermostat, a motor controller, an op-amp) the output is measured and fed back to correct the input. If the signal comes back around the loop <b>at least as big</b> (gain ≥ 1, i.e. ≥ 0 dB) <b>and</b> <b>exactly upside-down</b> (phase −180°), the correction pushes in the wrong direction and keeps itself going. The loop oscillates.</p>
+        <div class="key analogy"><strong>Think of pushing a swing.</strong> Pushing in time with the swing, even gently, makes it go higher and higher. A feedback loop with gain ≥ 1 at −180° is pushing its own swing.</div>
+        <p>So we read the <b>open-loop</b> Bode plot (once around the loop) and ask how far we are from that danger point:</p>
+        <ul>
+            <li><b>Phase margin (PM)</b>: where the gain crosses 0 dB, how many degrees is the phase above −180°? Aim for <b>45°–60°</b> or more.</li>
+            <li><b>Gain margin (GM)</b>: where the phase hits −180°, how far below 0 dB is the gain? Aim for <b>6 dB</b> or more.</li>
+        </ul>
+        <div class="lab" id="lab4">
+            <div class="lab-title">Lab 4 · Turn up the gain until it shakes</div>
+            <p class="lab-hint">The loop is a motor-like system (an integrator and two poles) with a controller gain K and an optional delay. Raise K or add delay and watch the margins shrink and the step response start to ring.</p>
+            <div class="lab-grid even">
+                <div class="stack"><canvas id="c4m" class="plot"></canvas><canvas id="c4p" class="plot"></canvas></div>
+                <div>
+                    <canvas id="c4t" class="plot"></canvas>
+                    <p class="small muted" style="text-align:center;margin:0.3rem 0 0.6rem">Closed-loop step response (target = 1)</p>
+                    <div class="ctrl"><label><span>Controller gain K</span> <span class="val" id="l4kv"></span></label><input type="range" id="l4k" min="-1" max="1.5" step="0.005" value="0"></div>
+                    <div class="ctrl"><label><span>Loop delay T</span> <span class="val" id="l4tv"></span></label><input type="range" id="l4t" min="0" max="0.8" step="0.01" value="0"></div>
+                    <div class="readout">
+                        <div><b>Phase margin</b><span id="l4pm"></span></div>
+                        <div><b>Gain margin</b><span id="l4gm"></span></div>
+                    </div>
+                    <div class="verdict" id="l4V"></div>
+                </div>
+            </div>
+            <div class="legend"><span><i style="background:var(--c3)"></i>Phase margin</span><span><i style="background:var(--c4)"></i>Gain margin</span><span><i style="background:var(--c2)"></i>Danger line (0 dB / −180°)</span></div>
+        </div>
+        <div class="key"><strong>Notice the delay:</strong> it doesn't change the gain at all, but it drags the phase down at high frequencies. That is why slow sensors and network lag make control loops unstable.</div>
+    </section>
+
+    <!-- 7 -->
+    <section class="step" id="cheat">
+        <div class="step-head"><span class="step-num">7</span><h2>Cheat sheet</h2></div>
+        <div class="cheat">
+            <div class="box"><h4>What it is</h4><p>Two graphs against log frequency: gain (dB) on top, phase (degrees) below.</p></div>
+            <div class="box"><h4>dB in one line</h4><p>×10 = +20 dB, ×2 ≈ +6 dB, ×0.707 = −3 dB, ×0.1 = −20 dB.</p></div>
+            <div class="box"><h4>Corner frequency</h4><p>Where a pole or zero starts to act: −3 dB and ±45° for a single one.</p></div>
+            <div class="box"><h4>Slopes</h4><p>Each pole −20 dB/decade and −90°. Each zero +20 dB/decade and +90°.</p></div>
+            <div class="box"><h4>Adding</h4><p>Chained systems: add their dB and add their phases.</p></div>
+            <div class="box"><h4>Resonance</h4><p>Small ζ gives a tall peak and ringing. ζ ≈ 0.7 is the flattest response.</p></div>
+            <div class="box"><h4>Bandwidth</h4><p>Frequency where the gain has dropped 3 dB below its flat value.</p></div>
+            <div class="box"><h4>Stability</h4><p>Open loop: phase margin ≥ 45°, gain margin ≥ 6 dB. Delay eats phase margin.</p></div>
+        </div>
+    </section>
+
+    <div class="next-links">
+        <a href="smith-chart.html"><small>Previous explainer</small><strong>← Smith Chart</strong><br><span class="small muted">Impedance, reflection and matching on one circular map.</span></a>
+        <a href="../academic/hobbies.html"><small>Back to</small><strong>← Hobby Projects</strong><br><span class="small muted">All tools, simulators and explainers.</span></a>
+    </div>
+    <footer class="foot">© 2026 Rao Farhat Masood.</footer>
+</main>
+
+<script>
+(function () {
+    'use strict';
+    const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+    const log10 = Math.log10, D = 180 / Math.PI;
+    function fmt(v, d = 2) {
+        if (!isFinite(v)) return '∞';
+        return String(+v.toFixed(d)).replace('-', '−');
+    }
+    function fmtHz(f, unit = true) {
+        const u = unit ? ' Hz' : '';
+        if (f >= 1e6) return fmt(f / 1e6, 2) + (unit ? ' MHz' : 'M');
+        if (f >= 1e3) return fmt(f / 1e3, f >= 1e4 ? 1 : 2) + (unit ? ' kHz' : 'k');
+        return fmt(f, f < 1 ? 3 : f < 10 ? 2 : 1) + u;
+    }
+    function fitCanvas(c, ratio) {
+        const w = c.clientWidth, h = Math.round(w * ratio), dpr = window.devicePixelRatio || 1;
+        if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) {
+            c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); c.style.height = h + 'px';
+        }
+        const ctx = c.getContext('2d');
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, w, h);
+        return { ctx, w, h };
+    }
+    const logspace = (a, b, n) => Array.from({ length: n }, (_, i) => Math.pow(10, a + (b - a) * i / (n - 1)));
+
+    // Generic axes: log-x (frequency) or linear-x (time)
+    function axes(ctx, w, h, o) {
+        const L = 46, R = 10, T = 16, B = o.xlabels === false ? 8 : 22;
+        const box = { x: L, y: T, w: w - L - R, h: h - T - B };
+        const lx = o.xlog !== false;
+        const x0 = lx ? log10(o.xmin) : o.xmin, x1 = lx ? log10(o.xmax) : o.xmax;
+        const fx = v => box.x + ((lx ? log10(v) : v) - x0) / (x1 - x0) * box.w;
+        const fy = v => box.y + (o.ymax - v) / (o.ymax - o.ymin) * box.h;
+        ctx.fillStyle = '#fff'; ctx.fillRect(box.x, box.y, box.w, box.h);
+        ctx.lineWidth = 1; ctx.font = '10px Inter, sans-serif';
+        // vertical grid
+        if (lx) {
+            for (let d = Math.floor(x0); d <= Math.ceil(x1); d++) {
+                for (let m = 1; m < 10; m++) {
+                    const f = m * Math.pow(10, d); if (f < o.xmin * 0.999 || f > o.xmax * 1.001) continue;
+                    ctx.strokeStyle = m === 1 ? css('--grid-strong') : css('--grid');
+                    ctx.beginPath(); ctx.moveTo(fx(f), box.y); ctx.lineTo(fx(f), box.y + box.h); ctx.stroke();
+                    if (m === 1 && o.xlabels !== false) { ctx.fillStyle = '#64748b'; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText(fmtHz(f, false), fx(f), box.y + box.h + 4); }
+                }
+            }
+        } else {
+            for (let t = o.xmin; t <= o.xmax + 1e-9; t += o.xstep) {
+                ctx.strokeStyle = css('--grid'); ctx.beginPath(); ctx.moveTo(fx(t), box.y); ctx.lineTo(fx(t), box.y + box.h); ctx.stroke();
+                if (o.xlabels !== false) { ctx.fillStyle = '#64748b'; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText(fmt(t, 1) + (o.xunit || ''), fx(t), box.y + box.h + 4); }
+            }
+        }
+        // horizontal grid
+        for (let v = Math.ceil(o.ymin / o.ystep) * o.ystep; v <= o.ymax + 1e-9; v += o.ystep) {
+            ctx.strokeStyle = Math.abs(v) < 1e-9 ? '#94a3b8' : css('--grid');
+            ctx.beginPath(); ctx.moveTo(box.x, fy(v)); ctx.lineTo(box.x + box.w, fy(v)); ctx.stroke();
+            ctx.fillStyle = '#64748b'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+            ctx.fillText(fmt(v, 1) + (o.yunit || ''), box.x - 5, fy(v));
+        }
+        ctx.strokeStyle = '#cbd5e1'; ctx.strokeRect(box.x, box.y, box.w, box.h);
+        if (o.title) { ctx.fillStyle = '#334155'; ctx.font = '600 10px Inter, sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom'; ctx.fillText(o.title, box.x, box.y - 3); }
+        return { box, fx, fy };
+    }
+    function curve(ctx, A, xs, ys, col, lw = 2, dash) {
+        ctx.save(); ctx.beginPath(); ctx.rect(A.box.x, A.box.y, A.box.w, A.box.h); ctx.clip();
+        ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.setLineDash(dash || []); ctx.lineJoin = 'round';
+        ctx.beginPath();
+        xs.forEach((x, i) => { const px = A.fx(x), py = A.fy(Math.max(-1e4, Math.min(1e4, ys[i]))); i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); });
+        ctx.stroke(); ctx.restore();
+    }
+    function dot(ctx, x, y, col, r = 5) {
+        ctx.fillStyle = col; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+    }
+    function vline(ctx, A, x, col, dash = [4, 4]) {
+        ctx.save(); ctx.strokeStyle = col; ctx.setLineDash(dash); ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(A.fx(x), A.box.y); ctx.lineTo(A.fx(x), A.box.y + A.box.h); ctx.stroke(); ctx.restore();
+    }
+    function hline(ctx, A, y, col, dash = [4, 4]) {
+        ctx.save(); ctx.strokeStyle = col; ctx.setLineDash(dash); ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.moveTo(A.box.x, A.fy(y)); ctx.lineTo(A.box.x + A.box.w, A.fy(y)); ctx.stroke(); ctx.restore();
+    }
+    function niceRange(vals, step, lo, hi, pad = 0) {
+        let mn = Math.min(...vals), mx = Math.max(...vals);
+        mn = Math.max(lo, Math.floor((mn - pad) / step) * step); mx = Math.min(hi, Math.ceil((mx + pad) / step) * step);
+        if (mx - mn < step * 2) { mn -= step; mx += step; }
+        return [mn, mx];
+    }
+    const redraws = [];
+    window.addEventListener('resize', () => redraws.forEach(f => f()));
+
+    // ---------- Lab 1: tone through a filter ----------
+    (function () {
+        const cs = document.getElementById('c1s'), cm = document.getElementById('c1m'), cp = document.getElementById('c1p');
+        const sf = document.getElementById('l1f'), ty = document.getElementById('l1type');
+        const FC = 1000, FS = logspace(1, 5, 300);
+        let t = 0, running = false, sweep = null;
+        const H = (f, hp) => { const u = f / FC, m = (hp ? u : 1) / Math.sqrt(1 + u * u), p = (hp ? 90 : 0) - Math.atan(u) * D; return { m, p }; };
+        function draw() {
+            const f = Math.pow(10, +sf.value), hp = ty.value === 'hp', r = H(f, hp);
+            // scope: two input periods
+            let { ctx, w, h } = fitCanvas(cs, 0.62);
+            const A = axes(ctx, w, h, { xlog: false, xmin: 0, xmax: 2, xstep: 0.5, xunit: '', ymin: -1.25, ymax: 1.25, ystep: 0.5, title: 'Oscilloscope (time, in cycles)' });
+            const ts = Array.from({ length: 241 }, (_, i) => i / 120);
+            curve(ctx, A, ts, ts.map(x => Math.sin(2 * Math.PI * x + t)), css('--c1'), 2);
+            curve(ctx, A, ts, ts.map(x => r.m * Math.sin(2 * Math.PI * x + t + r.p / D)), css('--c2'), 2.4);
+            // peak markers showing the time shift
+            const tin = ((0.25 - t / (2 * Math.PI)) % 1 + 1) % 1, tout = ((0.25 - (t + r.p / D) / (2 * Math.PI)) % 1 + 1) % 1;
+            dot(ctx, A.fx(tin), A.fy(1), css('--c1'), 4); dot(ctx, A.fx(tout), A.fy(r.m), css('--c2'), 4);
+            // Bode
+            ({ ctx, w, h } = fitCanvas(cm, 0.42));
+            let B = axes(ctx, w, h, { xmin: 10, xmax: 1e5, ymin: -40, ymax: 5, ystep: 10, yunit: '', title: 'Gain (dB)', xlabels: false });
+            curve(ctx, B, FS, FS.map(x => 20 * log10(H(x, hp).m)), '#111', 2);
+            vline(ctx, B, FC, '#94a3b8');
+            dot(ctx, B.fx(f), B.fy(20 * log10(r.m)), css('--c2'));
+            ({ ctx, w, h } = fitCanvas(cp, 0.42));
+            B = axes(ctx, w, h, { xmin: 10, xmax: 1e5, ymin: -90, ymax: 90, ystep: 45, yunit: '°', title: 'Phase (degrees)' });
+            curve(ctx, B, FS, FS.map(x => H(x, hp).p), '#111', 2);
+            vline(ctx, B, FC, '#94a3b8');
+            dot(ctx, B.fx(f), B.fy(r.p), css('--c2'));
+            document.getElementById('l1fv').textContent = fmtHz(f);
+            document.getElementById('l1g').textContent = fmt(r.m, 3) + '× input';
+            document.getElementById('l1db').textContent = fmt(20 * log10(r.m), 1) + ' dB';
+            document.getElementById('l1ph').textContent = fmt(r.p, 1) + '° ' + (r.p < -0.5 ? '(behind)' : r.p > 0.5 ? '(ahead)' : '');
+            const dt = -r.p / 360 / f;
+            document.getElementById('l1dt').textContent = (Math.abs(dt) < 1e-3 ? fmt(dt * 1e6, 1) + ' µs' : fmt(dt * 1e3, 2) + ' ms') + (dt > 0 ? ' late' : dt < 0 ? ' early' : '');
+        }
+        function loop() { if (!running) return; t += 0.05; draw(); requestAnimationFrame(loop); }
+        new IntersectionObserver(es => { running = es[0].isIntersecting; if (running) loop(); }).observe(cs);
+        sf.addEventListener('input', () => { if (sweep) cancelAnimationFrame(sweep), sweep = null; draw(); });
+        ty.addEventListener('change', draw);
+        document.getElementById('l1corner').addEventListener('click', () => { sf.value = 3; draw(); });
+        document.getElementById('l1sweep').addEventListener('click', () => {
+            if (sweep) cancelAnimationFrame(sweep);
+            const t0 = performance.now();
+            const step = now => { const k = Math.min(1, (now - t0) / 6000); sf.value = 1 + 4 * k; draw(); sweep = k < 1 ? requestAnimationFrame(step) : null; };
+            sweep = requestAnimationFrame(step);
+        });
+        redraws.push(draw); draw();
+    })();
+
+    // ---------- dB converter ----------
+    (function () {
+        const s = document.getElementById('dbs');
+        function upd() {
+            const r = Math.pow(10, +s.value);
+            document.getElementById('dbv').textContent = '×' + (r < 1 ? fmt(r, 3) : fmt(r, 2));
+            document.getElementById('dbo').textContent = fmt(20 * log10(r), 1) + ' dB';
+            document.getElementById('dbp').textContent = '×' + (r * r < 1 ? fmt(r * r, 4) : fmt(r * r, 1));
+        }
+        s.addEventListener('input', upd); upd();
+    })();
+
+    // ---------- Lab 2: builder ----------
+    const TYPES = {
+        gain:  { name: 'Constant gain', params: [{ k: 'db', label: 'Gain', min: -40, max: 40, step: 0.5, v: 20, show: v => fmt(v, 1) + ' dB (×' + fmt(Math.pow(10, v / 20), 2) + ')' }],
+                 mag: (f, p) => p.db, ph: () => 0, amag: (f, p) => p.db, aph: () => 0 },
+        pole:  { name: 'Pole', params: [{ k: 'f', label: 'Corner', min: -1, max: 5, step: 0.01, v: 3, log: true }],
+                 mag: (f, p) => -10 * log10(1 + (f / p.f) ** 2), ph: (f, p) => -Math.atan(f / p.f) * D,
+                 amag: (f, p) => f < p.f ? 0 : -20 * log10(f / p.f), aph: (f, p) => -ramp(f / p.f) },
+        zero:  { name: 'Zero', params: [{ k: 'f', label: 'Corner', min: -1, max: 5, step: 0.01, v: 2, log: true }],
+                 mag: (f, p) => 10 * log10(1 + (f / p.f) ** 2), ph: (f, p) => Math.atan(f / p.f) * D,
+                 amag: (f, p) => f < p.f ? 0 : 20 * log10(f / p.f), aph: (f, p) => ramp(f / p.f) },
+        integ: { name: 'Integrator', params: [{ k: 'f', label: '0 dB crossing', min: -1, max: 5, step: 0.01, v: 1, log: true }],
+                 mag: (f, p) => -20 * log10(f / p.f), ph: () => -90, amag: (f, p) => -20 * log10(f / p.f), aph: () => -90 },
+        diff:  { name: 'Differentiator', params: [{ k: 'f', label: '0 dB crossing', min: -1, max: 5, step: 0.01, v: 3, log: true }],
+                 mag: (f, p) => 20 * log10(f / p.f), ph: () => 90, amag: (f, p) => 20 * log10(f / p.f), aph: () => 90 },
+        res:   { name: 'Resonance', params: [{ k: 'f', label: 'Natural freq.', min: -1, max: 5, step: 0.01, v: 3, log: true }, { k: 'z', label: 'Damping ζ', min: 0.02, max: 2, step: 0.01, v: 0.1, show: v => fmt(v, 2) }],
+                 mag: (f, p) => { const u = f / p.f; return -10 * log10((1 - u * u) ** 2 + (2 * p.z * u) ** 2); },
+                 ph: (f, p) => { const u = f / p.f; return -Math.atan2(2 * p.z * u, 1 - u * u) * D; },
+                 amag: (f, p) => f < p.f ? 0 : -40 * log10(f / p.f), aph: (f, p) => -2 * ramp(f / p.f) },
+        delay: { name: 'Time delay', params: [{ k: 't', label: 'Delay', min: 0, max: 5, step: 0.01, v: 0.5, show: v => fmt(v, 2) + ' ms' }],
+                 mag: () => 0, ph: (f, p) => -360 * f * p.t / 1000, amag: () => 0, aph: (f, p) => -360 * f * p.t / 1000 }
+    };
+    // straight-line phase: 0 below u=0.1, 90 above u=10, linear in log between
+    function ramp(u) { return u <= 0.1 ? 0 : u >= 10 ? 90 : 45 * (log10(u) + 1); }
+    const PALETTE = ['#1d4ed8', '#dc2626', '#059669', '#7c3aed', '#d97706', '#0891b2', '#db2777'];
+    const PRESETS = {
+        lp: [['pole', { f: 3 }]],
+        hp: [['diff', { f: 3 }], ['pole', { f: 3 }]],
+        bp: [['diff', { f: 2 }], ['pole', { f: 2 }], ['pole', { f: 4 }]],
+        amp: [['gain', { db: 40 }], ['pole', { f: 2 }], ['pole', { f: 4 }]],
+        lead: [['zero', { f: 2 }], ['pole', { f: 3 }]],
+        res: [['res', { f: 3, z: 0.1 }]],
+        motor: [['gain', { db: 20 }], ['integ', { f: 1 }], ['pole', { f: 1.5 }]]
+    };
+    const builder = (function () {
+        const cm = document.getElementById('c2m'), cp = document.getElementById('c2p'), list = document.getElementById('l2blocks');
+        const FS = logspace(-1, 5, 500);
+        let blocks = [], hoverF = null, uid = 0;
+        function make(type, init = {}) {
+            const T = TYPES[type], p = {};
+            T.params.forEach(q => { const v = init[q.k] !== undefined ? init[q.k] : q.v; p[q.k] = q.log ? Math.pow(10, v) : v; p['_' + q.k] = v; });
+            return { id: ++uid, type, p };
+        }
+        function renderList() {
+            list.innerHTML = '';
+            blocks.forEach((b, i) => {
+                const T = TYPES[b.type], col = PALETTE[i % PALETTE.length];
+                const el = document.createElement('div'); el.className = 'block'; el.style.setProperty('--bc', col);
+                el.innerHTML = '<div class="block-head"><span>' + T.name + '</span><button title="Remove">✕</button></div>';
+                el.querySelector('button').onclick = () => { blocks = blocks.filter(x => x !== b); renderList(); draw(); };
+                T.params.forEach(q => {
+                    const c = document.createElement('div'); c.className = 'ctrl';
+                    c.innerHTML = '<label><span>' + q.label + '</span> <span class="val"></span></label><input type="range" min="' + q.min + '" max="' + q.max + '" step="' + q.step + '" value="' + b.p['_' + q.k] + '">';
+                    const inp = c.querySelector('input'), val = c.querySelector('.val');
+                    const show = () => { val.textContent = q.show ? q.show(b.p[q.k]) : fmtHz(b.p[q.k]); };
+                    inp.oninput = () => { b.p['_' + q.k] = +inp.value; b.p[q.k] = q.log ? Math.pow(10, +inp.value) : +inp.value; show(); draw(); };
+                    show(); el.appendChild(c);
+                });
+                list.appendChild(el);
+            });
+            if (!blocks.length) list.innerHTML = '<p class="small muted" style="margin:0">No blocks: the system passes everything unchanged (0 dB, 0°). Add one below.</p>';
+        }
+        function draw() {
+            const parts = document.getElementById('l2parts').checked, asym = document.getElementById('l2asym').checked;
+            const mags = blocks.map(b => FS.map(f => TYPES[b.type].mag(f, b.p)));
+            const phs = blocks.map(b => FS.map(f => TYPES[b.type].ph(f, b.p)));
+            const tm = FS.map((_, i) => mags.reduce((s, m) => s + m[i], 0));
+            const tp = FS.map((_, i) => phs.reduce((s, p) => s + p[i], 0));
+            const am = FS.map(f => blocks.reduce((s, b) => s + TYPES[b.type].amag(f, b.p), 0));
+            const ap = FS.map(f => blocks.reduce((s, b) => s + TYPES[b.type].aph(f, b.p), 0));
+            const mr = niceRange([...tm, ...(parts ? mags.flat() : [])], 20, -120, 100, 3);
+            const pr = niceRange([...tp, ...(parts ? phs.flat() : [])], 90, -540, 270);
+            let { ctx, w, h } = fitCanvas(cm, 0.48);
+            let A = axes(ctx, w, h, { xmin: 0.1, xmax: 1e5, ymin: mr[0], ymax: mr[1], ystep: 20, title: 'Gain (dB)', xlabels: false });
+            if (parts) mags.forEach((m, i) => curve(ctx, A, FS, m, PALETTE[i % PALETTE.length], 1.4));
+            if (asym) curve(ctx, A, FS, am, '#f59e0b', 2, [6, 4]);
+            curve(ctx, A, FS, tm, '#111', 2.6);
+            if (hoverF) vline(ctx, A, hoverF, '#64748b', [2, 3]);
+            cm._A = A;
+            ({ ctx, w, h } = fitCanvas(cp, 0.48));
+            A = axes(ctx, w, h, { xmin: 0.1, xmax: 1e5, ymin: pr[0], ymax: pr[1], ystep: 90, yunit: '°', title: 'Phase (degrees)' });
+            if (parts) phs.forEach((p, i) => curve(ctx, A, FS, p, PALETTE[i % PALETTE.length], 1.4));
+            if (asym) curve(ctx, A, FS, ap, '#f59e0b', 2, [6, 4]);
+            curve(ctx, A, FS, tp, '#111', 2.6);
+            if (hoverF) vline(ctx, A, hoverF, '#64748b', [2, 3]);
+            cp._A = A;
+            if (hoverF) {
+                const m = blocks.reduce((s, b) => s + TYPES[b.type].mag(hoverF, b.p), 0), p = blocks.reduce((s, b) => s + TYPES[b.type].ph(hoverF, b.p), 0);
+                document.getElementById('l2f').textContent = fmtHz(hoverF);
+                document.getElementById('l2g').textContent = fmt(m, 1) + ' dB';
+                document.getElementById('l2p').textContent = fmt(p, 1) + '°';
+            }
+        }
+        function hover(e) {
+            const c = e.currentTarget, A = c._A; if (!A) return;
+            const x = e.clientX - c.getBoundingClientRect().left;
+            const u = (x - A.box.x) / A.box.w; if (u < 0 || u > 1) return;
+            hoverF = Math.pow(10, -1 + 6 * u); draw();
+        }
+        [cm, cp].forEach(c => { c.addEventListener('pointermove', hover); c.addEventListener('pointerdown', hover); });
+        ['l2parts', 'l2asym'].forEach(id => document.getElementById(id).addEventListener('change', draw));
+        document.querySelectorAll('[data-add]').forEach(b => b.addEventListener('click', () => { blocks.push(make(b.dataset.add)); renderList(); draw(); }));
+        const preset = document.getElementById('l2preset');
+        function load(list) { blocks = list.map(([t, init]) => make(t, init)); hoverF = 1000; renderList(); draw(); }
+        preset.addEventListener('change', () => load(PRESETS[preset.value]));
+        load(PRESETS.lp);
+        redraws.push(draw);
+        return { load };
+    })();
+    document.querySelectorAll('[data-try]').forEach(b => b.addEventListener('click', () => {
+        const t = b.dataset.try;
+        builder.load([[t, {}]]);
+        document.getElementById('lab2').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }));
+
+    // ---------- Lab 3: resonance ----------
+    (function () {
+        const cm = document.getElementById('c3m'), cp = document.getElementById('c3p'), ct = document.getElementById('c3t'), sz = document.getElementById('l3z');
+        const FS = logspace(-1, 1, 300);
+        function step(z) { // x'' + 2 z wn x' + wn^2 x = wn^2, wn = 2*pi (1 Hz)
+            const wn = 2 * Math.PI, dt = 0.002, ts = [], ys = []; let x = 0, v = 0;
+            for (let t = 0; t <= 5; t += dt) {
+                ts.push(t); ys.push(x);
+                const a = wn * wn * (1 - x) - 2 * z * wn * v;
+                v += a * dt; x += v * dt;
+            }
+            return { ts, ys };
+        }
+        function draw() {
+            const z = +sz.value;
+            const mag = f => -10 * log10((1 - f * f) ** 2 + (2 * z * f) ** 2), ph = f => -Math.atan2(2 * z * f, 1 - f * f) * D;
+            let { ctx, w, h } = fitCanvas(cm, 0.48);
+            let A = axes(ctx, w, h, { xmin: 0.1, xmax: 10, ymin: -40, ymax: 25, ystep: 10, title: 'Gain (dB) vs frequency ÷ natural frequency', xlabels: false });
+            curve(ctx, A, FS, FS.map(mag), css('--c1'), 2.6); vline(ctx, A, 1, '#94a3b8');
+            ({ ctx, w, h } = fitCanvas(cp, 0.48));
+            A = axes(ctx, w, h, { xmin: 0.1, xmax: 10, ymin: -180, ymax: 0, ystep: 45, yunit: '°', title: 'Phase (degrees)' });
+            curve(ctx, A, FS, FS.map(ph), css('--c1'), 2.6); vline(ctx, A, 1, '#94a3b8');
+            ({ ctx, w, h } = fitCanvas(ct, 0.62));
+            A = axes(ctx, w, h, { xlog: false, xmin: 0, xmax: 5, xstep: 1, xunit: ' s', ymin: 0, ymax: 2, ystep: 0.5, title: 'Output after a sudden step to 1' });
+            hline(ctx, A, 1, '#94a3b8');
+            const r = step(z); curve(ctx, A, r.ts, r.ys, css('--c2'), 2.6);
+            document.getElementById('l3zv').textContent = fmt(z, 2);
+            const pk = z < 1 / Math.SQRT2 ? -20 * log10(2 * z * Math.sqrt(1 - z * z)) : 0;
+            const os = z < 1 ? Math.exp(-Math.PI * z / Math.sqrt(1 - z * z)) * 100 : 0;
+            document.getElementById('l3pk').textContent = pk > 0.05 ? '+' + fmt(pk, 1) + ' dB' : 'none';
+            document.getElementById('l3os').textContent = fmt(os, 1) + ' %';
+            const V = document.getElementById('l3V');
+            V.className = 'verdict ' + (z < 0.3 ? 'bad' : z < 0.55 ? 'ok' : 'good');
+            V.textContent = z < 0.3 ? 'Lightly damped: sharp peak, lots of ringing.' : z < 0.55 ? 'Some overshoot, settles reasonably.' : z <= 1 ? 'Well damped: little or no overshoot.' : 'Overdamped: no overshoot, but sluggish.';
+        }
+        sz.addEventListener('input', draw); redraws.push(draw); draw();
+    })();
+
+    // ---------- Lab 4: stability margins ----------
+    (function () {
+        const cm = document.getElementById('c4m'), cp = document.getElementById('c4p'), ct = document.getElementById('c4t');
+        const sk = document.getElementById('l4k'), st = document.getElementById('l4t');
+        const T1 = 0.5, T2 = 0.1, FS = logspace(-2, 2, 800);
+        function L(f, K, T) {
+            const w = 2 * Math.PI * f;
+            return {
+                m: 20 * log10(K) - 20 * log10(w) - 10 * log10(1 + (w * T1) ** 2) - 10 * log10(1 + (w * T2) ** 2),
+                p: -90 - Math.atan(w * T1) * D - Math.atan(w * T2) * D - w * T * D
+            };
+        }
+        function sim(K, T) {
+            const dt = 0.002, n = Math.round(20 / dt), lag = Math.round(T / dt), ubuf = new Float64Array(n + 1);
+            let x1 = 0, x2 = 0, y = 0; const ts = [], ys = [];
+            for (let i = 0; i <= n; i++) {
+                ubuf[i] = K * (1 - y);
+                const u = i - lag >= 0 ? ubuf[i - lag] : 0;
+                x1 += (u - x1) / T1 * dt; x2 += (x1 - x2) / T2 * dt; y += x2 * dt;
+                if (i % 5 === 0) { ts.push(i * dt); ys.push(y); }
+                if (Math.abs(y) > 1e3) break;
+            }
+            return { ts, ys };
+        }
+        function crossing(arr, target) { // first index where arr crosses target (descending)
+            for (let i = 1; i < arr.length; i++) if ((arr[i - 1] - target) * (arr[i] - target) <= 0 && arr[i - 1] !== arr[i]) {
+                const k = (target - arr[i - 1]) / (arr[i] - arr[i - 1]);
+                return Math.pow(10, log10(FS[i - 1]) + k * (log10(FS[i]) - log10(FS[i - 1])));
+            }
+            return null;
+        }
+        function draw() {
+            const K = Math.pow(10, +sk.value), T = +st.value;
+            const ms = FS.map(f => L(f, K, T).m), ps = FS.map(f => L(f, K, T).p);
+            const fc = crossing(ms, 0), f180 = crossing(ps, -180);
+            const pm = fc ? 180 + L(fc, K, T).p : null, gm = f180 ? -L(f180, K, T).m : null;
+            let { ctx, w, h } = fitCanvas(cm, 0.48);
+            let A = axes(ctx, w, h, { xmin: 0.01, xmax: 100, ymin: -80, ymax: 60, ystep: 20, title: 'Open-loop gain (dB)', xlabels: false });
+            hline(ctx, A, 0, css('--c2'));
+            curve(ctx, A, FS, ms, '#111', 2.6);
+            if (fc) vline(ctx, A, fc, css('--c3'));
+            if (f180) {
+                vline(ctx, A, f180, css('--c4'));
+                ctx.save(); ctx.strokeStyle = css('--c4'); ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.moveTo(A.fx(f180), A.fy(0)); ctx.lineTo(A.fx(f180), A.fy(Math.max(-80, -gm))); ctx.stroke(); ctx.restore();
+            }
+            cm._A = A;
+            ({ ctx, w, h } = fitCanvas(cp, 0.48));
+            A = axes(ctx, w, h, { xmin: 0.01, xmax: 100, ymin: -360, ymax: 0, ystep: 90, yunit: '°', title: 'Open-loop phase (degrees)' });
+            hline(ctx, A, -180, css('--c2'));
+            curve(ctx, A, FS, ps, '#111', 2.6);
+            if (f180) vline(ctx, A, f180, css('--c4'));
+            if (fc) {
+                vline(ctx, A, fc, css('--c3'));
+                ctx.save(); ctx.strokeStyle = css('--c3'); ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.moveTo(A.fx(fc), A.fy(-180)); ctx.lineTo(A.fx(fc), A.fy(Math.max(-360, Math.min(0, -180 + pm)))); ctx.stroke(); ctx.restore();
+            }
+            ({ ctx, w, h } = fitCanvas(ct, 0.62));
+            A = axes(ctx, w, h, { xlog: false, xmin: 0, xmax: 20, xstep: 5, xunit: ' s', ymin: 0, ymax: 2, ystep: 0.5, title: 'Closed-loop output' });
+            hline(ctx, A, 1, '#94a3b8');
+            const r = sim(K, T); curve(ctx, A, r.ts, r.ys, css('--c1'), 2.4);
+            document.getElementById('l4kv').textContent = fmt(K, 2);
+            document.getElementById('l4tv').textContent = fmt(T, 2) + ' s';
+            document.getElementById('l4pm').textContent = pm === null ? '—' : fmt(pm, 1) + '°';
+            document.getElementById('l4gm').textContent = gm === null ? '∞' : fmt(gm, 1) + ' dB';
+            const V = document.getElementById('l4V');
+            const unstable = (pm !== null && pm < 0) || (gm !== null && gm < 0);
+            const p = pm === null ? 90 : pm;
+            V.className = 'verdict ' + (unstable || p < 20 ? 'bad' : p < 45 ? 'ok' : 'good');
+            V.textContent = unstable ? 'Unstable: the loop pushes its own swing and the oscillation grows.'
+                : p < 20 ? 'Barely stable: heavy ringing. Turn the gain down.'
+                : p < 45 ? 'Stable but ringy: noticeable overshoot.'
+                : 'Comfortably stable: smooth, well-behaved response.';
+        }
+        [sk, st].forEach(s => s.addEventListener('input', draw)); redraws.push(draw); draw();
+    })();
+})();
+</script>
+</body>
+</html>

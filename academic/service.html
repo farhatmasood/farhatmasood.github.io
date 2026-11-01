@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rao Farhat Masood — Portfolio</title>
+
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- MathJax for LaTeX Rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Academic Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;1,8..60,400&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+    <!-- Mobile top bar -->
+    <nav class="md:hidden p-4 border-b bg-white flex justify-between items-center sticky top-0 z-50 shadow-sm">
+        <span class="font-bold text-lg">Rao Farhat Masood</span>
+        <button id="mobile-menu-btn" class="text-xl text-gray-700"><i class="fas fa-bars"></i></button>
+    </nav>
+
+    <!-- Mobile dropdown menu -->
+    <div id="mobile-menu" class="md:hidden hidden bg-white border-b shadow-sm sticky top-[57px] z-40">
+        <div class="px-5 py-3">
+            <div class="mode-toggle mb-3">
+                <a class="mode-btn mode-active" data-mode="academic" href="../index.html">Academic</a>
+                <a class="mode-btn" data-mode="professional" href="../professional/profile.html">Professional</a>
+            </div>
+            <div class="nav-group" data-mode="academic">
+                <div class="space-y-1 text-sm uppercase tracking-wider font-semibold">
+                    <a class="tab-link" href="../index.html">About</a>
+                    <a class="tab-link" href="featured.html">Featured</a>
+                    <a class="tab-link" href="publications.html">Publications</a>
+                    <a class="tab-link" href="repositories.html">Repositories</a>
+                    <a class="tab-link" href="research.html">Research</a>
+                    <a class="tab-link" href="hobbies.html">Hobbies</a>
+                    <a class="tab-link tab-active" href="service.html">Service</a>
+                </div>
+            </div>
+            <div class="nav-group hidden" data-mode="professional">
+                <div class="space-y-1 text-sm uppercase tracking-wider font-semibold">
+                    <a class="tab-link" href="../professional/profile.html">Profile</a>
+                    <a class="tab-link" href="../professional/career-path.html">Career Path</a>
+                    <a class="tab-link" href="../professional/experience.html">Experience</a>
+                    <a class="tab-link" href="../professional/competencies.html">Competencies</a>
+                    <a class="tab-link" href="../professional/education.html">Education &amp; Skills</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-12">
+
+            <!-- SIDEBAR (Profile) -->
+            <div class="md:col-span-4 lg:col-span-3">
+                <div class="sidebar text-center md:text-right">
+                    <!-- Profile Image Placeholder -->
+                    <div class="w-40 h-40 mx-auto md:ml-auto md:mr-0 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden mb-5 shadow-sm ring-1 ring-slate-200 flex items-center justify-center">
+                        <i class="fas fa-user text-6xl text-slate-400"></i>
+                    </div>
+
+                    <h1 class="text-2xl font-bold mb-1 tracking-tight">Rao Farhat Masood</h1>
+                    <p id="role-line" class="text-xs text-slate-500 mb-5 leading-relaxed">PhD · Computer Vision &amp; Medical Imaging</p>
+
+                    <div class="flex justify-center md:justify-end gap-4 text-xl text-slate-600 mb-6">
+                        <a href="https://github.com/farhatmasood" title="GitHub" class="hover:text-black transition"><i class="fab fa-github"></i></a>
+                        <a href="https://www.linkedin.com/in/rao-farhat-masood-829966118/" title="LinkedIn" class="hover:text-blue-600 transition"><i class="fab fa-linkedin"></i></a>
+                        <a href="https://scholar.google.com/citations?user=G_uCi0UAAAAJ&hl=en" title="Google Scholar" class="hover:text-blue-800 transition"><i class="fas fa-graduation-cap"></i></a>
+                        <a href="https://orcid.org/0000-0001-9054-9192" title="ORCiD" class="hover:text-green-600 transition"><i class="fab fa-orcid"></i></a>
+                    </div>
+
+                    <!-- Mode toggle -->
+                    <div class="hidden md:flex justify-end mb-6">
+                        <div class="mode-toggle">
+                            <a class="mode-btn mode-active" data-mode="academic" href="../index.html">Academic</a>
+                            <a class="mode-btn" data-mode="professional" href="../professional/profile.html">Professional</a>
+                        </div>
+                    </div>
+
+                    <!-- Desktop Tab Nav -->
+                    <nav class="hidden md:block text-sm uppercase tracking-wider font-semibold">
+                        <div class="nav-group flex flex-col items-end" data-mode="academic">
+                            <a class="tab-link" href="../index.html">About</a>
+                            <a class="tab-link" href="featured.html">Featured</a>
+                            <a class="tab-link" href="publications.html">Publications</a>
+                            <a class="tab-link" href="repositories.html">Repositories</a>
+                            <a class="tab-link" href="research.html">Research</a>
+                            <a class="tab-link" href="hobbies.html">Hobbies</a>
+                            <a class="tab-link tab-active" href="service.html">Service</a>
+                        </div>
+                        <div class="nav-group hidden flex-col items-end" data-mode="professional">
+                            <a class="tab-link" href="../professional/profile.html">Profile</a>
+                            <a class="tab-link" href="../professional/career-path.html">Career Path</a>
+                            <a class="tab-link" href="../professional/experience.html">Experience</a>
+                            <a class="tab-link" href="../professional/competencies.html">Competencies</a>
+                            <a class="tab-link" href="../professional/education.html">Education &amp; Skills</a>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- MAIN CONTENT -->
+            <div class="md:col-span-8 lg:col-span-9 min-h-[60vh]">
+
+                <!-- ACADEMIC SERVICE (REVIEWER METER) -->
+                <section id="service" class="tab-section" data-mode="academic">
+                    <h2 class="section-title">Academic Service</h2>
+
+                    <div class="flex flex-col gap-8 w-full">
+                        <!-- Summary Card -->
+                        <div class="bg-gray-900 text-white rounded-xl p-6 flex flex-col items-center justify-center text-center shadow-lg w-full">
+                            <div class="text-5xl font-bold mb-2">76</div>
+                            <div class="text-sm uppercase tracking-wide opacity-80 mb-4">Verified Peer Reviews</div>
+                            <div class="w-full bg-gray-700 h-1 rounded mb-4"></div>
+                            <div class="text-xs opacity-60">
+                                Springer Nature • Elsevier • IEEE
+                            </div>
+                        </div>
+
+
+                        <!-- Reviewer Meter -->
+                        <div class="w-full bg-gray-50 border rounded-xl p-6 overflow-x-hidden">
+                            <h3 class="font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-chart-bar mr-2 text-blue-600"></i> Review Activity by Journal
+                            </h3>
+
+                            <div class="space-y-4">
+                                <!-- BMC Medical Imaging -->
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="font-medium">BMC Medical Imaging</span>
+                                        <span class="text-gray-500">20 reviews</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-blue-600 h-2.5 rounded-full meter-bar" style="width: 100%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Journal of Imaging Informatics in Medicine -->
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="font-medium">J. Imaging Informatics in Medicine</span>
+                                        <span class="text-gray-500">10 reviews</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-blue-500 h-2.5 rounded-full meter-bar" style="width: 50%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- BMC Musculoskeletal Disorders -->
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="font-medium">BMC Musculoskeletal Disorders</span>
+                                        <span class="text-gray-500">9 reviews</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-blue-400 h-2.5 rounded-full meter-bar" style="width: 45%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- The Visual Computer -->
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="font-medium">The Visual Computer</span>
+                                        <span class="text-gray-500">8 reviews</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-blue-400 h-2.5 rounded-full meter-bar" style="width: 40%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Data in Brief -->
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="font-medium">Data in Brief</span>
+                                        <span class="text-gray-500">6 reviews</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-blue-300 h-2.5 rounded-full meter-bar" style="width: 30%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Journal of Orthopaedic Surgery and Research -->
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="font-medium">J. Orthopaedic Surgery &amp; Research</span>
+                                        <span class="text-gray-500">4 reviews</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-blue-300 h-2.5 rounded-full meter-bar" style="width: 20%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Nature - Scientific Reports -->
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="font-medium">Nature - Scientific Reports</span>
+                                        <span class="text-gray-500">3 reviews</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-blue-200 h-2.5 rounded-full meter-bar" style="width: 15%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Elsevier Academic Radiology -->
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="font-medium text-gray-900">Elsevier Academic Radiology</span>
+                                        <span class="text-gray-500">3 reviews</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-blue-200 h-2.5 rounded-full meter-bar" style="width: 15%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Medical Image Analysis -->
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="font-medium text-gray-900">Medical Image Analysis (MIA)</span>
+                                        <span class="text-gray-500">2 reviews</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-indigo-600 h-2.5 rounded-full meter-bar" style="width: 10%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- One Review Journals -->
+                                <div class="grid grid-cols-2 gap-4 mt-2">
+                                    <div>
+                                        <div class="flex justify-between text-xs mb-1">
+                                            <span class="text-gray-600">BMC Engg Online</span>
+                                            <span class="text-gray-400">1</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                            <div class="bg-gray-400 h-1.5 rounded-full meter-bar" style="width: 5%"></div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="flex justify-between text-xs mb-1">
+                                            <span class="text-gray-600">BMC Medical Informatics and Decision Making</span>
+                                            <span class="text-gray-400">1</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                            <div class="bg-gray-400 h-1.5 rounded-full meter-bar" style="width: 5%"></div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="flex justify-between text-xs mb-1">
+                                            <span class="text-gray-600">Signal, Image and Video Processing</span>
+                                            <span class="text-gray-400">1</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                            <div class="bg-gray-400 h-1.5 rounded-full meter-bar" style="width: 5%"></div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="flex justify-between text-xs mb-1">
+                                            <span class="text-gray-600">Artificial Intelligence In Medicine</span>
+                                            <span class="text-gray-400">1</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                            <div class="bg-gray-400 h-1.5 rounded-full meter-bar" style="width: 5%"></div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="flex justify-between text-xs mb-1">
+                                            <span class="text-gray-600">Engineering Applications of Artificial Intelligence</span>
+                                            <span class="text-gray-400">1</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                            <div class="bg-gray-400 h-1.5 rounded-full meter-bar" style="width: 5%"></div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="flex justify-between text-xs mb-1">
+                                            <span class="text-gray-600">JBHI</span>
+                                            <span class="text-gray-400">1</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                            <div class="bg-gray-400 h-1.5 rounded-full meter-bar" style="width: 5%"></div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="flex justify-between text-xs mb-1">
+                                            <span class="text-gray-600">JMIR AI</span>
+                                            <span class="text-gray-400">1</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                            <div class="bg-gray-400 h-1.5 rounded-full meter-bar" style="width: 5%"></div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="flex justify-between text-xs mb-1">
+                                            <span class="text-gray-600">Springer Cluster Computing</span>
+                                            <span class="text-gray-400">1</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                            <div class="bg-gray-400 h-1.5 rounded-full meter-bar" style="width: 5%"></div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="flex justify-between text-xs mb-1">
+                                            <span class="text-gray-600">Nature npj Digital Medicine</span>
+                                            <span class="text-gray-400">1</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                            <div class="bg-gray-400 h-1.5 rounded-full meter-bar" style="width: 5%"></div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="flex justify-between text-xs mb-1">
+                                            <span class="text-gray-600">Nature Scientific Data</span>
+                                            <span class="text-gray-400">1</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                            <div class="bg-gray-400 h-1.5 rounded-full meter-bar" style="width: 5%"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <div class="flex justify-between text-xs mb-1">
+                                            <span class="text-gray-600">Frontiers in Medicine</span>
+                                            <span class="text-gray-400">1</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                            <div class="bg-gray-400 h-1.5 rounded-full meter-bar" style="width: 5%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Year-wise Reviewer Meter -->
+                        <div class="w-full bg-gray-50 border rounded-xl p-6 overflow-x-hidden mt-6">
+                            <h3 class="font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-calendar-alt mr-2 text-blue-600"></i> Review Activity by Year
+                            </h3>
+
+                            <div class="space-y-4">
+                                <!-- 2022 -->
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="font-medium">2022</span>
+                                        <span class="text-gray-500">6 reviews</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-blue-300 h-2.5 rounded-full meter-bar" style="width: 19%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- 2023 -->
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="font-medium">2023</span>
+                                        <span class="text-gray-500">15 reviews</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-blue-500 h-2.5 rounded-full meter-bar" style="width: 48%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- 2024 -->
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="font-medium">2024</span>
+                                        <span class="text-gray-500">13 reviews</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-blue-400 h-2.5 rounded-full meter-bar" style="width: 42%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- 2025 -->
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="font-medium">2025</span>
+                                        <span class="text-gray-500">11 reviews</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-blue-400 h-2.5 rounded-full meter-bar" style="width: 35%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- 2026 -->
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="font-medium">2026 – Present</span>
+                                        <span class="text-gray-500">31 reviews</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-blue-600 h-2.5 rounded-full meter-bar" style="width: 100%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Academic Service -->
+                        <div class="card p-6">
+                            <h3 class="font-bold text-gray-800 mb-3 flex items-center">
+                                <i class="fas fa-user-check mr-2 text-blue-600"></i>
+                                Academic Service (2022 – Present)
+                            </h3>
+
+                            <div class="text-sm text-gray-600 space-y-2">
+                                <p>
+                                    <strong class="text-gray-800">Final Year Project Mentor:</strong>
+                                    <em>Mentored undergraduate Final Year Projects in AI-assisted medical image analysis, biomedical engineering, healthcare monitoring, experimental design, clinical validation, and scientific communication.</em>
+                                </p>
+
+                                <p>
+                                    <strong class="text-gray-800">Technical Evaluator:</strong>
+                                    <em>Evaluated undergraduate Final Year Projects, with emphasis on biomedical engineering, clinical systems, technical feasibility, validation, and project documentation.</em>
+                                </p>
+
+                                <p>
+                                    <strong class="text-gray-800">Industrial Internship Mentor:</strong>
+                                    <em>Mentored engineering students and trainees during hospital and clinical-engineering placements, providing practical exposure to medical equipment lifecycle management, maintenance, safety, procurement, and hospital operations.</em>
+                                </p>
+
+                                <p>
+                                    <strong class="text-gray-800">Clinical Engineering Educator:</strong>
+                                    <em>Delivered the Special Equipment Course (Electromedical) at the College of EME, NUST, covering healthcare equipment management, lifecycle planning, and clinical engineering governance.</em>
+                                </p>
+
+                                <p>
+                                    <strong class="text-gray-800">Scientific Peer Reviewer:</strong>
+                                    <em>Reviewer for Medical Image Analysis, Artificial Intelligence in Medicine, Scientific Reports, BMC Medical Imaging, Journal of Imaging Informatics in Medicine, Frontiers in Surgery, and related journals.</em>
+                                </p>
+
+                                <p class="pt-1">
+                                    <strong class="text-gray-800">Technical Judge:</strong>
+                                    <em>AI/ML Hackathons — Healthcare AI and Clinical Systems, CUST, 2024–2025.</em>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- FOOTER -->
+                <footer class="border-t mt-16 pt-8 text-sm text-gray-500 flex justify-between items-center">
+                    <div>&copy; 2026 Rao Farhat Masood.</div>
+                    <div class="text-xs">Last updated: Oct, 2026</div>
+                </footer>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>
